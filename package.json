@@ -38,5 +38,9 @@
     "nodemon": "^3.1.14",
     "prettier": "^3.8.1",
     "supertest": "^7.2.2"
-  }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": []
 }
