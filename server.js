@@ -1,16 +1,16 @@
 const app = require("./app");
 const db = require("./db/db");
+
 const PORT = 3000;
 
-try {
-  db.getConnection((err) => {
-    console.log("ERRO DO MYSQL2 " + err);
-  });
-  console.log("Banco conectado");
-} catch (erro) {
-  console.log("DEU RUIM CONNECTING TO BD:", erro);
-}
+db.getConnection((err) => {
+  if (err) {
+    console.log("Erro ao conectar no banco:", err);
+  } else {
+    console.log("Banco conectado com sucesso");
+  }
+});
 
 app.listen(PORT, () => {
-  console.log("O servidor está rodando na porta " + PORT);
+  console.log("Servidor rodando em http://localhost:" + PORT);
 });
