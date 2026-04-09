@@ -70,7 +70,6 @@ O sistema foi projetado com foco em:
 - Node.js
 - Express
 - Banco de dados relacional (MySQL/PostgreSQL)
-- ORM (Prisma / Sequelize / TypeORM)
 - JWT (autenticação futura)
 
 ---
@@ -144,7 +143,6 @@ npm run format
 
 npm run lint
 ```
-
 
 4. Commit:
 
