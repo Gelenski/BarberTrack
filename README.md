@@ -174,29 +174,18 @@ git push origin feature/minha-feature
 
 ### 📏 Padrões de commit
 
-- feat: nova funcionalidade  
-- fix: correção de bug  
-- refactor: melhoria de código  
-- docs: documentação  
-- test: testes  
-- chore: tarefas gerais  
-
----
-
-## 🧭 Roadmap
-
-- [ ] Sistema de autenticação completo
-- [ ] Painel administrativo
-- [ ] Integração com pagamentos
-- [ ] Notificações (email/WhatsApp)
-- [ ] Aplicativo mobile
+- feat: nova funcionalidade
+- fix: correção de bug
+- refactor: melhoria de código
+- docs: documentação
+- test: testes
+- chore: tarefas gerais
 
 ---
 
 ## 👨‍💻 Autores
 
-Adrian 
+Adrian
 
 Lucas (Gelenski)  
 https://github.com/Gelenski
-
