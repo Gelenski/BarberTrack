@@ -187,5 +187,8 @@ git push origin feature/minha-feature
 
 Adrian
 
+Carlos (carlosLopes79)
+https://github.com/carlosLopes79
+
 Lucas (Gelenski)  
 https://github.com/Gelenski
