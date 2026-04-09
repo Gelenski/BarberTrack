@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BarberTrack</title>
+    <script src="index.js" defer></script>
   </head>
   <body>
     <select id="escolha">
@@ -11,6 +12,7 @@
       <option value="2">Errado</option>
     </select>
 
+    <span id="teste"></span>
     <button id="uqarenta">EnvioTESTE</button>
     <div class="login-box">
       <h1>Login</h1>
@@ -35,6 +37,14 @@
         <a href="/barbearia/cadastro">Cadastrar como Barbearia</a>
       </form>
     </div>
-    <script type="script" src="index.js"></script>
+    <script>
+      let opcao = document.getElementById("escolha").value;
+      let botao = document.getElementById("uqarenta");
+      let caixa = document.getElementById("teste");
+
+      botao.addEventListener("click", () => {
+        caixa.innerHTML = "TESTE";
+      });
+    </script>
   </body>
 </html>
