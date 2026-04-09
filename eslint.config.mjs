@@ -19,7 +19,12 @@ export default defineConfig([
     },
   },
   {
-    files: ["tests/**/*.js", "**/*.test.js", "**/*.spec.js"],
+    files: [
+      "tests/**/*.js",
+      "**/*.test.js",
+      "**/*.spec.js",
+      "**/__mocks__/**/*.js",
+    ],
     ...jest.configs["flat/recommended"],
     languageOptions: {
       globals: {
