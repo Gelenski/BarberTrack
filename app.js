@@ -8,5 +8,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/", require("./routes/index"));
 app.use("/auth", require("./routes/auth"));
+app.use("/barbearia", require("./routes/barbearia"));
 
 module.exports = app;
