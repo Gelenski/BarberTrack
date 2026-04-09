@@ -104,25 +104,7 @@ npm install
 
 ### 🔐 Variáveis de ambiente
 
-Crie um arquivo `.env` baseado no `.env.example`:
-
-```env
-DATABASE_URL=
-JWT_SECRET=
-PORT=3000
-```
-
----
-
-### 🗄️ Configurando o banco
-
-```bash
-# Rodar migrations
-npx prisma migrate dev
-
-# Popular banco (opcional)
-npx prisma db seed
-```
+Crie um arquivo `.env` baseado no `.env.example`
 
 ---
 
@@ -155,10 +137,19 @@ Contribuições são bem-vindas.
 git checkout -b feature/minha-feature
 ```
 
-3. Faça suas alterações
+3. Faça suas alterações e rode:
+
+```bash
+npm run format
+
+npm run lint
+```
+
+
 4. Commit:
 
 ```bash
+git add .
 git commit -m "feat: adiciona nova funcionalidade"
 ```
 
