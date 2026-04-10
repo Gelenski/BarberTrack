@@ -12,13 +12,13 @@ describe("Rotas de Cliente", () => {
 
   // * TESTE DE CADASTRO
 
-  describe("POST /cliente/registrar", () => {
+  describe("POST /cliente/cadastro", () => {
     it("deve cadastrar um usuário com sucesso", async () => {
       db.execute
         .mockResolvedValueOnce([[]]) // SELECT (email não existe)
         .mockResolvedValueOnce([{ insertId: 1 }]); // INSERT
 
-      const res = await request(app).post("/cliente/registrar").send({
+      const res = await request(app).post("/cliente/cadastro").send({
         nome: "Lucas",
         sobrenome: "Silva",
         email: "lucas@email.com",
@@ -34,7 +34,7 @@ describe("Rotas de Cliente", () => {
     it("deve retornar erro se email já existe", async () => {
       db.execute.mockResolvedValueOnce([[{ id: 1 }]]); // email já existe
 
-      const res = await request(app).post("/cliente/registrar").send({
+      const res = await request(app).post("/cliente/cadastro").send({
         nome: "Lucas",
         sobrenome: "Silva",
         email: "lucas@email.com",

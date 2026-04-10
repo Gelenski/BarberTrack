@@ -10,7 +10,7 @@ router.get("/cadastro", (req, res) => {
   );
 });
 
-router.post("/registrar", async (req, res) => {
+router.post("/cadastro", async (req, res) => {
   try {
     const { nome, sobrenome, email, telefone, senha } = req.body;
 
