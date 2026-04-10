@@ -90,7 +90,7 @@ router.post("/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
 
-    const [rows] = await db.execute("SELECT * FROM barbearia WHERE email = ?", [
+    const [rows] = await db.execute("SELECT email, senha FROM barbearia WHERE email = ?", [
       email,
     ]);
 
