@@ -9,16 +9,27 @@
     <div class="cadastro-box">
       <h1>Cadastro de Barbearia</h1>
       <form action="/barbearia/cadastro" method="POST">
-        <label>Nome</label>
+        <label>Nome Fantasia</label>
         <input
           type="text"
-          name="nome"
+          name="nome_fantasia"
           placeholder="Nome da barbearia"
+          required
+        />
+
+        <label>Razão Social</label>
+        <input
+          type="text"
+          name="razao_social"
+          placeholder="Razão Social"
           required
         />
 
         <label>CNPJ</label>
         <input type="text" name="cnpj" placeholder="CNPJ" required />
+
+        <label>Email</label>
+        <input type="email" name="email" placeholder="Email" required />
 
         <label>Telefone</label>
         <input type="text" name="telefone" placeholder="Telefone" required />

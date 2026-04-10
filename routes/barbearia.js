@@ -82,4 +82,39 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
+router.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/pages/login/index.html"));
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+
+    const [rows] = await db.execute(
+      "SELECT email, senha FROM barbearia WHERE email = ?",
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Email ou senha incorretos" });
+    }
+
+    const barbearia = rows[0];
+
+    const senhaValida = await bcrypt.compare(senha, barbearia.senha);
+
+    if (!senhaValida) {
+      return res.status(401).json({ error: "Email ou senha incorretos" });
+    }
+
+    return res.status(200).json({
+      message: "Login realizado com sucesso!",
+      barbearia: { id: barbearia.id, nome: barbearia.nome },
+    });
+  } catch (erro) {
+    console.error(erro);
+    return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+});
+
 module.exports = router;
