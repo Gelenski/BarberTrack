@@ -90,9 +90,10 @@ router.post("/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
 
-    const [rows] = await db.execute("SELECT email, senha FROM barbearia WHERE email = ?", [
-      email,
-    ]);
+    const [rows] = await db.execute(
+      "SELECT email, senha FROM barbearia WHERE email = ?",
+      [email]
+    );
 
     if (rows.length === 0) {
       return res.status(401).json({ error: "Email ou senha incorretos" });
