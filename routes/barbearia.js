@@ -15,6 +15,29 @@ router.post("/cadastro", async (req, res) => {
     const { nome_fantasia, razao_social, cnpj, email, telefone, senha } =
       req.body;
 
+    //implementacção de verificação email e telefoneru
+
+    const [emailExistente] = await db.execute(
+      "SELECT id FROM barbearia WHERE email = ?",
+      [email]
+    );
+    if (emailExistente.length > 0) {
+      return res.status(409).json({
+        error: "Email informado já está em uso",
+      });
+    }
+
+    const [telefoneExistente] = await db.execute(
+      "SELECT id FROM barbearia WHERE telefone = ?"
+    );
+    if (telefoneExistente.length > 0) {
+      return res.status(409).json({
+        error: "Telefone informado já está em uso",
+      });
+    }
+
+    //fim da nova implementação teste
+
     if (!nome_fantasia || !razao_social || !cnpj || !senha) {
       return res.status(400).json({
         error: "nome_fantasia, razao_social, cnpj e senha são obrigatórios",
