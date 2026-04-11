@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let usuario = { nome, sobrenome, email, telefone, senha };
-    console.log(usuario);
+
     try {
       // Feedback de loading
       btn.disabled = true;
