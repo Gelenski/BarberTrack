@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     name: "barbertrack.sid",
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "secret-test",
     resave: false,
     saveUninitialized: false,
     cookie: {
