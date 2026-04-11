@@ -1,13 +1,41 @@
 const express = require("express");
+const session = require("express-session");
 const path = require("path");
+const dotenv = require("dotenv");
 const app = express();
+
+dotenv.config();
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(
+  session({
+    name: "barbertrack.sid",
+    secret: process.env.SESSION_SECRET || "secret-test",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  })
+);
+
 app.use("/", require("./routes/index"));
 app.use("/auth", require("./routes/auth"));
 app.use("/barbearia", require("./routes/barbearia"));
 
+app.get("/teste-user", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Não autenticado" });
+  }
+  res.json({
+    message: "Usuário autenticado",
+    user: req.session.user,
+  });
+});
 module.exports = app;
