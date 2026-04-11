@@ -61,7 +61,10 @@ router.post("/cadastro", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, senha } = req.body;
+    let { email, senha } = req.body;
+
+    email = email.trim().toLowerCase();
+    senha = senha.trim();
 
     if (!email || !senha) {
       return res.status(400).json({
@@ -90,8 +93,14 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    const safeUser = {
+      id: user.id,
+      nome: user.nome,
+      email: user.email,
+    };
+
     // * Criação da sessão ao login
-    createSession(req, user, "cliente", (err) => {
+    createSession(req, safeUser, "cliente", (err) => {
       if (err) {
         console.error("Erro ao iniciar sessão:", err);
         return res.status(500).json({
@@ -101,11 +110,7 @@ router.post("/login", async (req, res) => {
 
       return res.status(200).json({
         message: "Login realizado com sucesso.",
-        user: {
-          id: user.id,
-          nome: user.nome,
-          email: user.email,
-        },
+        user: safeUser,
       });
     });
   } catch (erro) {
@@ -114,22 +119,6 @@ router.post("/login", async (req, res) => {
       error: "Erro interno do servidor",
     });
   }
-});
-
-// * ROTA DE TESTE DE SESSÃO
-
-router.get("/teste", (req, res) => {
-  if (!req.session || !req.session.user) {
-    return res.status(401).json({
-      authenticated: false,
-      error: "Usuário não autenticado",
-    });
-  }
-
-  return res.status(200).json({
-    authenticated: true,
-    user: req.session.user,
-  });
 });
 
 module.exports = router;
