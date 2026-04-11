@@ -1,42 +1,36 @@
- //Elementos DOM
+//Elementos DOM
 
- const formLogin = document.getElementById("form");
- const emailLogin = document.getElementById("email");
- const senhaLogin = document.getElementById("senha");
+const formLogin = document.getElementById("form");
+const emailLogin = document.getElementById("email");
+const senhaLogin = document.getElementById("senha");
 
- const btnLogin = document.getElementById("btn-entrar")
+formLogin.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
- formLogin.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  const dadosLogin = {
+    email: emailLogin.value,
+    senha: senhaLogin.value,
+  };
 
-    const dadosLogin = {
-        email : emailLogin.value,
-        senha : senhaLogin.value
+  try {
+    const resposta = await fetch("/barbearia/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dadosLogin),
+    });
 
+    const resultado = await resposta.json();
+
+    if (resposta.ok) {
+      alert("Login realizado com sucesso");
+    } else {
+      alert(
+        "Erro no login: " + (resultado.error || "Verifique suas credencias")
+      );
     }
-
-    try {
-        const resposta = await fetch ("/barbearia/login", {
-            method : "POST",
-            headers : {
-                "Content-Type" : "application/json"
-            },
-            body: JSON.stringify(dadosLogin)
-        })
-
-        const resultado = await resposta.json();
-
-        if (resposta.ok) {
-            alert("Login realizado com sucesso")
-
-            
-
-        } else {
-            alert ("Erro no login: " + (resultado.error || "Verifique suas credencias"
-            ))
-        }    
-    }
-    catch (erro) {
-        console.log("Erro na conexão", erro)
-    }
- })
+  } catch (erro) {
+    console.log("Erro na conexão", erro);
+  }
+});
