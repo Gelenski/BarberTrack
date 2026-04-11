@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 const router = express.Router();
 const db = require("../db/db");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
 router.get("/cadastro", (req, res) => {
   res.sendFile(
@@ -17,7 +17,11 @@ router.post("/cadastro", async (req, res) => {
     if (!nome || nome.length < 2 || !/^[A-Za-zÀ-ÿ\s'-]+$/.test(nome.trim())) {
       return res.status(400).json({ error: "Nome inválido." });
     }
-    if (!sobrenome || sobrenome.length < 2 || !/^[A-Za-zÀ-ÿ\s'-]+$/.test(sobrenome.trim())) {
+    if (
+      !sobrenome ||
+      sobrenome.length < 2 ||
+      !/^[A-Za-zÀ-ÿ\s'-]+$/.test(sobrenome.trim())
+    ) {
       return res.status(400).json({ error: "Sobrenome inválido." });
     }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
@@ -28,7 +32,9 @@ router.post("/cadastro", async (req, res) => {
       return res.status(400).json({ error: "Telefone inválido." });
     }
     if (!senha || senha.length < 8) {
-      return res.status(400).json({ error: "Senha deve ter no mínimo 8 caracteres." });
+      return res
+        .status(400)
+        .json({ error: "Senha deve ter no mínimo 8 caracteres." });
     }
 
     const [clienteExiste] = await db.execute(
@@ -56,7 +62,7 @@ router.post("/cadastro", async (req, res) => {
       },
     });
   } catch (erro) {
-    console.error('Detalhes do erro:', erro.message);
+    console.error("Detalhes do erro:", erro.message);
     console.error("Erro no cadastro:", erro);
     return res.status(500).json({
       error: "Erro interno do servidor",
