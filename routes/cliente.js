@@ -3,12 +3,15 @@ const path = require("path");
 const router = express.Router();
 const db = require("../db/db");
 const bcrypt = require("bcrypt");
+const createSession = require("../utils/createSession");
 
 router.get("/cadastro", (req, res) => {
   res.sendFile(
     path.join(__dirname, "../public/pages/cadastro_cliente/index.html")
   );
 });
+
+// * --- ROTA DE CADASTRO DE CLIENTE ---
 
 router.post("/cadastro", async (req, res) => {
   try {
@@ -54,6 +57,8 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
+// * --- ROTA DE LOGIN DE CLIENTE ---
+
 router.post("/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
@@ -85,13 +90,23 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    return res.status(200).json({
-      message: "Login realizado com sucesso.",
-      user: {
-        id: user.id,
-        nome: user.nome,
-        email: user.email,
-      },
+    // * Criação da sessão ao login
+    createSession(req, user, "cliente", (err) => {
+      if (err) {
+        console.error("Erro ao iniciar sessão:", err);
+        return res.status(500).json({
+          error: "Erro ao iniciar sessão",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Login realizado com sucesso.",
+        user: {
+          id: user.id,
+          nome: user.nome,
+          email: user.email,
+        },
+      });
     });
   } catch (erro) {
     console.log("Erro interno no login do cliente:", erro);
@@ -99,6 +114,22 @@ router.post("/login", async (req, res) => {
       error: "Erro interno do servidor",
     });
   }
+});
+
+// * ROTA DE TESTE DE SESSÃO
+
+router.get("/teste", (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({
+      authenticated: false,
+      error: "Usuário não autenticado",
+    });
+  }
+
+  return res.status(200).json({
+    authenticated: true,
+    user: req.session.user,
+  });
 });
 
 module.exports = router;
