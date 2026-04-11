@@ -116,7 +116,7 @@ router.post("/login", async (req, res) => {
     const { email, senha } = req.body;
 
     const [rows] = await db.execute(
-      "SELECT email, senha FROM barbearia WHERE email = ?",
+      "SELECT id, nome_fantasia, email, senha FROM barbearia WHERE email = ?",
       [email]
     );
 
@@ -132,8 +132,14 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Email ou senha incorretos" });
     }
 
+    const safeBarbearia = {
+      id: barbearia.id,
+      nome: barbearia.nome_fantasia,
+      email: barbearia.email,
+    };
+
     // * Criação da sessão ao login
-    createSession(req, barbearia, "barbearia", (err) => {
+    createSession(req, safeBarbearia, "barbearia", (err) => {
       if (err) {
         console.error("Erro ao iniciar sessão:", err);
         return res.status(500).json({
@@ -143,7 +149,7 @@ router.post("/login", async (req, res) => {
 
       return res.status(200).json({
         message: "Login realizado com sucesso.",
-        user: barbearia,
+        user: safeBarbearia,
       });
     });
   } catch (erro) {
