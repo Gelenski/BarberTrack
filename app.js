@@ -27,6 +27,7 @@ app.use(
 
 app.use("/", require("./routes/index"));
 app.use("/auth", require("./routes/auth"));
+app.use("/barbearia", require("./routes/barbearia"));
 
 app.get("/teste-user", (req, res) => {
   if (!req.session.user) {

@@ -8,42 +8,62 @@
   <body>
     <div class="cadastro-box">
       <h1>Cadastro de Barbearia</h1>
-      <form action="" method="post">
-        <label for="nome">Nome</label>
+      <form action="/barbearia/cadastro" method="POST">
+        <label>Nome Fantasia</label>
         <input
           type="text"
-          id="nome"
-          placeholder="Insira o nome da barbearia"
+          name="nome_fantasia"
+          placeholder="Nome da barbearia"
           required
         />
 
-        <label for="email">Email</label>
+        <label>Razão Social</label>
         <input
-          type="email"
-          id="email"
-          placeholder="Insira o email da barbearia"
+          type="text"
+          name="razao_social"
+          placeholder="Razão Social"
           required
         />
 
-        <label for="senha">Senha</label>
+        <label>CNPJ</label>
+        <input type="text" name="cnpj" placeholder="CNPJ" required />
+
+        <label>Email</label>
+        <input type="email" name="email" placeholder="Email" required />
+
+        <label>Telefone</label>
+        <input type="text" name="telefone" placeholder="Telefone" required />
+
+        <label>Senha</label>
+        <input type="password" name="senha" placeholder="Senha" required />
+
+        <label>Confirmar Senha</label>
         <input
           type="password"
-          id="senha"
-          placeholder="Insira a sua senha"
+          id="confirmarSenha"
+          placeholder="Confirme a senha"
           required
         />
 
-        <label for="confirmar-senha">Confirmar Senha</label>
-        <input
-          type="password"
-          id="confirmar-senha"
-          placeholder="Confirme a sua senha"
-          required
-        />
-
-        <button id="btn-cadastrar">Cadastrar</button>
-        <a href="/login">Já tenho uma conta</a>
+        <button type="submit">Cadastrar</button>
       </form>
+
+      <br />
+      <a href="/login">Já tenho uma conta</a>
     </div>
+
+    <!--  Validação da senha no front (senhas iguais, para nao add senhas difrentes no confirmar senha) -->
+    <script>
+      const form = document.querySelector("form");
+      const senha = document.querySelector('input[name="senha"]');
+      const confirmar = document.getElementById("confirmarSenha");
+
+      form.addEventListener("submit", function (e) {
+        if (senha.value !== confirmar.value) {
+          e.preventDefault();
+          alert("As senhas não coincidem!");
+        }
+      });
+    </script>
   </body>
 </html>
