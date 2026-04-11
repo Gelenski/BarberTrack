@@ -3,7 +3,10 @@ const path = require("path");
 const router = express.Router();
 const db = require("../db/db");
 const bcrypt = require("bcrypt");
+<<<<<<< HEAD
+=======
 const createSession = require("../utils/createSession");
+>>>>>>> 21afcab380d6c4fec9ec9c4ec5f34c85be87876c
 
 router.get("/cadastro", (req, res) => {
   res.sendFile(
@@ -11,22 +14,56 @@ router.get("/cadastro", (req, res) => {
   );
 });
 
+<<<<<<< HEAD
+=======
 // * --- ROTA DE CADASTRO DE CLIENTE ---
 
+>>>>>>> 21afcab380d6c4fec9ec9c4ec5f34c85be87876c
 router.post("/cadastro", async (req, res) => {
   try {
     const { nome, sobrenome, email, telefone, senha } = req.body;
 
+<<<<<<< HEAD
+    if (!nome || nome.length < 2 || !/^[A-Za-zÀ-ÿ\s'-]+$/.test(nome.trim())) {
+      return res.status(400).json({ error: "Nome inválido." });
+    }
+    if (
+      !sobrenome ||
+      sobrenome.length < 2 ||
+      !/^[A-Za-zÀ-ÿ\s'-]+$/.test(sobrenome.trim())
+    ) {
+      return res.status(400).json({ error: "Sobrenome inválido." });
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+      return res.status(400).json({ error: "Email inválido." });
+    }
+    const digits = telefone?.replace(/\D/g, "");
+    if (!digits || digits.length < 10 || digits.length > 11) {
+      return res.status(400).json({ error: "Telefone inválido." });
+    }
+    if (!senha || senha.length < 8) {
+      return res
+        .status(400)
+        .json({ error: "Senha deve ter no mínimo 8 caracteres." });
+=======
     if (!nome || !sobrenome || !email || !telefone || !senha) {
       return res.status(400).json({
         error: "Todos os campos são obrigatórios.",
       });
+>>>>>>> 21afcab380d6c4fec9ec9c4ec5f34c85be87876c
     }
 
     const [clienteExiste] = await db.execute(
       "SELECT id FROM cliente WHERE email = ?",
       [email]
     );
+<<<<<<< HEAD
+    if (clienteExiste.length > 0) {
+      return res.status(409).json({
+        error: "Email já cadastrado",
+      });
+    }
+=======
 
     if (clienteExiste.length > 0) {
       return res.status(409).json({
@@ -34,6 +71,7 @@ router.post("/cadastro", async (req, res) => {
       });
     }
 
+>>>>>>> 21afcab380d6c4fec9ec9c4ec5f34c85be87876c
     const senhaHash = await bcrypt.hash(senha, 10);
 
     const [result] = await db.execute(
@@ -50,6 +88,10 @@ router.post("/cadastro", async (req, res) => {
       },
     });
   } catch (erro) {
+<<<<<<< HEAD
+    console.error("Detalhes do erro:", erro.message);
+=======
+>>>>>>> 21afcab380d6c4fec9ec9c4ec5f34c85be87876c
     console.error("Erro no cadastro:", erro);
     return res.status(500).json({
       error: "Erro interno do servidor",
@@ -57,6 +99,8 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
+=======
 // * --- ROTA DE LOGIN DE CLIENTE ---
 
 router.post("/login", async (req, res) => {
@@ -121,4 +165,5 @@ router.post("/login", async (req, res) => {
   }
 });
 
+>>>>>>> 21afcab380d6c4fec9ec9c4ec5f34c85be87876c
 module.exports = router;

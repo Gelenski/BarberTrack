@@ -6,12 +6,28 @@
     <script src="script.js" defer></script>
     <title>BarberTrack</title>
   </head>
+
   <body>
     <div class="cadastro-box">
       <h1>Cadastro de Cliente</h1>
-      <form action="" method="post">
+      <form action="/cliente/cadastro" method="post">
         <label for="nome">Nome</label>
-        <input type="text" id="nome" placeholder="Insira o seu nome" required />
+        <input
+          type="text"
+          id="nome"
+          name="nome"
+          placeholder="Insira o seu nome"
+          required
+        />
+
+        <label for="sobrenome">Sobrenome</label>
+        <input
+          type="text"
+          id="sobrenome"
+          name="sobrenome"
+          placeholder="Insira o seu sobrenome"
+          required
+        />
 
         <label for="sobrenome">Sobrenome</label>
         <input
@@ -25,6 +41,7 @@
         <input
           type="email"
           id="email"
+          name="email"
           placeholder="Insira o seu email"
           required
         />
@@ -33,6 +50,10 @@
         <input
           type="text"
           id="telefone"
+<<<<<<< HEAD
+          name="telefone"
+=======
+>>>>>>> 21afcab380d6c4fec9ec9c4ec5f34c85be87876c
           placeholder="Insira o seu telefone"
           required
         />
@@ -41,6 +62,7 @@
         <input
           type="password"
           id="senha"
+          name="senha"
           placeholder="Insira a sua senha"
           required
         />
@@ -48,7 +70,8 @@
         <label for="confirmar-senha">Confirmar Senha</label>
         <input
           type="password"
-          id="confirmar-senha"
+          id="confirmarsenha"
+          name="confirmarsenha"
           placeholder="Confirme a sua senha"
           required
         />
@@ -57,5 +80,6 @@
         <a href="/login">Já tenho uma conta</a>
       </form>
     </div>
+    <script src="/pages/cadastro_cliente/script.js"></script>
   </body>
 </html>
