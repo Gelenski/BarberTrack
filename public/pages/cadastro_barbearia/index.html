@@ -52,19 +52,7 @@
       <br />
       <a href="/barbearia/login">Já tenho uma conta</a>
     </div>
-    <script src="/pages/cadastro_barbearia/script.js"></script>
-    <!--  Validação da senha no front (senhas iguais, para nao add senhas difrentes no confirmar senha) -->
-    <script>
-      const form = document.querySelector("form");
-      const senha = document.querySelector('input[name="senha"]');
-      const confirmar = document.getElementById("confirmarSenha");
+    
 
-      form.addEventListener("submit", function (e) {
-        if (senha.value !== confirmar.value) {
-          e.preventDefault();
-          alert("As senhas não coincidem!");
-        }
-      });
-    </script>
   </body>
 </html>
