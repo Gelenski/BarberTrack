@@ -28,7 +28,8 @@ router.post("/cadastro", async (req, res) => {
     }
 
     const [telefoneExistente] = await db.execute(
-      "SELECT id FROM barbearia WHERE telefone = ?"
+      "SELECT id FROM barbearia WHERE telefone = ?",
+      [telefone]
     );
     if (telefoneExistente.length > 0) {
       return res.status(409).json({
