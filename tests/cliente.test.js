@@ -48,8 +48,7 @@ describe("Rotas de Cliente", () => {
   });
 
   // * TESTE DE LOGIN
-
-  describe("POST /cliente/login", () => {
+  describe("POST /auth/login", () => {
     it("deve fazer login com sucesso", async () => {
       const senhaHash = await bcrypt.hash("123456", 10);
 
@@ -57,32 +56,36 @@ describe("Rotas de Cliente", () => {
         [
           {
             id: 1,
-            nome: "Lucas",
+            nome: "Lucas", 
             email: "lucas@email.com",
             senha: senhaHash,
           },
         ],
       ]);
 
-      const res = await request(app).post("/cliente/login").send({
+      const res = await request(app).post("/auth/login").send({
         email: "lucas@email.com",
         senha: "123456",
+        tipo: "cliente", 
       });
 
       expect(res.status).toBe(200);
-      expect(res.body.user.email).toBe("lucas@email.com");
+      expect(res.body.success).toBe(true);
+      expect(res.body.nome).toBe("Lucas"); 
     });
 
     it("deve retornar erro se usuário não existe", async () => {
       db.execute.mockResolvedValueOnce([[]]);
 
-      const res = await request(app).post("/cliente/login").send({
+      const res = await request(app).post("/auth/login").send({
         email: "naoexiste@email.com",
         senha: "123456",
+        tipo: "cliente",
       });
 
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe("Email ou senha inválidos.");
+      
+      expect(res.body.error).toBe("Usuário não encontrado");
     });
 
     it("deve retornar erro se senha estiver errada", async () => {
@@ -99,13 +102,15 @@ describe("Rotas de Cliente", () => {
         ],
       ]);
 
-      const res = await request(app).post("/cliente/login").send({
+      const res = await request(app).post("/auth/login").send({
         email: "lucas@email.com",
         senha: "senhaErrada",
+        tipo: "cliente",
       });
 
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe("Email ou senha inválidos.");
+      
+      expect(res.body.error).toBe("E-mail ou senha incorreto");
     });
   });
 });
