@@ -1,19 +1,17 @@
-//Elementos DOM
-
 const formLogin = document.getElementById("form");
 const emailLogin = document.getElementById("email");
 const senhaLogin = document.getElementById("senha");
 
 formLogin.addEventListener("submit", async (event) => {
-  event.preventDefault();
+  event.preventDefault(); // impede o POST padrão do form
 
   const dadosLogin = {
-    email: emailLogin.value,
-    senha: senhaLogin.value,
+    email: emailLogin.value.trim(),
+    senha: senhaLogin.value.trim(),
   };
 
   try {
-    const resposta = await fetch("/barbearia/login", {
+    const resposta = await fetch("/cliente/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,13 +22,15 @@ formLogin.addEventListener("submit", async (event) => {
     const resultado = await resposta.json();
 
     if (resposta.ok) {
-      alert("Login realizado com sucesso");
+      alert("Login realizado com sucesso!");
+      window.location.href = "/cliente/dashboard"; // ! AJUSTAR PARA A ROTA SEGUINTE
     } else {
       alert(
-        "Erro no login: " + (resultado.error || "Verifique suas credencias")
+        "Erro no login: " + (resultado.error || "Verifique suas credenciais")
       );
     }
   } catch (erro) {
-    console.log("Erro na conexão", erro);
+    console.error("Erro na conexão:", erro);
+    alert("Não foi possível conectar ao servidor.");
   }
 });
