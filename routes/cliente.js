@@ -103,6 +103,10 @@ router.post("/cadastro", async (req, res) => {
 =======
 // * --- ROTA DE LOGIN DE CLIENTE ---
 
+router.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/pages/login/index.html"));
+});
+
 router.post("/login", async (req, res) => {
   try {
     let { email, senha } = req.body;
