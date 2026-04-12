@@ -18,8 +18,8 @@ router.post("/login", async (req, res) => {
   const campoNome = tipo === "barbearia" ? "nome_fantasia" : "nome";
   const redirectPath =
     tipo === "barbearia"
-      ? "/pages/dashboard_barbearia/index.html"
-      : "/pages/dashboard_cliente/index.html";
+      ? "/barbearia/dashboard"
+      : "/cliente/dashboard";
 
   try {
     const [usuarios] = await db.execute(
