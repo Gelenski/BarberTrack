@@ -23,7 +23,7 @@ formLogin.addEventListener("submit", async (event) => {
 
     if (resposta.ok) {
       alert("Login realizado com sucesso!");
-      window.location.href = "/cliente/dashboard"; // ajuste para sua rota
+      window.location.href = "/cliente/dashboard"; // ! AJUSTAR PARA A ROTA SEGUINTE
     } else {
       alert(
         "Erro no login: " + (resultado.error || "Verifique suas credenciais")
