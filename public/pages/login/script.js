@@ -24,13 +24,16 @@ formLogin.addEventListener("submit", async (event) => {
     const resultado = await resposta.json();
 
     if (resposta.ok) {
-      localStorage.setItem("usuarioLogado", JSON.stringify({
-        nome: resultado.nome,
-        tipo: dadosLogin.tipo
-      }));
+      localStorage.setItem(
+        "usuarioLogado",
+        JSON.stringify({
+          nome: resultado.nome,
+          tipo: dadosLogin.tipo,
+        })
+      );
 
       alert("Login realizado com sucesso!");
-      
+
       window.location.href = resultado.redirect;
     } else {
       alert(

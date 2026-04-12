@@ -107,6 +107,4 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
-
-
 module.exports = router;

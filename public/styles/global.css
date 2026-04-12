@@ -138,14 +138,16 @@ body {
   outline: none !important;
   appearance: none; /* Remove a seta padrão chata do navegador */
   cursor: pointer;
-  
+
   /* Seta customizada em cor Ouro (var(--gold)) */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23c9a84c' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
   background-position: right 0.9rem center !important;
   background-size: 14px 10px !important;
-  
-  transition: border-color 0.2s, box-shadow 0.2s !important;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s !important;
 }
 
 .bt-select:focus {

@@ -16,9 +16,10 @@ router.post("/login", async (req, res) => {
 
   const tabela = tipo === "barbearia" ? "barbearia" : "cliente"; //if ternário
   const campoNome = tipo === "barbearia" ? "nome_fantasia" : "nome";
-  const redirectPath = tipo === "barbearia" 
-        ? "/pages/dashboard_barbearia/index.html" 
-        :"/pages/dashboard_cliente/index.html";
+  const redirectPath =
+    tipo === "barbearia"
+      ? "/pages/dashboard_barbearia/index.html"
+      : "/pages/dashboard_cliente/index.html";
 
   try {
     const [usuarios] = await db.execute(
@@ -48,7 +49,7 @@ router.post("/login", async (req, res) => {
         return res.json({
           success: true,
           redirect: redirectPath,
-          nome: safeUser.nome
+          nome: safeUser.nome,
         });
       });
     } else {
@@ -59,7 +60,5 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: "Erro no processamento" });
   }
 });
-
-
 
 module.exports = router;
