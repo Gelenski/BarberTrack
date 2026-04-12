@@ -3,6 +3,7 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const db = require("../db/db");
+const createSession = require("../utils/createSession");
 
 router.get("/cadastro", (req, res) => {
   res.sendFile(
@@ -15,7 +16,7 @@ router.post("/cadastro", async (req, res) => {
     const { nome_fantasia, razao_social, cnpj, email, telefone, senha } =
       req.body;
 
-    //implementacção de verificação email e telefoneru
+    //implementação de verificação email e telefone
 
     const [emailExistente] = await db.execute(
       "SELECT id FROM barbearia WHERE email = ?",
@@ -28,7 +29,8 @@ router.post("/cadastro", async (req, res) => {
     }
 
     const [telefoneExistente] = await db.execute(
-      "SELECT id FROM barbearia WHERE telefone = ?"
+      "SELECT id FROM barbearia WHERE telefone = ?",
+      [telefone]
     );
     if (telefoneExistente.length > 0) {
       return res.status(409).json({
@@ -64,7 +66,7 @@ router.post("/cadastro", async (req, res) => {
 
     if (barbeariaExistente.length > 0) {
       return res.status(409).json({
-        error: "Barbearia já cadastrada",
+        error: "Cnpj já cadastrado",
       });
     }
 
@@ -114,7 +116,7 @@ router.post("/login", async (req, res) => {
     const { email, senha } = req.body;
 
     const [rows] = await db.execute(
-      "SELECT email, senha FROM barbearia WHERE email = ?",
+      "SELECT id, nome_fantasia, email, senha FROM barbearia WHERE email = ?",
       [email]
     );
 
@@ -130,9 +132,25 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Email ou senha incorretos" });
     }
 
-    return res.status(200).json({
-      message: "Login realizado com sucesso!",
-      barbearia: { id: barbearia.id, nome: barbearia.nome },
+    const safeBarbearia = {
+      id: barbearia.id,
+      nome: barbearia.nome_fantasia,
+      email: barbearia.email,
+    };
+
+    // * Criação da sessão ao login
+    createSession(req, safeBarbearia, "barbearia", (err) => {
+      if (err) {
+        console.error("Erro ao iniciar sessão:", err);
+        return res.status(500).json({
+          error: "Erro ao iniciar sessão",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Login realizado com sucesso.",
+        user: safeBarbearia,
+      });
     });
   } catch (erro) {
     console.error(erro);
