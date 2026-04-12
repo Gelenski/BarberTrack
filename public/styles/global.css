@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #0f0d0b;
+  --surface: #1a1714;
+  --surface-2: #221f1b;
+  --border: #2e2a25;
+  --gold: #c9a84c;
+  --gold-light: #e0c070;
+  --gold-dark: #8a6e2a;
+  --text: #f0ebe3;
+  --muted: #7a7060;
+  --error: #d95f4b;
+  --success: #4aaa72;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 60%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  padding: 2rem 1rem;
+}
+
+/* ── Card ── */
+.bt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.5rem 2.25rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  animation: fadeUp .4s ease both;
+}
+
+.bt-card.wide { max-width: 520px; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Logo ── */
+.bt-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  margin-bottom: 1.75rem;
+  text-decoration: none;
+}
+
+.bt-logo-icon {
+  width: 34px;
+  height: 34px;
+  background: var(--gold);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.bt-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem;
+  color: var(--gold);
+  letter-spacing: .04em;
+}
+
+/* ── Títulos ── */
+.bt-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  color: var(--text);
+  margin-bottom: .25rem;
+}
+
+.bt-subtitle {
+  font-size: .82rem;
+  color: var(--muted);
+  margin-bottom: 1.75rem;
+}
+
+/* ── Divisor ── */
+.bt-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.25rem 0;
+}
+
+/* ── Labels ── */
+.bt-label {
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .35rem;
+  display: block;
+}
+
+/* ── Inputs ── */
+.bt-input {
+  width: 100%;
+  background: var(--bg) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 6px !important;
+  padding: .65rem .9rem !important;
+  color: var(--text) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: .9rem !important;
+  outline: none !important;
+  transition: border-color .2s, box-shadow .2s !important;
+  box-shadow: none !important;
+}
+
+.bt-input::placeholder { color: var(--muted) !important; opacity: .65; }
+
+.bt-input:focus {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.15) !important;
+}
+
+.bt-input.is-invalid {
+  border-color: var(--error) !important;
+  box-shadow: 0 0 0 3px rgba(217,95,75,0.12) !important;
+}
+
+.bt-input.is-valid {
+  border-color: var(--success) !important;
+  box-shadow: 0 0 0 3px rgba(74,170,114,0.12) !important;
+}
+
+/* ── Botão principal ── */
+.bt-btn {
+  width: 100%;
+  background: var(--gold) !important;
+  color: #0f0d0b !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: .8rem !important;
+  font-family: 'Playfair Display', serif !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .06em !important;
+  cursor: pointer !important;
+  transition: background .2s, box-shadow .2s, transform .1s !important;
+  box-shadow: 0 4px 18px rgba(201,168,76,0.25) !important;
+  margin-top: .5rem;
+}
+
+.bt-btn:hover {
+  background: var(--gold-light) !important;
+  box-shadow: 0 6px 28px rgba(201,168,76,0.4) !important;
+}
+
+.bt-btn:active { transform: scale(.98) !important; }
+
+/* ── Link rodapé ── */
+.bt-footer-link {
+  display: block;
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: .82rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.bt-footer-link span { color: var(--gold); }
+.bt-footer-link:hover span { text-decoration: underline; }
+
+/* ── Grupo de dois campos lado a lado ── */
+.bt-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+}
+
+@media (max-width: 480px) {
+  .bt-row { grid-template-columns: 1fr; }
+  .bt-card { padding: 1.75rem 1.25rem; }
+}
