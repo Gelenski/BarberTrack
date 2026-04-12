@@ -56,7 +56,7 @@ describe("Rotas de Cliente", () => {
         [
           {
             id: 1,
-            nome: "Lucas", 
+            nome: "Lucas",
             email: "lucas@email.com",
             senha: senhaHash,
           },
@@ -66,12 +66,12 @@ describe("Rotas de Cliente", () => {
       const res = await request(app).post("/auth/login").send({
         email: "lucas@email.com",
         senha: "123456",
-        tipo: "cliente", 
+        tipo: "cliente",
       });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.nome).toBe("Lucas"); 
+      expect(res.body.nome).toBe("Lucas");
     });
 
     it("deve retornar erro se usuário não existe", async () => {
@@ -84,7 +84,7 @@ describe("Rotas de Cliente", () => {
       });
 
       expect(res.status).toBe(401);
-      
+
       expect(res.body.error).toBe("Usuário não encontrado");
     });
 
@@ -109,7 +109,7 @@ describe("Rotas de Cliente", () => {
       });
 
       expect(res.status).toBe(401);
-      
+
       expect(res.body.error).toBe("E-mail ou senha incorreto");
     });
   });
