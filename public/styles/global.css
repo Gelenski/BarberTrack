@@ -125,6 +125,42 @@ body {
   display: block;
 }
 
+/* ── Selects ── */
+.bt-select {
+  width: 100%;
+  background-color: var(--bg) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 6px !important;
+  padding: 0.65rem 2.5rem 0.65rem 0.9rem !important; /* Espaço extra na direita para a seta */
+  color: var(--text) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.9rem !important;
+  outline: none !important;
+  appearance: none; /* Remove a seta padrão chata do navegador */
+  cursor: pointer;
+
+  /* Seta customizada em cor Ouro (var(--gold)) */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23c9a84c' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.9rem center !important;
+  background-size: 14px 10px !important;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s !important;
+}
+
+.bt-select:focus {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15) !important;
+}
+
+/* Estilizando as opções dentro do select (limitado pelo navegador, mas ajuda) */
+.bt-select option {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
 /* ── Inputs ── */
 .bt-input {
   width: 100%;

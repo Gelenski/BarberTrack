@@ -3,7 +3,7 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const db = require("../db/db");
-const createSession = require("../utils/createSession");
+//const createSession = require("../utils/createSession");
 
 router.get("/cadastro", (req, res) => {
   res.sendFile(
@@ -104,57 +104,6 @@ router.post("/cadastro", async (req, res) => {
     return res.status(500).json({
       error: "Erro interno do servidor",
     });
-  }
-});
-
-router.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/pages/login/index.html"));
-});
-
-router.post("/login", async (req, res) => {
-  try {
-    const { email, senha } = req.body;
-
-    const [rows] = await db.execute(
-      "SELECT id, nome_fantasia, email, senha FROM barbearia WHERE email = ?",
-      [email]
-    );
-
-    if (rows.length === 0) {
-      return res.status(401).json({ error: "Email ou senha incorretos" });
-    }
-
-    const barbearia = rows[0];
-
-    const senhaValida = await bcrypt.compare(senha, barbearia.senha);
-
-    if (!senhaValida) {
-      return res.status(401).json({ error: "Email ou senha incorretos" });
-    }
-
-    const safeBarbearia = {
-      id: barbearia.id,
-      nome: barbearia.nome_fantasia,
-      email: barbearia.email,
-    };
-
-    // * Criação da sessão ao login
-    createSession(req, safeBarbearia, "barbearia", (err) => {
-      if (err) {
-        console.error("Erro ao iniciar sessão:", err);
-        return res.status(500).json({
-          error: "Erro ao iniciar sessão",
-        });
-      }
-
-      return res.status(200).json({
-        message: "Login realizado com sucesso.",
-        user: safeBarbearia,
-      });
-    });
-  } catch (erro) {
-    console.error(erro);
-    return res.status(500).json({ error: "Erro interno no servidor" });
   }
 });
 
