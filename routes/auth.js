@@ -1,9 +1,13 @@
 const express = require("express");
 const path = require("path");
-const router = express.Router();
-const db = require("../db/db");
 const bcrypt = require("bcrypt");
+const db = require("../db/db");
 const createSession = require("../utils/createSession");
+const { resolveAuthProfile } = require("../utils/authProfile");
+const responseMessages = require("../utils/responseMessages");
+const { validateLoginPayload } = require("../validators/auth");
+
+const router = express.Router();
 
 router.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/pages/login/index.html"));
@@ -11,51 +15,54 @@ router.get("/login", (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, senha, tipo } = req.body;
+  const validationError = validateLoginPayload({ email, senha });
 
-  //definir a tabela com base no tipo de perfil
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
+  }
 
-  const tabela = tipo === "barbearia" ? "barbearia" : "cliente"; //if ternário
-  const campoNome = tipo === "barbearia" ? "nome_fantasia" : "nome";
-  const redirectPath =
-    tipo === "barbearia" ? "/barbearia/dashboard" : "/cliente/dashboard";
+  const perfil = resolveAuthProfile(tipo);
 
   try {
     const [usuarios] = await db.execute(
-      `SELECT id, ${campoNome} AS nome, email, senha FROM ${tabela} WHERE email = ?`,
+      `SELECT id, ${perfil.campoNome} AS nome, email, senha FROM ${perfil.tabela} WHERE email = ?`,
       [email]
     );
 
     if (usuarios.length === 0) {
-      return res.status(401).json({ error: "Usuário não encontrado" });
+      return res.status(401).json({ error: responseMessages.userNotFound });
     }
 
     const usuario = usuarios[0];
-    const match = await bcrypt.compare(senha, usuario.senha);
+    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
 
-    if (match) {
-      const safeUser = {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-      };
-
-      createSession(req, safeUser, tipo, (err) => {
-        if (err) {
-          console.error("Erro ao criar sessão", err);
-          return res.status(500).json({ error: "Erro ao iniciar sessão" });
-        }
-        return res.json({
-          success: true,
-          redirect: redirectPath,
-          nome: safeUser.nome,
-        });
-      });
-    } else {
-      return res.status(401).json({ error: "E-mail ou senha incorreto" });
+    if (!senhaCorreta) {
+      return res
+        .status(401)
+        .json({ error: responseMessages.invalidCredentials });
     }
+
+    const usuarioSeguro = {
+      id: usuario.id,
+      nome: usuario.nome,
+      email: usuario.email,
+    };
+
+    return createSession(req, usuarioSeguro, perfil.tipo, (sessionError) => {
+      if (sessionError) {
+        console.error("Erro ao criar sessao", sessionError);
+        return res.status(500).json({ error: responseMessages.sessionError });
+      }
+
+      return res.json({
+        success: true,
+        redirect: perfil.redirectPath,
+        nome: usuarioSeguro.nome,
+      });
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Erro no processamento" });
+    console.error("Erro no login:", error);
+    return res.status(500).json({ error: responseMessages.processingError });
   }
 });
 

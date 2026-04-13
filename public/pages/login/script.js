@@ -1,47 +1,60 @@
-const formLogin = document.getElementById("form");
-const emailLogin = document.getElementById("email");
-const senhaLogin = document.getElementById("senha");
-const perfilLogin = document.getElementById("tipo-perfil");
+const loginForm = document.getElementById("form");
+const emailInput = document.getElementById("email");
+const senhaInput = document.getElementById("senha");
+const perfilInput = document.getElementById("tipo-perfil");
 
-formLogin.addEventListener("submit", async (event) => {
-  event.preventDefault(); // impede o POST padrão do form
-
-  const dadosLogin = {
-    email: emailLogin.value.trim(),
-    senha: senhaLogin.value.trim(),
-    tipo: perfilLogin.value,
+function buildLoginPayload() {
+  return {
+    email: emailInput.value.trim(),
+    senha: senhaInput.value.trim(),
+    tipo: perfilInput.value,
   };
+}
+
+function saveLoggedUser(loginResponse, tipo) {
+  localStorage.setItem(
+    "usuarioLogado",
+    JSON.stringify({
+      nome: loginResponse.nome,
+      tipo,
+    })
+  );
+}
+
+async function submitLogin(loginPayload) {
+  const response = await fetch("/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(loginPayload),
+  });
+
+  const responseBody = await response.json();
+
+  return { response, responseBody };
+}
+
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const loginPayload = buildLoginPayload();
 
   try {
-    const resposta = await fetch("/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dadosLogin),
-    });
+    const { response, responseBody } = await submitLogin(loginPayload);
 
-    const resultado = await resposta.json();
-
-    if (resposta.ok) {
-      localStorage.setItem(
-        "usuarioLogado",
-        JSON.stringify({
-          nome: resultado.nome,
-          tipo: dadosLogin.tipo,
-        })
-      );
-
-      alert("Login realizado com sucesso!");
-
-      window.location.href = resultado.redirect;
-    } else {
+    if (!response.ok) {
       alert(
-        "Erro no login: " + (resultado.error || "Verifique suas credenciais")
+        "Erro no login: " + (responseBody.error || "Verifique suas credenciais")
       );
+      return;
     }
-  } catch (erro) {
-    console.error("Erro na conexão:", erro);
-    alert("Não foi possível conectar ao servidor.");
+
+    saveLoggedUser(responseBody, loginPayload.tipo);
+    alert("Login realizado com sucesso!");
+    window.location.href = responseBody.redirect;
+  } catch (error) {
+    console.error("Erro na conexao:", error);
+    alert("Nao foi possivel conectar ao servidor.");
   }
 });

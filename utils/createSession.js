@@ -4,6 +4,7 @@ module.exports = function createSession(req, user, tipo, callback) {
 
     req.session.user = {
       id: user.id,
+      nome: user.nome,
       tipo,
       email: user.email,
     };

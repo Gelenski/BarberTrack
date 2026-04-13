@@ -1,48 +1,69 @@
-document.querySelector("form").addEventListener("submit", function (e) {
-  e.preventDefault();
+const barbeariaForm = document.querySelector("form");
 
-  const nome_fantasia = document
+function isEmailValido(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+}
+
+function normalizeDigits(value) {
+  return value.replace(/\D/g, "");
+}
+
+function isTelefoneValido(value) {
+  const telefoneNormalizado = normalizeDigits(value);
+  return telefoneNormalizado.length >= 10 && telefoneNormalizado.length <= 11;
+}
+
+function validarCadastroBarbearia() {
+  const nomeFantasia = document
     .querySelector('[name="nome_fantasia"]')
     .value.trim();
-  const razao_social = document
+  const razaoSocial = document
     .querySelector('[name="razao_social"]')
     .value.trim();
   const cnpj = document.querySelector('[name="cnpj"]').value.trim();
   const email = document.querySelector('[name="email"]').value.trim();
   const telefone = document.querySelector('[name="telefone"]').value.trim();
   const senha = document.querySelector('[name="senha"]').value;
-  const confirmar = document.getElementById("confirmarSenha").value;
+  const confirmarSenha = document.getElementById("confirmarSenha").value;
+  const cnpjNormalizado = normalizeDigits(cnpj);
 
-  if (!nome_fantasia) {
-    alert("Nome fantasia é obrigatório.");
-    return;
+  if (!nomeFantasia) {
+    return "Nome fantasia e obrigatorio.";
   }
-  if (!razao_social) {
-    alert("Razão social é obrigatória.");
-    return;
+
+  if (!razaoSocial) {
+    return "Razao social e obrigatoria.";
   }
-  const cnpjLimpo = cnpj.replace(/\D/g, "");
-  if (!cnpj || cnpjLimpo.length !== 14) {
-    alert("CNPJ inválido. Ele deve conter 14 dígitos.");
-    return;
+
+  if (cnpjNormalizado.length !== 14) {
+    return "CNPJ invalido. Ele deve conter 14 digitos.";
   }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    alert("Email inválido.");
-    return;
+
+  if (email && !isEmailValido(email)) {
+    return "Email invalido.";
   }
-  if (telefone) {
-    const telLimpo = telefone.replace(/\D/g, "");
-    if (telLimpo.length < 10 || telLimpo.length > 11) {
-      alert("Telefone inválido. Ele deve conter 10 ou 11 dígitos.");
-      return;
-    }
+
+  if (telefone && !isTelefoneValido(telefone)) {
+    return "Telefone invalido. Ele deve conter 10 ou 11 digitos.";
   }
+
   if (senha.length < 8) {
-    alert("A senha deve ter no mínimo 8 caracteres.");
-    return;
+    return "A senha deve ter no minimo 8 caracteres.";
   }
-  if (senha !== confirmar) {
-    alert("As senhas não coincidem.");
+
+  if (senha !== confirmarSenha) {
+    return "As senhas nao coincidem.";
+  }
+
+  return null;
+}
+
+barbeariaForm.addEventListener("submit", function handleBarbeariaSubmit(event) {
+  event.preventDefault();
+
+  const validationError = validarCadastroBarbearia();
+  if (validationError) {
+    alert(validationError);
     return;
   }
 
