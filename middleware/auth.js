@@ -5,6 +5,7 @@ function isAuthenticated(req, res, next) {
     return next();
   }
 
+  // Dashboards protegidos continuam levando o usuario para a tela de login.
   return res.redirect("/auth/login");
 }
 

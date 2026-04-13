@@ -8,6 +8,7 @@ function validateBarbeariaPayload(barbearia) {
     return responseMessages.invalidBarbeariaFields;
   }
 
+  // Aceitamos CNPJ com mascara, mas a validacao sempre usa a versao normalizada.
   if (normalizeCnpj(cnpj).length !== 14) {
     return responseMessages.invalidCnpj;
   }

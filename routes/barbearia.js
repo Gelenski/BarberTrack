@@ -42,6 +42,7 @@ router.post("/cadastro", async (req, res) => {
   }
 
   try {
+    // As checagens sao separadas para preservar mensagens especificas por campo duplicado.
     if (email && (await recordExists(db, "barbearia", "email", email))) {
       return res
         .status(409)
@@ -57,6 +58,7 @@ router.post("/cadastro", async (req, res) => {
         .json({ error: responseMessages.duplicateBarbeariaTelefone });
     }
 
+    // O CNPJ e persistido sem mascara para padronizar comparacao e busca.
     const cnpjNormalizado = normalizeCnpj(cnpj);
 
     if (await recordExists(db, "barbearia", "cnpj", cnpjNormalizado)) {

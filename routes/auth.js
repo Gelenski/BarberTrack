@@ -24,6 +24,7 @@ router.post("/login", async (req, res) => {
   const perfil = resolveAuthProfile(tipo);
 
   try {
+    // O perfil concentra as diferencas entre cliente e barbearia no fluxo de login.
     const [usuarios] = await db.execute(
       `SELECT id, ${perfil.campoNome} AS nome, email, senha FROM ${perfil.tabela} WHERE email = ?`,
       [email]
@@ -42,6 +43,7 @@ router.post("/login", async (req, res) => {
         .json({ error: responseMessages.invalidCredentials });
     }
 
+    // A sessao recebe apenas os dados necessarios para identificar e autorizar o usuario.
     const usuarioSeguro = {
       id: usuario.id,
       nome: usuario.nome,

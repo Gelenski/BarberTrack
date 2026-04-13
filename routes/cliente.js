@@ -25,6 +25,7 @@ router.post("/cadastro", async (req, res) => {
   }
 
   try {
+    // Validamos unicidade antes do insert para responder com erro de negocio mais claro.
     const emailJaCadastrado = await recordExists(db, "cliente", "email", email);
 
     if (emailJaCadastrado) {
@@ -34,6 +35,8 @@ router.post("/cadastro", async (req, res) => {
     }
 
     const senhaHash = await bcrypt.hash(cliente.senha, 10);
+
+    // TODO: Alterar para o cliente selecionar qual barbearia é cliente desde o login, podendo ser mais de uma etc.
 
     const [result] = await db.execute(
       "INSERT INTO cliente (barbearia_id, nome, sobrenome, email, telefone, senha) VALUES (1,?,?,?,?,?);",

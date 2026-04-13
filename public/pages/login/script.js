@@ -12,6 +12,7 @@ function buildLoginPayload() {
 }
 
 function saveLoggedUser(loginResponse, tipo) {
+  // O front salva apenas dados simples para personalizacao local da interface.
   localStorage.setItem(
     "usuarioLogado",
     JSON.stringify({
@@ -22,6 +23,7 @@ function saveLoggedUser(loginResponse, tipo) {
 }
 
 async function submitLogin(loginPayload) {
+  // Centralizamos a chamada para manter request e parsing da resposta no mesmo lugar.
   const response = await fetch("/auth/login", {
     method: "POST",
     headers: {
