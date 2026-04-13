@@ -17,9 +17,7 @@ router.post("/login", async (req, res) => {
   const tabela = tipo === "barbearia" ? "barbearia" : "cliente"; //if ternário
   const campoNome = tipo === "barbearia" ? "nome_fantasia" : "nome";
   const redirectPath =
-    tipo === "barbearia"
-      ? "/pages/dashboard_barbearia/index.html"
-      : "/pages/dashboard_cliente/index.html";
+    tipo === "barbearia" ? "/barbearia/dashboard" : "/cliente/dashboard";
 
   try {
     const [usuarios] = await db.execute(

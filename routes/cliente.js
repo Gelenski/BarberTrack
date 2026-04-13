@@ -3,6 +3,7 @@ const path = require("path");
 const router = express.Router();
 const db = require("../db/db");
 const bcrypt = require("bcrypt");
+const { isAuthenticated, isCliente } = require("../middleware/auth");
 //const createSession = require("../utils/createSession");
 
 router.get("/cadastro", (req, res) => {
@@ -55,6 +56,10 @@ router.post("/cadastro", async (req, res) => {
       error: "Erro interno do servidor",
     });
   }
+});
+
+router.get("/dashboard", isAuthenticated, isCliente, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/dashboard_cliente/index.html"));
 });
 
 module.exports = router;

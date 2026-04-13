@@ -3,6 +3,7 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const db = require("../db/db");
+const { isAuthenticated, isBarbearia } = require("../middleware/auth");
 //const createSession = require("../utils/createSession");
 
 router.get("/cadastro", (req, res) => {
@@ -105,6 +106,10 @@ router.post("/cadastro", async (req, res) => {
       error: "Erro interno do servidor",
     });
   }
+});
+
+router.get("/dashboard", isAuthenticated, isBarbearia, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/dashboard_barbearia/index.html"));
 });
 
 module.exports = router;
