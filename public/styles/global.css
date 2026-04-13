@@ -38,7 +38,6 @@ body {
   padding: 2rem 1rem;
 }
 
-/* ── Card ── */
 .bt-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -59,13 +58,13 @@ body {
     opacity: 0;
     transform: translateY(18px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* ── Logo ── */
 .bt-logo {
   display: flex;
   align-items: center;
@@ -93,7 +92,6 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* ── Títulos ── */
 .bt-title {
   font-family: "Playfair Display", serif;
   font-size: 1.75rem;
@@ -107,14 +105,38 @@ body {
   margin-bottom: 1.75rem;
 }
 
-/* ── Divisor ── */
 .bt-divider {
   border: none;
   border-top: 1px solid var(--border);
   margin: 1.25rem 0;
 }
 
-/* ── Labels ── */
+.bt-form-status {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0.8rem 0.95rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.bt-form-status.is-error {
+  background: rgba(217, 95, 75, 0.12);
+  border-color: rgba(217, 95, 75, 0.35);
+  color: #ffb1a5;
+}
+
+.bt-form-status.is-success {
+  background: rgba(74, 170, 114, 0.12);
+  border-color: rgba(74, 170, 114, 0.35);
+  color: #9ae0b3;
+}
+
+.bt-form-status.is-info {
+  background: rgba(201, 168, 76, 0.1);
+  border-color: rgba(201, 168, 76, 0.3);
+  color: var(--text);
+}
+
 .bt-label {
   font-size: 0.72rem;
   font-weight: 500;
@@ -125,26 +147,26 @@ body {
   display: block;
 }
 
-/* ── Selects ── */
+[data-field] {
+  position: relative;
+}
+
 .bt-select {
   width: 100%;
   background-color: var(--bg) !important;
   border: 1.5px solid var(--border) !important;
   border-radius: 6px !important;
-  padding: 0.65rem 2.5rem 0.65rem 0.9rem !important; /* Espaço extra na direita para a seta */
+  padding: 0.65rem 2.5rem 0.65rem 0.9rem !important;
   color: var(--text) !important;
   font-family: "DM Sans", sans-serif !important;
   font-size: 0.9rem !important;
   outline: none !important;
-  appearance: none; /* Remove a seta padrão chata do navegador */
+  appearance: none;
   cursor: pointer;
-
-  /* Seta customizada em cor Ouro (var(--gold)) */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23c9a84c' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
   background-position: right 0.9rem center !important;
   background-size: 14px 10px !important;
-
   transition:
     border-color 0.2s,
     box-shadow 0.2s !important;
@@ -155,13 +177,11 @@ body {
   box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15) !important;
 }
 
-/* Estilizando as opções dentro do select (limitado pelo navegador, mas ajuda) */
 .bt-select option {
   background-color: var(--surface);
   color: var(--text);
 }
 
-/* ── Inputs ── */
 .bt-input {
   width: 100%;
   background: var(--bg) !important;
@@ -188,17 +208,39 @@ body {
   box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15) !important;
 }
 
+.bt-select.is-invalid,
 .bt-input.is-invalid {
   border-color: var(--error) !important;
   box-shadow: 0 0 0 3px rgba(217, 95, 75, 0.12) !important;
 }
 
+.bt-select.is-valid,
 .bt-input.is-valid {
   border-color: var(--success) !important;
   box-shadow: 0 0 0 3px rgba(74, 170, 114, 0.12) !important;
 }
 
-/* ── Botão principal ── */
+.bt-field-message {
+  min-height: 1rem;
+  margin-top: 0.45rem;
+  color: #ffb1a5;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.bt-field-message.is-visible {
+  opacity: 1;
+}
+
+.bt-input-help {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .bt-btn {
   width: 100%;
   background: var(--gold) !important;
@@ -228,7 +270,13 @@ body {
   transform: scale(0.98) !important;
 }
 
-/* ── Link rodapé ── */
+.bt-btn:disabled {
+  cursor: wait !important;
+  opacity: 0.75;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
 .bt-footer-link {
   display: block;
   text-align: center;
@@ -241,21 +289,31 @@ body {
 .bt-footer-link span {
   color: var(--gold);
 }
+
 .bt-footer-link:hover span {
   text-decoration: underline;
 }
 
-/* ── Grupo de dois campos lado a lado ── */
 .bt-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
 }
 
+.bt-card p,
+.bt-card label,
+.bt-card input,
+.bt-card select,
+.bt-card button,
+.bt-card a {
+  text-wrap: pretty;
+}
+
 @media (max-width: 480px) {
   .bt-row {
     grid-template-columns: 1fr;
   }
+
   .bt-card {
     padding: 1.75rem 1.25rem;
   }

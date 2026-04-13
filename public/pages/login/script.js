@@ -1,62 +1,168 @@
-const loginForm = document.getElementById("form");
-const emailInput = document.getElementById("email");
-const senhaInput = document.getElementById("senha");
-const perfilInput = document.getElementById("tipo-perfil");
+const formularioLogin = document.getElementById("form");
+const campoEmail = document.getElementById("email");
+const campoSenha = document.getElementById("senha");
+const campoPerfil = document.getElementById("tipo-perfil");
 
-function buildLoginPayload() {
+const controleFormulario =
+  window.FormularioBarberTrack.criarControleDeFormulario(formularioLogin, {
+    textoCarregando: "Entrando...",
+  });
+
+function pegarDadosDoLogin() {
   return {
-    email: emailInput.value.trim(),
-    senha: senhaInput.value.trim(),
-    tipo: perfilInput.value,
+    email: campoEmail.value.trim(),
+    senha: campoSenha.value.trim(),
+    tipo: campoPerfil.value,
   };
 }
 
-function saveLoggedUser(loginResponse, tipo) {
-  // O front salva apenas dados simples para personalizacao local da interface.
+function validarEmail() {
+  const { email } = pegarDadosDoLogin();
+
+  if (!email) {
+    return "Informe seu email.";
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return "Digite um email valido.";
+  }
+
+  return null;
+}
+
+function validarSenha() {
+  const { senha } = pegarDadosDoLogin();
+
+  if (!senha) {
+    return "Informe sua senha.";
+  }
+
+  return null;
+}
+
+function validarPerfil() {
+  const { tipo } = pegarDadosDoLogin();
+
+  if (!tipo) {
+    return "Selecione como deseja entrar.";
+  }
+
+  return null;
+}
+
+function validarCampo(campo) {
+  let erro = null;
+
+  if (campo === campoEmail) {
+    erro = validarEmail();
+  }
+
+  if (campo === campoSenha) {
+    erro = validarSenha();
+  }
+
+  if (campo === campoPerfil) {
+    erro = validarPerfil();
+  }
+
+  if (erro) {
+    controleFormulario.mostrarErroNoCampo(campo, erro);
+    return false;
+  }
+
+  if (campo.value.trim()) {
+    controleFormulario.mostrarCampoValido(campo);
+  } else {
+    controleFormulario.limparCampo(campo);
+  }
+
+  return true;
+}
+
+function validarFormulario() {
+  const emailValido = validarCampo(campoEmail);
+  const senhaValida = validarCampo(campoSenha);
+  const perfilValido = validarCampo(campoPerfil);
+
+  return emailValido && senhaValida && perfilValido;
+}
+
+function registrarEventosDeValidacao(campo, eventoDeDigitacao = "input") {
+  campo.addEventListener("blur", () => {
+    validarCampo(campo);
+  });
+
+  campo.addEventListener(eventoDeDigitacao, () => {
+    controleFormulario.limparAviso();
+    validarCampo(campo);
+  });
+}
+
+function salvarUsuarioLogado(respostaLogin, tipo) {
   localStorage.setItem(
     "usuarioLogado",
     JSON.stringify({
-      nome: loginResponse.nome,
+      nome: respostaLogin.nome,
       tipo,
     })
   );
 }
 
-async function submitLogin(loginPayload) {
-  // Centralizamos a chamada para manter request e parsing da resposta no mesmo lugar.
-  const response = await fetch("/auth/login", {
+async function enviarLogin(dadosLogin) {
+  const resposta = await fetch("/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(loginPayload),
+    body: JSON.stringify(dadosLogin),
   });
 
-  const responseBody = await response.json();
-
-  return { response, responseBody };
+  return controleFormulario.lerJsonDaResposta(resposta);
 }
 
-loginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
+registrarEventosDeValidacao(campoEmail);
+registrarEventosDeValidacao(campoSenha);
+registrarEventosDeValidacao(campoPerfil, "change");
 
-  const loginPayload = buildLoginPayload();
+formularioLogin.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  controleFormulario.limparAviso();
+
+  if (!validarFormulario()) {
+    controleFormulario.mostrarAviso(
+      "Revise os campos destacados para continuar.",
+      "error"
+    );
+    return;
+  }
+
+  const dadosLogin = pegarDadosDoLogin();
+  controleFormulario.definirEnvio(true);
 
   try {
-    const { response, responseBody } = await submitLogin(loginPayload);
+    const { resposta, corpo } = await enviarLogin(dadosLogin);
 
-    if (!response.ok) {
-      alert(
-        "Erro no login: " + (responseBody.error || "Verifique suas credenciais")
+    if (!resposta.ok) {
+      controleFormulario.mostrarAviso(
+        corpo.error || "Nao foi possivel entrar. Verifique seus dados.",
+        "error"
       );
       return;
     }
 
-    saveLoggedUser(responseBody, loginPayload.tipo);
-    alert("Login realizado com sucesso!");
-    window.location.href = responseBody.redirect;
-  } catch (error) {
-    console.error("Erro na conexao:", error);
-    alert("Nao foi possivel conectar ao servidor.");
+    salvarUsuarioLogado(corpo, dadosLogin.tipo);
+    controleFormulario.mostrarAviso(
+      "Login realizado com sucesso. Redirecionando...",
+      "success"
+    );
+    window.location.href = corpo.redirect;
+  } catch (erro) {
+    console.error("Erro na conexao:", erro);
+    controleFormulario.mostrarAviso(
+      "Nao foi possivel conectar ao servidor. Tente novamente em instantes.",
+      "error"
+    );
+  } finally {
+    controleFormulario.definirEnvio(false);
   }
 });
