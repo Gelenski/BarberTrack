@@ -1,40 +1,59 @@
-document.querySelector("form").addEventListener("submit", function (e) {
-  e.preventDefault();
+const clienteForm = document.querySelector("form");
 
+function isNomeValido(value) {
+  return value.length >= 2 && /^[A-Za-zÀ-ÿ\s'-]+$/.test(value);
+}
+
+function isEmailValido(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+}
+
+function isTelefoneValido(value) {
+  const telefoneNormalizado = value.replace(/\D/g, "");
+  return telefoneNormalizado.length >= 10 && telefoneNormalizado.length <= 11;
+}
+
+function validarCadastroCliente() {
   const nome = document.getElementById("nome").value.trim();
   const sobrenome = document.getElementById("sobrenome").value.trim();
   const email = document.getElementById("email").value.trim();
   const telefone = document.getElementById("telefone").value.trim();
   const senha = document.getElementById("senha").value;
-  const confirmar = document.getElementById("confirmarsenha").value;
+  const confirmarSenha = document.getElementById("confirmarsenha").value;
 
-  if (!nome || nome.length < 2 || !/^[A-Za-zÀ-ÿ\s'-]+$/.test(nome)) {
-    alert("Nome inválido. Insira ao menos 2 letras.");
-    return;
+  if (!isNomeValido(nome)) {
+    return "Nome invalido. Insira ao menos 2 letras.";
   }
-  if (
-    !sobrenome ||
-    sobrenome.length < 2 ||
-    !/^[A-Za-zÀ-ÿ\s'-]+$/.test(sobrenome)
-  ) {
-    alert("Sobrenome inválido. Insira ao menos 2 letras.");
-    return;
+
+  if (!isNomeValido(sobrenome)) {
+    return "Sobrenome invalido. Insira ao menos 2 letras.";
   }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    alert("Email inválido.");
-    return;
+
+  if (!isEmailValido(email)) {
+    return "Email invalido.";
   }
-  const digits = telefone.replace(/\D/g, "");
-  if (!digits || digits.length < 10 || digits.length > 11) {
-    alert("Telefone inválido.");
-    return;
+
+  if (!isTelefoneValido(telefone)) {
+    return "Telefone invalido.";
   }
+
   if (senha.length < 8) {
-    alert("A senha deve ter no mínimo 8 caracteres.");
-    return;
+    return "A senha deve ter no minimo 8 caracteres.";
   }
-  if (senha !== confirmar) {
-    alert("As senhas não coincidem.");
+
+  if (senha !== confirmarSenha) {
+    return "As senhas nao coincidem.";
+  }
+
+  return null;
+}
+
+clienteForm.addEventListener("submit", function handleClienteSubmit(event) {
+  event.preventDefault();
+
+  const validationError = validarCadastroCliente();
+  if (validationError) {
+    alert(validationError);
     return;
   }
 
