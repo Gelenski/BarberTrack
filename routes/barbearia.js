@@ -47,18 +47,31 @@ router.post("/cadastro", async (req, res) => {
       });
     }
 
-    const cnpjLimpo = String(cnpj).replace(/\D/g, "");
-    if (cnpjLimpo.length !== 14) {
+    if (cnpj) {
+      const cnpjLimpo = String(cnpj).replace(/\D/g, "");
+      if (cnpjLimpo.length !== 14) {
+        return res.status(400).json({
+          error: "CNPJ inválido. Ele deve conter 14 dígitos.",
+        });
+      }
+    }
+
+    if (telefone) {
+      const telefoneLimpo = String(telefone).replace(/\D/g, "");
+      if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11) {
+        return res.status(400).json({
+          error: "Telefone inválido. Ele deve conter 10 ou 11 dígitos.",
+        });
+      }
+    }
+
+    if (senha.length < 8) {
       return res.status(400).json({
-        error: "CNPJ inválido. Ele deve conter 14 dígitos.",
+        error: "A senha deve ter pelo menos 8 caracteres",
       });
     }
 
-    if (senha.length < 6) {
-      return res.status(400).json({
-        error: "A senha deve ter pelo menos 6 caracteres",
-      });
-    }
+    const cnpjLimpo = String(cnpj).replace(/\D/g, "");
 
     const [barbeariaExistente] = await db.execute(
       "SELECT id FROM barbearia WHERE cnpj = ?",
