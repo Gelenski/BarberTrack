@@ -1,19 +1,20 @@
-const formularioCliente = document.getElementById("cliente-form");
+const formularioBarbeiro = document.getElementById("barbeiro-form");
 
 const campoNome = document.getElementById("nome");
 const campoSobrenome = document.getElementById("sobrenome");
 const campoEmail = document.getElementById("email");
 const campoTelefone = document.getElementById("telefone");
+const campoCpf = document.getElementById("cpf");
 const campoSenha = document.getElementById("senha");
-const campoConfirmarSenha = document.getElementById("confirmarsenha");
+const campoConfirmarSenha = document.getElementById("confirmarSenha");
 
 const controleFormulario =
-  window.FormularioBarberTrack.criarControleDeFormulario(formularioCliente, {
+  window.FormularioBarberTrack.criarControleDeFormulario(formularioBarbeiro, {
     textoCarregando: "Cadastrando...",
   });
 
 function removerNaoNumeros(valor) {
-  return valor.replace(/\D/g, "");
+  return String(valor || "").replace(/\D/g, "");
 }
 
 function nomeEhValido(valor) {
@@ -27,6 +28,10 @@ function emailEhValido(valor) {
 function telefoneEhValido(valor) {
   const telefoneSemMascara = removerNaoNumeros(valor);
   return telefoneSemMascara.length >= 10 && telefoneSemMascara.length <= 11;
+}
+
+function cpfEhValido(valor) {
+  return removerNaoNumeros(valor).length === 11;
 }
 
 function formatarTelefone(valor) {
@@ -47,22 +52,41 @@ function formatarTelefone(valor) {
   return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
 }
 
-function pegarDadosDoCliente() {
+function formatarCpf(valor) {
+  const numeros = removerNaoNumeros(valor).slice(0, 11);
+
+  if (numeros.length <= 3) {
+    return numeros;
+  }
+
+  if (numeros.length <= 6) {
+    return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
+  }
+
+  if (numeros.length <= 9) {
+    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
+  }
+
+  return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9)}`;
+}
+
+function pegarDadosDoBarbeiro() {
   return {
     nome: campoNome.value.trim(),
     sobrenome: campoSobrenome.value.trim(),
     email: campoEmail.value.trim(),
     telefone: removerNaoNumeros(campoTelefone.value),
+    cpf: removerNaoNumeros(campoCpf.value),
     senha: campoSenha.value,
     confirmarSenha: campoConfirmarSenha.value,
   };
 }
 
 function validarNome() {
-  const { nome } = pegarDadosDoCliente();
+  const { nome } = pegarDadosDoBarbeiro();
 
   if (!nome) {
-    return "Informe seu nome.";
+    return "Informe o nome.";
   }
 
   if (!nomeEhValido(nome)) {
@@ -73,10 +97,10 @@ function validarNome() {
 }
 
 function validarSobrenome() {
-  const { sobrenome } = pegarDadosDoCliente();
+  const { sobrenome } = pegarDadosDoBarbeiro();
 
   if (!sobrenome) {
-    return "Informe seu sobrenome.";
+    return "Informe o sobrenome.";
   }
 
   if (!nomeEhValido(sobrenome)) {
@@ -87,10 +111,10 @@ function validarSobrenome() {
 }
 
 function validarEmail() {
-  const { email } = pegarDadosDoCliente();
+  const { email } = pegarDadosDoBarbeiro();
 
   if (!email) {
-    return "Informe seu email.";
+    return "Informe o email.";
   }
 
   if (!emailEhValido(email)) {
@@ -101,10 +125,10 @@ function validarEmail() {
 }
 
 function validarTelefone() {
-  const { telefone } = pegarDadosDoCliente();
+  const { telefone } = pegarDadosDoBarbeiro();
 
   if (!telefone) {
-    return "Informe seu telefone.";
+    return "Informe o telefone.";
   }
 
   if (!telefoneEhValido(telefone)) {
@@ -114,11 +138,25 @@ function validarTelefone() {
   return null;
 }
 
+function validarCpf() {
+  const { cpf } = pegarDadosDoBarbeiro();
+
+  if (!cpf) {
+    return "Informe o CPF.";
+  }
+
+  if (!cpfEhValido(cpf)) {
+    return "Digite um CPF com 11 digitos.";
+  }
+
+  return null;
+}
+
 function validarSenha() {
-  const { senha } = pegarDadosDoCliente();
+  const { senha } = pegarDadosDoBarbeiro();
 
   if (!senha) {
-    return "Informe uma senha.";
+    return "Informe a senha.";
   }
 
   if (senha.length < 8) {
@@ -129,10 +167,10 @@ function validarSenha() {
 }
 
 function validarConfirmacaoDeSenha() {
-  const { senha, confirmarSenha } = pegarDadosDoCliente();
+  const { senha, confirmarSenha } = pegarDadosDoBarbeiro();
 
   if (!confirmarSenha) {
-    return "Confirme sua senha.";
+    return "Confirme a senha.";
   }
 
   if (senha !== confirmarSenha) {
@@ -159,6 +197,10 @@ function validarCampo(campo) {
 
   if (campo === campoTelefone) {
     erro = validarTelefone();
+  }
+
+  if (campo === campoCpf) {
+    erro = validarCpf();
   }
 
   if (campo === campoSenha) {
@@ -188,6 +230,7 @@ function validarFormulario() {
   const sobrenomeValido = validarCampo(campoSobrenome);
   const emailValido = validarCampo(campoEmail);
   const telefoneValido = validarCampo(campoTelefone);
+  const cpfValido = validarCampo(campoCpf);
   const senhaValida = validarCampo(campoSenha);
   const confirmacaoValida = validarCampo(campoConfirmarSenha);
 
@@ -196,6 +239,7 @@ function validarFormulario() {
     sobrenomeValido &&
     emailValido &&
     telefoneValido &&
+    cpfValido &&
     senhaValida &&
     confirmacaoValida
   );
@@ -221,18 +265,19 @@ function registrarValidacao(campo, aoDigitar) {
   });
 }
 
-async function enviarCadastro(dadosCliente) {
-  const resposta = await fetch("/cliente/cadastro", {
+async function enviarCadastro(dadosBarbeiro) {
+  const resposta = await fetch("/barbeiro/cadastro", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      nome: dadosCliente.nome,
-      sobrenome: dadosCliente.sobrenome,
-      email: dadosCliente.email,
-      telefone: dadosCliente.telefone,
-      senha: dadosCliente.senha,
+      nome: dadosBarbeiro.nome,
+      sobrenome: dadosBarbeiro.sobrenome,
+      email: dadosBarbeiro.email,
+      telefone: dadosBarbeiro.telefone,
+      cpf: dadosBarbeiro.cpf,
+      senha: dadosBarbeiro.senha,
     }),
   });
 
@@ -240,10 +285,18 @@ async function enviarCadastro(dadosCliente) {
 }
 
 function tratarErroDoBackend(mensagem) {
-  if (mensagem === "Email ja cadastrado.") {
+  if (mensagem === "CPF ja cadastrado para outro barbeiro") {
+    controleFormulario.mostrarErroNoCampo(
+      campoCpf,
+      "Este CPF ja esta vinculado a outro barbeiro."
+    );
+    return;
+  }
+
+  if (mensagem === "Email informado ja esta em uso por outro barbeiro") {
     controleFormulario.mostrarErroNoCampo(
       campoEmail,
-      "Este email ja esta cadastrado."
+      "Este email ja esta vinculado a outro barbeiro."
     );
     return;
   }
@@ -257,10 +310,13 @@ registrarValidacao(campoEmail);
 registrarValidacao(campoTelefone, () => {
   campoTelefone.value = formatarTelefone(campoTelefone.value);
 });
+registrarValidacao(campoCpf, () => {
+  campoCpf.value = formatarCpf(campoCpf.value);
+});
 registrarValidacao(campoSenha);
 registrarValidacao(campoConfirmarSenha);
 
-formularioCliente.addEventListener("submit", async (event) => {
+formularioBarbeiro.addEventListener("submit", async (event) => {
   event.preventDefault();
   controleFormulario.limparAviso();
 
@@ -272,11 +328,11 @@ formularioCliente.addEventListener("submit", async (event) => {
     return;
   }
 
-  const dadosCliente = pegarDadosDoCliente();
+  const dadosBarbeiro = pegarDadosDoBarbeiro();
   controleFormulario.definirEnvio(true);
 
   try {
-    const { resposta, corpo } = await enviarCadastro(dadosCliente);
+    const { resposta, corpo } = await enviarCadastro(dadosBarbeiro);
 
     if (!resposta.ok) {
       tratarErroDoBackend(
@@ -286,18 +342,13 @@ formularioCliente.addEventListener("submit", async (event) => {
     }
 
     controleFormulario.limparTodosOsCampos();
-    formularioCliente.reset();
+    formularioBarbeiro.reset();
     controleFormulario.mostrarAviso(
-      corpo.message ||
-        "Cadastro realizado com sucesso. Redirecionando para o login...",
+      corpo.message || "Barbeiro cadastrado com sucesso.",
       "success"
     );
-
-    window.setTimeout(() => {
-      window.location.href = "/auth/login";
-    }, 1400);
   } catch (erro) {
-    console.error("Erro ao cadastrar cliente:", erro);
+    console.error("Erro ao cadastrar barbeiro:", erro);
     controleFormulario.mostrarAviso(
       "Nao foi possivel conectar ao servidor. Tente novamente em instantes.",
       "error"

@@ -14,13 +14,19 @@
   </head>
   <body>
     <div class="bt-card">
-      <a href="/" class="bt-logo" aria-label="Voltar para o login">
-        <div class="bt-logo-icon">✂</div>
+      <a
+        href="/barbearia/dashboard"
+        class="bt-logo"
+        aria-label="Voltar para o dashboard da barbearia"
+      >
+        <div class="bt-logo-icon">&#9986;</div>
         <span class="bt-logo-text">BarberTrack</span>
       </a>
 
-      <h1 class="bt-title">Cadastro</h1>
-      <p class="bt-subtitle">Crie sua conta para agendar serviços</p>
+      <h1 class="bt-title">Cadastro de Barbeiro</h1>
+      <p class="bt-subtitle">
+        Cadastre um profissional e vincule-o automaticamente a sua barbearia.
+      </p>
 
       <form action="/barbeiro/cadastro" method="post" id="barbeiro-form">
         <div class="bt-row mb-3">
@@ -31,7 +37,7 @@
               type="text"
               id="nome"
               name="nome"
-              placeholder="João"
+              placeholder="Joao"
               autocomplete="given-name"
               required
             />
@@ -88,18 +94,44 @@
             placeholder="000.000.000-00"
             maxlength="14"
             inputmode="numeric"
-            autocomplete="tel"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="mb-3" data-field>
+          <label class="bt-label" for="senha">Senha</label>
+          <input
+            class="bt-input"
+            type="password"
+            id="senha"
+            name="senha"
+            placeholder="Minimo de 8 caracteres"
+            autocomplete="new-password"
+            required
+          />
+        </div>
+
+        <div class="mb-3" data-field>
+          <label class="bt-label" for="confirmarSenha">Confirmar Senha</label>
+          <input
+            class="bt-input"
+            type="password"
+            id="confirmarSenha"
+            name="confirmarSenha"
+            placeholder="Digite a senha novamente"
+            autocomplete="new-password"
             required
           />
         </div>
 
         <hr class="bt-divider" />
 
-        <button type="submit" class="bt-btn">Cadastrar</button>
+        <button type="submit" class="bt-btn">Cadastrar Barbeiro</button>
       </form>
 
-      <a href="/" class="bt-footer-link"
-        >Já tenho uma conta - <span>Entrar</span></a
+      <a href="/barbearia/dashboard" class="bt-footer-link"
+        >Voltar para o <span>dashboard da barbearia</span></a
       >
     </div>
   </body>
