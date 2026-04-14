@@ -144,7 +144,7 @@ formularioLogin.addEventListener("submit", async (event) => {
 
     if (!resposta.ok) {
       controleFormulario.mostrarAviso(
-        corpo.error || "Nao foi possivel entrar. Verifique seus dados.",
+        corpo.error || "Não foi possível entrar. Verifique seus dados.",
         "error"
       );
       return;
@@ -159,7 +159,7 @@ formularioLogin.addEventListener("submit", async (event) => {
   } catch (erro) {
     console.error("Erro na conexao:", erro);
     controleFormulario.mostrarAviso(
-      "Nao foi possivel conectar ao servidor. Tente novamente em instantes.",
+      "Não foi possível conectar ao servidor. Tente novamente em instantes.",
       "error"
     );
   } finally {
