@@ -26,6 +26,13 @@ const responseMessages = {
   unauthenticated: "Usuario nao autenticado",
   authenticated: "Usuario autenticado",
   accessDenied: "Acesso negado",
+  resetEmailSent:
+    "Se este e-mail estiver cadastrado, voce recebera o link em breve.",
+  invalidResetToken: "Link invalido ou expirado.",
+  resetTokenUsed: "Este link ja foi utilizado.",
+  passwordUpdated: "Senha redefinida com sucesso.",
+  requiredResetFields: "E-mail e tipo de perfil sao obrigatorios.",
+  requiredNewPasswordFields: "Token e nova senha sao obrigatorios.",
 };
 
 module.exports = responseMessages;
