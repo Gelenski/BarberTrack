@@ -2,7 +2,11 @@ const express = require("express");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const db = require("../db/db");
-const { isAuthenticated, isBarbearia } = require("../middleware/auth");
+const {
+  isAuthenticated,
+  isBarbearia,
+  isBarbeiro,
+} = require("../middleware/auth");
 const { recordExists } = require("../utils/dbChecks");
 const { normalizeDigits, normalizeTelefone } = require("../utils/normalizers");
 const responseMessages = require("../utils/responseMessages");
@@ -95,6 +99,10 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
       .status(500)
       .json({ error: responseMessages.internalServerError });
   }
+});
+
+router.get("/dashboard", isAuthenticated, isBarbeiro, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/dashboard_barbeiro/index.html"));
 });
 
 module.exports = router;
