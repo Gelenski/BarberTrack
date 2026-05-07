@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda | BarberTrack</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+  <div class="container" style="max-width: 1100px;">
+
+    <div class="page-header">
+      <h1 class="page-title">Agenda</h1>
+      <p class="page-subtitle">Gerencie os agendamentos da sua barbearia</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-bar">
+      <div>
+        <label for="filtro-data">Data</label>
+        <input type="date" id="filtro-data" />
+      </div>
+      <div>
+        <label for="filtro-barbeiro">Barbeiro</label>
+        <select id="filtro-barbeiro">
+          <option value="">Todos os barbeiros</option>
+        </select>
+      </div>
+      <div>
+        <button class="btn-filtrar" onclick="carregarAgendamentos()">Filtrar</button>
+      </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="metricas" id="metricas" style="display:none;">
+      <div class="metrica-card">
+        <p class="metrica-label">Total do dia</p>
+        <p class="metrica-valor" id="m-total">0</p>
+      </div>
+      <div class="metrica-card">
+        <p class="metrica-label">Confirmados</p>
+        <p class="metrica-valor verde" id="m-confirmados">0</p>
+      </div>
+      <div class="metrica-card">
+        <p class="metrica-label">Concluídos</p>
+        <p class="metrica-valor cinza" id="m-concluidos">0</p>
+      </div>
+      <div class="metrica-card">
+        <p class="metrica-label">Cancelados</p>
+        <p class="metrica-valor" style="color:#dc3545;" id="m-cancelados">0</p>
+      </div>
+      <div class="metrica-card">
+        <p class="metrica-label">Receita potencial</p>
+        <p class="metrica-valor" id="m-receita">R$ 0</p>
+      </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="tabela-wrapper">
+      <div class="estado-loading" id="estado-loading">Carregando agendamentos...</div>
+
+      <div id="estado-vazio" class="estado-vazio" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        <p>Nenhum agendamento para esta data.</p>
+      </div>
+
+      <table class="tabela-agendamentos" id="tabela" style="display:none;">
+        <thead>
+          <tr>
+            <th>Horário</th>
+            <th>Cliente</th>
+            <th>Barbeiro</th>
+            <th>Serviço</th>
+            <th class="col-duracao">Duração</th>
+            <th>Preço</th>
+            <th>Status</th>
+            <th class="col-observacao">Obs.</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+  <script src="../agenda_barbearia/script.js"></script>
+</body>
+</html>

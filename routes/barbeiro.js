@@ -97,4 +97,8 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
   }
 });
 
+router.get("/agenda", (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/agenda_barbeiro/index.html"));
+});
+
 module.exports = router;

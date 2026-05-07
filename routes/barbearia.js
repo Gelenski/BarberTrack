@@ -112,4 +112,64 @@ router.get("/servicos", (req, res) => {
   res.sendFile(path.join(__dirname, "../views/servicos_barbearia/index.html"));
 });
 
+router.get("/agenda", isAuthenticated, isBarbearia, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/agenda_barbearia/index.html"));
+});
+
+router.get("/agenda/agendamentos", isAuthenticated, isBarbearia, async (req, res) => {
+  const barbeariaId = req.session.usuario.id;
+  const { data, barbeiro_id } = req.query;
+
+  // data padrão = hoje
+  const dataFiltro = data || new Date().toISOString().split("T")[0];
+
+  try {
+    let query = `
+      SELECT
+        a.id,
+        a.horario,
+        a.status,
+        a.observacao,
+        CONCAT(c.nome, ' ', c.sobrenome) AS cliente_nome,
+        c.telefone                        AS cliente_telefone,
+        CONCAT(b.nome, ' ', b.sobrenome) AS barbeiro_nome,
+        b.id                              AS barbeiro_id,
+        s.nome                            AS servico_nome,
+        s.duracao_min,
+        s.preco
+      FROM agendamento a
+      JOIN cliente  c ON c.id = a.cliente_id
+      JOIN barbeiro b ON b.id = a.barbeiro_id
+      JOIN servico  s ON s.id = a.servico_id
+      WHERE a.barbearia_id = ?
+        AND DATE(a.horario) = ?
+    `;
+
+    const params = [barbeariaId, dataFiltro];
+
+    if (barbeiro_id) {
+      query += " AND a.barbeiro_id = ?";
+      params.push(barbeiro_id);
+    }
+
+    query += " ORDER BY a.horario ASC";
+
+    const [agendamentos] = await db.execute(query, params);
+
+    // Busca barbeiros da barbearia para popular o filtro
+    const [barbeiros] = await db.execute(
+      `SELECT id, CONCAT(nome, ' ', sobrenome) AS nome
+       FROM barbeiro
+       WHERE barbearia_id = ? AND ativo = TRUE
+       ORDER BY nome ASC`,
+      [barbeariaId]
+    );
+
+    return res.json({ agendamentos, barbeiros });
+  } catch (error) {
+    console.error("Erro ao buscar agendamentos:", error);
+    return res.status(500).json({ error: responseMessages.internalServerError });
+  }
+});
+
 module.exports = router;
