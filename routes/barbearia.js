@@ -104,6 +104,21 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
+router.get("/listar", async (req, res) => {
+  try {
+    const [result] = await db.execute("SELECT nome_fantasia FROM barbearia;");
+
+    return res.status(200).json({
+      message: result,
+    });
+  } catch (error) {
+    console.log("Erro ao listar barbearias:", error);
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
+  }
+});
+
 router.get("/dashboard", isAuthenticated, isBarbearia, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_barbearia/index.html"));
 });
