@@ -110,6 +110,6 @@ router.get("/dashboard", isAuthenticated, isBarbearia, (req, res) => {
 
 router.get("/servicos", (req, res) => {
   res.sendFile(path.join(__dirname, "../views/servicos_barbearia/index.html"));
-})
+});
 
 module.exports = router;
