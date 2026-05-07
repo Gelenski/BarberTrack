@@ -25,4 +25,12 @@ function isCliente(req, res, next) {
   return res.status(403).send(responseMessages.accessDenied);
 }
 
-module.exports = { isAuthenticated, isBarbearia, isCliente };
+function isBarbeiro(req, res, next) {
+  if (req.session?.user?.tipo === "barbeiro") {
+    return next();
+  }
+
+  return res.status(403).send(responseMessages.accessDenied);
+}
+
+module.exports = { isAuthenticated, isBarbearia, isCliente, isBarbeiro };

@@ -12,6 +12,13 @@ const perfis = {
     campoNome: "nome",
     redirectPath: "/cliente/dashboard",
   },
+
+  barbeiro: {
+    tipo: "barbeiro",
+    tabela: "barbeiro",
+    campoNome: "nome",
+    redirectPath: "/barbeiro/dashboard",
+  },
 };
 
 function resolveAuthProfile(tipo) {
