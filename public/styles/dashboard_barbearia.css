@@ -537,3 +537,75 @@ body {
     padding: 1.25rem 1rem;
   }
 }
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+.barber-skeleton {
+  height: 62px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--border) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  margin-bottom: 0.65rem;
+}
+.barber-skeleton:last-child {
+  margin-bottom: 0;
+}
+
+.barber-empty {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.barber-empty a {
+  color: var(--gold);
+  text-decoration: none;
+}
+.barber-empty a:hover {
+  text-decoration: underline;
+}
+.barber-empty .empty-icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.barber-error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  background: rgba(217, 95, 75, 0.08);
+  border: 1px solid rgba(217, 95, 75, 0.25);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #ffb1a5;
+}
+.retry-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba(217, 95, 75, 0.35);
+  border-radius: 4px;
+  color: #ffb1a5;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.retry-btn:hover {
+  background: rgba(217, 95, 75, 0.12);
+}

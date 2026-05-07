@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BarberTrack - Dashboard da Barbearia</title>
     <link rel="stylesheet" href="/styles/dashboard_barbearia.css" />
+    <script src="/scripts/dashboard_barbearia.js" defer></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
+    <!-- TOPBAR -->
     <header class="topbar">
       <a href="/" class="bt-logo">
         <div class="bt-logo-icon">✂</div>
@@ -22,7 +24,9 @@
       </div>
     </header>
 
+    <!-- LAYOUT -->
     <div class="layout">
+      <!-- SIDEBAR -->
       <aside class="sidebar">
         <div class="sidebar-section">
           <span class="sidebar-label">Principal</span>
@@ -54,22 +58,29 @@
 
         <div class="sidebar-section">
           <span class="sidebar-label">Sistema</span>
-          <a class="nav-item" href="#">
+          <button class="nav-item" id="btn-config">
             <span class="icon">⚙</span> Configurações
-          </a>
-          <a class="nav-item" href="#"> <span class="icon">↩</span> Sair </a>
+          </button>
+          <button class="nav-item" id="btn-logout">
+            <span class="icon">↩</span> Sair
+          </button>
         </div>
       </aside>
 
+      <!-- MAIN -->
       <main class="main">
+        <!-- PAGE HEADER -->
         <div class="page-header">
           <div>
             <h1>Dashboard</h1>
             <span class="date-label">Quarta-feira, 7 de maio de 2025</span>
           </div>
-          <a href="/#" class="btn-primary"> + Novo Agendamento </a>
+          <a href="/barbeiro/cadastro" class="btn-primary">
+            + Novo Agendamento
+          </a>
         </div>
 
+        <!-- MÉTRICAS -->
         <div class="metrics-grid">
           <div class="metric-card">
             <div class="metric-label">
@@ -101,7 +112,9 @@
           </div>
         </div>
 
+        <!-- GRID INFERIOR -->
         <div class="bottom-grid">
+          <!-- AGENDA DO DIA -->
           <div class="card">
             <div class="card-header">
               <span class="card-title">Agenda de Hoje</span>
@@ -176,7 +189,9 @@
             </div>
           </div>
 
+          <!-- COLUNA DIREITA -->
           <div style="display: flex; flex-direction: column; gap: 1.25rem">
+            <!-- AÇÕES RÁPIDAS -->
             <div class="card" style="padding: 1.25rem">
               <div class="card-header">
                 <span class="card-title">Ações Rápidas</span>
@@ -187,8 +202,7 @@
                   <span class="qa-label">Cadastrar Barbeiro</span>
                   <span class="qa-sub">Adicionar à equipe</span>
                 </a>
-                <a class="qa-btn" href="/cliente/cadastro">
-                  <!--criar modal (adrian)-->
+                <a class="qa-btn" href="#">
                   <span class="qa-icon">👤</span>
                   <span class="qa-label">Novo Cliente</span>
                   <span class="qa-sub">Cadastrar ficha</span>
@@ -211,43 +225,10 @@
                 <span class="card-title">Equipe Hoje</span>
                 <a class="card-action" href="/barbeiro/cadastro">+ Adicionar</a>
               </div>
-              <div class="barber-list">
-                <div class="barber-item">
-                  <div class="barber-avatar">JO</div>
-                  <div class="barber-info">
-                    <div class="barber-name">João Oliveira</div>
-                    <div class="barber-role">Barbeiro Sênior</div>
-                  </div>
-                  <div class="barber-stat">
-                    <div class="barber-stat-num">7</div>
-                    <div class="barber-stat-label">atend.</div>
-                  </div>
-                  <div class="online-dot"></div>
-                </div>
-                <div class="barber-item">
-                  <div class="barber-avatar">PS</div>
-                  <div class="barber-info">
-                    <div class="barber-name">Pedro Santos</div>
-                    <div class="barber-role">Barbeiro</div>
-                  </div>
-                  <div class="barber-stat">
-                    <div class="barber-stat-num">6</div>
-                    <div class="barber-stat-label">atend.</div>
-                  </div>
-                  <div class="online-dot"></div>
-                </div>
-                <div class="barber-item">
-                  <div class="barber-avatar">LF</div>
-                  <div class="barber-info">
-                    <div class="barber-name">Lucas Ferreira</div>
-                    <div class="barber-role">Barbeiro Júnior</div>
-                  </div>
-                  <div class="barber-stat">
-                    <div class="barber-stat-num">5</div>
-                    <div class="barber-stat-label">atend.</div>
-                  </div>
-                  <div class="online-dot offline"></div>
-                </div>
+              <div class="barber-list" id="barber-list">
+                <div class="barber-skeleton"></div>
+                <div class="barber-skeleton"></div>
+                <div class="barber-skeleton"></div>
               </div>
             </div>
           </div>
