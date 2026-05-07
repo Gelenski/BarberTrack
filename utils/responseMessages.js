@@ -18,6 +18,7 @@ const responseMessages = {
   createdCliente: "Usuario cadastrado com sucesso.",
   createdBarbeiro: "Barbeiro cadastrado com sucesso.",
   createdBarbearia: "Barbearia cadastrada com sucesso",
+  linkedCliente: "Cliente linkado com sucesso",
   userNotFound: "Usuario nao encontrado",
   invalidCredentials: "E-mail ou senha incorreto",
   sessionError: "Erro ao iniciar sessao",
