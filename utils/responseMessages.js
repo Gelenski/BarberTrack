@@ -33,6 +33,10 @@ const responseMessages = {
   passwordUpdated: "Senha redefinida com sucesso.",
   requiredResetFields: "E-mail e tipo de perfil sao obrigatorios.",
   requiredNewPasswordFields: "Token e nova senha sao obrigatorios.",
+  invalidDiaSemana: "Dia da semana inválido.",
+  requiredHorarioFields: "Informe abertura e fechamento para os dias abertos.",
+  invalidHorarioRange: "O horário de abertura deve ser anterior ao fechamento.",
+  createdHorarios: "Horários salvos com sucesso.",
 };
 
 module.exports = responseMessages;

@@ -17,6 +17,20 @@ CREATE TABLE barbearia (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE horario_funcionamento (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  barbearia_id INT UNSIGNED NOT NULL,
+  dia_semana TINYINT UNSIGNED NOT NULL,  
+  abertura TIME NULL,                     
+  fechamento TIME NULL,                   
+  fechado BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (barbearia_id) REFERENCES barbearia(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_barbearia_dia (barbearia_id, dia_semana)  
+  );
+
+
 CREATE TABLE cliente (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     barbearia_id INT UNSIGNED NOT NULL,

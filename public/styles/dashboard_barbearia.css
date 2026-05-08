@@ -609,3 +609,150 @@ body {
 .retry-btn:hover {
   background: rgba(217, 95, 75, 0.12);
 }
+
+/* ─────────────────────────────────────────
+   NOVO: estilos do card de horários
+   ───────────────────────────────────────── */
+
+/* card com delay de animação próprio */
+.horarios-card {
+  animation-delay: 0.3s;
+}
+
+/* lista de dias */
+.horarios-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* cada linha representa um dia da semana */
+.dia-row {
+  display: grid;
+  grid-template-columns: 110px 90px 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+.dia-row:hover {
+  border-color: var(--gold-dark);
+}
+
+/* quando o dia está marcado como fechado, a linha fica mais apagada */
+.dia-row.fechado-row {
+  opacity: 0.5;
+}
+
+.dia-nome {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* label do checkbox "Fechado" */
+.dia-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.dia-check input[type="checkbox"] {
+  accent-color: var(--gold);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* wrapper do input de time com label acima */
+.dia-time {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dia-time label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.dia-time input[type="time"] {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  color-scheme: dark;
+}
+
+.dia-time input[type="time"]:focus {
+  border-color: var(--gold-dark);
+}
+
+/* desabilitado quando fechado está marcado */
+.dia-time input[type="time"]:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* rodapé do formulário com o botão de salvar */
+.horarios-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* aviso de sucesso/erro que aparece no card-header após salvar */
+.horarios-aviso {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  display: none;
+}
+
+.horarios-aviso.success {
+  display: inline-block;
+  background: rgba(74, 170, 114, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(74, 170, 114, 0.3);
+}
+
+.horarios-aviso.error {
+  display: inline-block;
+  background: rgba(217, 95, 75, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(217, 95, 75, 0.3);
+}
+
+/* responsivo: empilha em telas pequenas */
+@media (max-width: 600px) {
+  .dia-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  .dia-nome {
+    grid-column: 1;
+  }
+  .dia-check {
+    grid-column: 2;
+    justify-content: flex-end;
+  }
+}
+
+/* ─────────────────────────────────────────
+   FIM NOVO
+   ───────────────────────────────────────── */
