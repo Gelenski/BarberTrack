@@ -4,8 +4,44 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BarberTrack - Dashboard do Cliente</title>
+    <link href="/styles/global.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <p>Você está logado como cliente.</p>
+    <div class="bt-card wide">
+      <!-- LOGO -->
+      <a href="/" class="bt-logo">
+        <div class="bt-logo-icon">✂</div>
+        <span class="bt-logo-text">BarberTrack</span>
+      </a>
+
+      <h1 class="bt-title">Olá, Cliente!</h1>
+      <p class="bt-subtitle">Bem-vindo ao seu painel.</p>
+
+      <hr class="bt-divider" />
+
+      <!-- HORÁRIOS DA BARBEARIA -->
+      <h2 class="bt-title" style="font-size: 1.25rem; margin-bottom: 0.25rem">
+        Horários de Funcionamento
+      </h2>
+      <p class="bt-subtitle">Confira quando a barbearia está disponível.</p>
+
+      <!-- Estado de carregamento -->
+      <div id="horarios-status" class="bt-form-status is-info">
+        Carregando horários...
+      </div>
+
+      <!-- Lista de horários -->
+      <div id="horarios-container"></div>
+
+      <hr class="bt-divider" />
+
+      <button class="bt-btn" id="btn-logout">Sair</button>
+    </div>
+
+    <script src="/scripts/dashboard_cliente.js"></script>
   </body>
 </html>
