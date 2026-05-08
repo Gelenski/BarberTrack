@@ -134,6 +134,10 @@ router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
   }
 });
 
+router.get("/dashboard", isAuthenticated, isBarbeiro, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/dashboard_barbeiro/index.html"));
+});
+
 // Visualizar horarios da barbearia
 
 router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
