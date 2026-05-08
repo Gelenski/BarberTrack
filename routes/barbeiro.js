@@ -132,6 +132,8 @@ router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
       .status(500)
       .json({ error: responseMessages.internalServerError });
   }
+});
+
 router.get("/dashboard", isAuthenticated, isBarbeiro, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_barbeiro/index.html"));
 });
