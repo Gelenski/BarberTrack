@@ -2,7 +2,11 @@ const express = require("express");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const db = require("../db/db");
-const { isAuthenticated, isBarbearia , isBarbeiro} = require("../middleware/auth");
+const {
+  isAuthenticated,
+  isBarbearia,
+  isBarbeiro,
+} = require("../middleware/auth");
 const { recordExists } = require("../utils/dbChecks");
 const { normalizeDigits, normalizeTelefone } = require("../utils/normalizers");
 const responseMessages = require("../utils/responseMessages");
