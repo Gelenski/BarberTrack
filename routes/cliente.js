@@ -36,10 +36,8 @@ router.post("/cadastro", async (req, res) => {
 
     const senhaHash = await bcrypt.hash(cliente.senha, 10);
 
-    // TODO: Alterar para o cliente selecionar qual barbearia é cliente desde o login, podendo ser mais de uma etc.
-
     const [result] = await db.execute(
-      "INSERT INTO cliente (barbearia_id, nome, sobrenome, email, telefone, senha) VALUES (1,?,?,?,?,?);",
+      "INSERT INTO cliente (nome, sobrenome, email, telefone, senha) VALUES (?,?,?,?,?);",
       [
         cliente.nome,
         cliente.sobrenome,
@@ -64,6 +62,43 @@ router.post("/cadastro", async (req, res) => {
       .json({ error: responseMessages.internalServerError });
   }
 });
+
+router.post(
+  "/cliente-barbearia",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const cliente = req.body.cliente_id;
+    const barbearias = req.body.barbearias;
+
+    try {
+      if (!Array.isArray(barbearias) || barbearias.length == 0) {
+        return res.status(400).json({
+          erros: responseMessages.invalidBarbearias,
+        });
+      }
+
+      for (const barbearia of barbearias) {
+        await db.execute(
+          `
+          INSERT INTO cliente_barbearias 
+          (barbearia_id, cliente_id) 
+          VALUES (?, ?)
+          `,
+          [barbearia, cliente]
+        );
+      }
+      return res.status(201).json({
+        message: responseMessages.linkedCliente,
+      });
+    } catch (error) {
+      console.log("Erro ao linkar cliente à uma barbearia:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
+  }
+);
 
 router.get("/dashboard", isAuthenticated, isCliente, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_cliente/index.html"));
