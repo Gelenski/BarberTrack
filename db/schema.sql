@@ -89,4 +89,4 @@ CREATE TABLE agendamento (
 FOREIGN KEY (barbearia_id) REFERENCES barbearia(id),
 FOREIGN KEY (cliente_id) REFERENCES cliente(id),
 FOREIGN KEY (barbeiro_id) REFERENCES barbeiro(id)
-)
+);
