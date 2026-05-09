@@ -138,4 +138,28 @@ router.get("/dashboard", isAuthenticated, isBarbeiro, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_barbeiro/index.html"));
 });
 
+// Visualizar horarios da barbearia
+
+router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
+  try {
+    // O barbeiro tem barbearia_id na sessão pois foi cadastrado por uma barbearia
+    const [horarios] = await db.execute(
+      `SELECT dia_semana, abertura, fechamento, fechado
+       FROM horario_funcionamento
+       WHERE barbearia_id = (
+         SELECT barbearia_id FROM barbeiro WHERE id = ?
+       )
+       ORDER BY dia_semana`,
+      [req.session.user.id]
+    );
+
+    return res.json({ horarios });
+  } catch (error) {
+    console.error("Erro ao buscar horários:", error);
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
+  }
+});
+
 module.exports = router;

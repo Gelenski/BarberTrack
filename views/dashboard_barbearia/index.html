@@ -60,6 +60,10 @@
           <a class="nav-item" href="#">
             <span class="icon">🛠</span> Serviços
           </a>
+          <!-- ✅ Novo item adicionado -->
+          <a class="nav-item" href="#secao-horarios">
+            <span class="icon">🕐</span> Horários
+          </a>
         </div>
 
         <hr class="sidebar-divider" />
@@ -137,7 +141,6 @@
                 <div class="agenda-barber">João</div>
                 <span class="status-pill concluido">Concluído</span>
               </div>
-
               <div class="agenda-item">
                 <span class="agenda-time">09:30</span>
                 <div class="agenda-divider"></div>
@@ -148,7 +151,6 @@
                 <div class="agenda-barber">Pedro</div>
                 <span class="status-pill andamento">Em andamento</span>
               </div>
-
               <div class="agenda-item">
                 <span class="agenda-time">10:15</span>
                 <div class="agenda-divider"></div>
@@ -159,7 +161,6 @@
                 <div class="agenda-barber">João</div>
                 <span class="status-pill confirmado">Confirmado</span>
               </div>
-
               <div class="agenda-item">
                 <span class="agenda-time">11:00</span>
                 <div class="agenda-divider"></div>
@@ -170,7 +171,6 @@
                 <div class="agenda-barber">Lucas</div>
                 <span class="status-pill pendente">Pendente</span>
               </div>
-
               <div class="agenda-item">
                 <span class="agenda-time">11:45</span>
                 <div class="agenda-divider"></div>
@@ -181,7 +181,6 @@
                 <div class="agenda-barber">Pedro</div>
                 <span class="status-pill confirmado">Confirmado</span>
               </div>
-
               <div class="agenda-item">
                 <span class="agenda-time">13:00</span>
                 <div class="agenda-divider"></div>
@@ -238,6 +237,39 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- ✅ SEÇÃO DE HORÁRIOS -->
+        <div
+          class="card"
+          id="secao-horarios"
+          style="margin-top: 1.25rem; padding: 1.25rem"
+        >
+          <div class="card-header">
+            <span class="card-title">Horários de Funcionamento</span>
+          </div>
+
+          <form id="form-horarios">
+            <div id="dias-container"></div>
+
+            <div
+              style="
+                margin-top: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+              "
+            >
+              <button
+                type="submit"
+                class="btn-primary"
+                id="btn-salvar-horarios"
+              >
+                Salvar Horários
+              </button>
+              <span id="horarios-aviso"></span>
+            </div>
+          </form>
         </div>
       </main>
     </div>
