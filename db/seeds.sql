@@ -9,19 +9,16 @@
 -- cadastrar, editar e desativar seus próprios serviços.
 -- =============================================================================
 
+-- ─── Serviços ────────────────────────────────────────────────
 INSERT INTO servico (barbearia_id, nome, duracao_min, preco) VALUES
-(1, 'Corte de cabelo',   30, 35.00),
-(1, 'Barba',             20, 25.00),
-(1, 'Corte + Barba',     45, 55.00),
-(1, 'Pigmentação',       60, 80.00),
-(1, 'Sobrancelha',       15, 15.00),
-(1, 'Hidratação',        40, 50.00),
-(1, 'Relaxamento',       50, 65.00);
+(1, 'Corte de cabelo', 30, 35.00),
+(1, 'Barba',           30, 25.00),
+(1, 'Corte + Barba',   60, 55.00),
+(1, 'Pigmentação',     60, 80.00),
+(1, 'Sobrancelha',     30, 15.00);
 
--- -----------------------------------------------------------------------------
--- Horário de funcionamento da barbearia
--- 1=segunda, 2=terça, 3=quarta, 4=quinta, 5=sexta, 6=sábado
--- -----------------------------------------------------------------------------
+-- ─── Horário de funcionamento da barbearia ───────────────────
+-- 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab
 INSERT INTO horario_barbearia (barbearia_id, dia_semana, hora_abertura, hora_fechamento) VALUES
 (1, 1, '09:00', '18:00'),
 (1, 2, '09:00', '18:00'),
@@ -29,14 +26,39 @@ INSERT INTO horario_barbearia (barbearia_id, dia_semana, hora_abertura, hora_fec
 (1, 4, '09:00', '18:00'),
 (1, 5, '09:00', '18:00'),
 (1, 6, '09:00', '16:00');
- 
--- -----------------------------------------------------------------------------
--- Horário de trabalho do barbeiro
--- Barbeiro 1 trabalha seg-sex, 9h às 17h
--- -----------------------------------------------------------------------------
+
+-- ─── Horário de trabalho dos barbeiros ───────────────────────
+-- João (id=1): seg-sex 09h-17h
 INSERT INTO horario_barbeiro (barbeiro_id, dia_semana, hora_inicio, hora_fim) VALUES
 (1, 1, '09:00', '17:00'),
 (1, 2, '09:00', '17:00'),
 (1, 3, '09:00', '17:00'),
 (1, 4, '09:00', '17:00'),
 (1, 5, '09:00', '17:00');
+
+-- Pedro (id=2): seg-sab 10h-18h
+INSERT INTO horario_barbeiro (barbeiro_id, dia_semana, hora_inicio, hora_fim) VALUES
+(2, 1, '10:00', '18:00'),
+(2, 2, '10:00', '18:00'),
+(2, 3, '10:00', '18:00'),
+(2, 4, '10:00', '18:00'),
+(2, 5, '10:00', '18:00'),
+(2, 6, '10:00', '16:00');
+
+-- ─── Agendamentos de exemplo ─────────────────────────────────
+-- Hoje
+INSERT INTO agendamento (barbearia_id, cliente_id, barbeiro_id, servico_id, horario, status) VALUES
+(1, 1, 1, 1, CONCAT(CURDATE(), ' 09:00:00'), 'concluido'),
+(1, 2, 2, 2, CONCAT(CURDATE(), ' 10:00:00'), 'concluido'),
+(1, 2, 1, 3, CONCAT(CURDATE(), ' 14:00:00'), 'confirmado'),
+(1, 1, 2, 1, CONCAT(CURDATE(), ' 15:30:00'), 'confirmado');
+
+-- Amanhã
+INSERT INTO agendamento (barbearia_id, cliente_id, barbeiro_id, servico_id, horario, status) VALUES
+(1, 1, 1, 5, CONCAT(DATE_ADD(CURDATE(), INTERVAL 1 DAY), ' 09:00:00'), 'confirmado'),
+(1, 2, 2, 3, CONCAT(DATE_ADD(CURDATE(), INTERVAL 1 DAY), ' 10:30:00'), 'confirmado'),
+(1, 2, 1, 2, CONCAT(DATE_ADD(CURDATE(), INTERVAL 1 DAY), ' 11:30:00'), 'confirmado');
+
+-- Em 2 dias
+INSERT INTO agendamento (barbearia_id, cliente_id, barbeiro_id, servico_id, horario, status) VALUES
+(1, 1, 2, 4, CONCAT(DATE_ADD(CURDATE(), INTERVAL 2 DAY), ' 14:00:00'), 'confirmado');

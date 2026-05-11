@@ -3,9 +3,184 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BarberTrack - Dashboard do Cliente</title>
+    <title>BarberTrack - Início</title>
+    <link rel="stylesheet" href="/styles/dashboard_barbearia.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .barbearia-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      .barbearia-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.35rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        transition: border-color 0.2s;
+        animation: fadeUp 0.35s ease both;
+      }
+      .barbearia-card:hover {
+        border-color: var(--gold-dark);
+      }
+      .barbearia-card-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--gold-dark);
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-size: 1.3rem;
+        border: 1.5px solid rgba(201, 168, 76, 0.35);
+      }
+      .barbearia-card-name {
+        font-family: "Playfair Display", serif;
+        font-size: 1.05rem;
+        color: var(--text);
+      }
+      .barbearia-card-info {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .barbearia-card-actions {
+        margin-top: 0.35rem;
+      }
+      .btn-ver-agenda {
+        width: 100%;
+        background: var(--gold);
+        color: #0f0d0b;
+        border: none;
+        border-radius: 6px;
+        padding: 0.55rem 1rem;
+        font-family: "Playfair Display", serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+      .btn-ver-agenda:hover {
+        background: var(--gold-light);
+        color: #0f0d0b;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 3.5rem 1rem;
+        color: var(--muted);
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+        grid-column: 1 / -1;
+      }
+      .empty-state-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
+      }
+      .empty-state h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.2rem;
+        color: var(--text);
+        margin-bottom: 0.4rem;
+      }
+      .empty-state p {
+        font-size: 0.85rem;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        margin-top: 2.5rem;
+      }
+      .section-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.2rem;
+        color: var(--text);
+      }
+      .barber-skeleton {
+        background: var(--surface);
+        border-radius: 12px;
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.45;
+        }
+      }
+    </style>
   </head>
   <body>
-    <p>Você está logado como cliente.</p>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <a href="/cliente/dashboard" class="bt-logo">
+        <div class="bt-logo-icon">✂</div>
+        <span class="bt-logo-text">BarberTrack</span>
+      </a>
+      <div class="topbar-right">
+        <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="greeting"
+          >Olá, <strong id="nome-cliente">...</strong></span
+        >
+        <div class="avatar" id="avatar-inicial"></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <span class="sidebar-label">Principal</span>
+          <a class="nav-item active" href="/cliente/dashboard">
+            <span class="icon">◈</span> Início
+          </a>
+        </div>
+        <hr class="sidebar-divider" />
+        <div class="sidebar-section">
+          <span class="sidebar-label">Sistema</span>
+          <button class="nav-item" id="btn-logout">
+            <span class="icon">↩</span> Sair
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1>Barbearias</h1>
+            <span class="date-label" id="data-atual"></span>
+          </div>
+        </div>
+
+        <!-- BARBEARIAS -->
+        <div id="barbearia-grid" class="barbearia-grid"></div>
+
+        <!-- AGENDAMENTOS -->
+        <div class="section-header">
+          <h2 class="section-title">Próximos Agendamentos</h2>
+        </div>
+        <div class="agenda-list" id="agendamentos-list"></div>
+      </main>
+    </div>
+
+    <script src="/scripts/dashboard_cliente.js"></script>
   </body>
 </html>
