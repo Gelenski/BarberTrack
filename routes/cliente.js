@@ -16,8 +16,8 @@ router.get("/cadastro", (req, res) => {
 });
 
 router.post("/cadastro", async (req, res) => {
-  const { nome, sobrenome, email, telefone, senha, barbeariaId } = req.body;
-  const cliente = { nome, sobrenome, email, telefone, senha, barbeariaId };
+  const { nome, sobrenome, email, telefone, senha, barbeariasIds } = req.body;
+  const cliente = { nome, sobrenome, email, telefone, senha, barbeariasIds };
   const validationError = validateRegisterClientePayload(cliente);
 
   const connection = await db.getConnection();
@@ -56,10 +56,15 @@ router.post("/cadastro", async (req, res) => {
       ]
     );
 
-    // Segunda query de inserção dos dados na tabela de relacionamento entre clientes e barbearias
-    const [result2] = await connection.execute(
-      "INSERT INTO cliente_barbearias (barbearia_id, cliente_id) VALUES (?,?);",
-      [cliente.barbeariaId, result1.insertId]
+    const clienteId = result1.insertId;
+
+    const values = barbeariasIds.map((barbeariaId) => [barbeariaId, clienteId]);
+    // Segunda query de inserção dos d  ados na tabela de relacionamento entre clientes e barbearias
+    await connection.query(
+      `INSERT INTO cliente_barbearias
+      (barbearia_id, cliente_id)
+      VALUES ?`,
+      [values]
     );
 
     await connection.commit();
@@ -70,13 +75,11 @@ router.post("/cadastro", async (req, res) => {
         id: result1.insertId,
         nome: cliente.nome,
         email: cliente.email,
-        barbeariaId: cliente.barbeariaId,
-      },
-      relation: {
-        id: result2.insertId,
+        barbeariasIds: cliente.barbeariasIds,
       },
     });
   } catch (error) {
+    await connection.rollback();
     console.error("Erro no cadastro de cliente:", error);
     return res
       .status(500)

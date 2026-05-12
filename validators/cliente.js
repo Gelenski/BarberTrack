@@ -24,7 +24,6 @@ function validateRegisterClientePayload(cliente) {
   const requiredFields = [
     cliente.nome,
     cliente.sobrenome,
-    cliente.barbeariaId,
     cliente.email,
     cliente.telefone,
     cliente.senha,
@@ -32,6 +31,14 @@ function validateRegisterClientePayload(cliente) {
 
   if (requiredFields.some((field) => !field)) {
     return responseMessages.requiredClienteFields;
+  }
+
+  // Validação do array
+  if (
+    !Array.isArray(cliente.barbeariasIds) ||
+    cliente.barbeariasIds.length === 0
+  ) {
+    return "barbeariasIds deve ser um array com pelo menos um id";
   }
 
   return null;
