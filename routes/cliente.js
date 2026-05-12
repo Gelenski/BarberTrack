@@ -5,7 +5,7 @@ const db = require("../db/db");
 const { isAuthenticated, isCliente } = require("../middleware/auth");
 const { recordExists } = require("../utils/dbChecks");
 const responseMessages = require("../utils/responseMessages");
-const { validateClientePayload } = require("../validators/cliente");
+const { validateRegisterClientePayload } = require("../validators/cliente");
 
 const router = express.Router();
 
@@ -16,17 +16,25 @@ router.get("/cadastro", (req, res) => {
 });
 
 router.post("/cadastro", async (req, res) => {
-  const { nome, sobrenome, email, telefone, senha } = req.body;
-  const cliente = { nome, sobrenome, email, telefone, senha };
-  const validationError = validateClientePayload(cliente);
+  const { nome, sobrenome, email, telefone, senha, barbeariaId } = req.body;
+  const cliente = { nome, sobrenome, email, telefone, senha, barbeariaId };
+  const validationError = validateRegisterClientePayload(cliente);
+
+  const connection = await db.getConnection();
 
   if (validationError) {
     return res.status(400).json({ error: validationError });
   }
 
   try {
+    await connection.beginTransaction();
     // Validamos unicidade antes do insert para responder com erro de negocio mais claro.
-    const emailJaCadastrado = await recordExists(db, "cliente", "email", email);
+    const emailJaCadastrado = await recordExists(
+      connection,
+      "cliente",
+      "email",
+      email
+    );
 
     if (emailJaCadastrado) {
       return res
@@ -36,7 +44,8 @@ router.post("/cadastro", async (req, res) => {
 
     const senhaHash = await bcrypt.hash(cliente.senha, 10);
 
-    const [result] = await db.execute(
+    // Primeira query para inserção dos dados na tabela cliente
+    const [result1] = await connection.execute(
       "INSERT INTO cliente (nome, sobrenome, email, telefone, senha) VALUES (?,?,?,?,?);",
       [
         cliente.nome,
@@ -47,12 +56,24 @@ router.post("/cadastro", async (req, res) => {
       ]
     );
 
+    // Segunda query de inserção dos dados na tabela de relacionamento entre clientes e barbearias
+    const [result2] = await connection.execute(
+      "INSERT INTO cliente_barbearias (barbearia_id, cliente_id) VALUES (?,?);",
+      [cliente.barbeariaId, result1.insertId]
+    );
+
+    await connection.commit();
+
     return res.status(201).json({
       message: responseMessages.createdCliente,
       user: {
-        id: result.insertId,
+        id: result1.insertId,
         nome: cliente.nome,
         email: cliente.email,
+        barbeariaId: cliente.barbeariaId,
+      },
+      relation: {
+        id: result2.insertId,
       },
     });
   } catch (error) {
@@ -60,6 +81,8 @@ router.post("/cadastro", async (req, res) => {
     return res
       .status(500)
       .json({ error: responseMessages.internalServerError });
+  } finally {
+    connection.release();
   }
 });
 
