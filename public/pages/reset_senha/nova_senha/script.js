@@ -2,8 +2,14 @@ const form = document.getElementById("nova-senha-form");
 const senhaInput = document.getElementById("senha");
 const confirmarSenhaInput = document.getElementById("confirmarsenha");
 
-const { definirEnvio, mostrarAviso, limparAviso, mostrarErroNoCampo } =
-  window.FormularioBarberTrack.criarControleDeFormulario(form);
+const {
+  definirEnvio,
+  mostrarAviso,
+  limparAviso,
+  mostrarErroNoCampo,
+  mostrarCampoValido,
+  limparCampo,
+} = window.FormularioBarberTrack.criarControleDeFormulario(form);
 
 // Pega o token da URL: /auth/nova-senha?token=xxxxx
 const urlParams = new URLSearchParams(window.location.search);
@@ -17,18 +23,82 @@ if (!token) {
   }, 2000);
 }
 
+function validarSenha() {
+  const senha = senhaInput.value;
+  const senhaRegex =
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  if (!senha) {
+    return "Informe uma senha.";
+  }
+
+  if (!senhaRegex.test(senha)) {
+    return "A senha deve ter pelo menos 8 caracteres, 1 letra maiúscula, 1 número e 1 caractere especial";
+  }
+
+  return null;
+}
+
+function validarConfirmacaoDeSenha() {
+  const senha = senhaInput.value;
+  const confirmarSenha = confirmarSenhaInput.value;
+
+  if (!confirmarSenha) {
+    return "Confirme sua senha.";
+  }
+
+  if (senha !== confirmarSenha) {
+    return "As senhas nao coincidem.";
+  }
+
+  return null;
+}
+
+function validarCampoIndividual(input, funcaoValidacao) {
+  const erro = funcaoValidacao();
+  if (erro) {
+    mostrarErroNoCampo(input, erro);
+  } else if (input.value.length > 0) {
+    mostrarCampoValido(input);
+  } else {
+    limparCampo(input);
+  }
+}
+
+[senhaInput, confirmarSenhaInput].forEach((input) => {
+  input.addEventListener("input", () => {
+    limparAviso();
+    if (input === senhaInput) {
+      validarCampoIndividual(senhaInput, validarSenha);
+      // Sempre revalida a confirmação quando a senha principal muda
+      validarCampoIndividual(confirmarSenhaInput, validarConfirmacaoDeSenha);
+    } else {
+      validarCampoIndividual(confirmarSenhaInput, validarConfirmacaoDeSenha);
+    }
+  });
+
+  input.addEventListener("blur", () => {
+    if (input === senhaInput) {
+      validarCampoIndividual(senhaInput, validarSenha);
+    } else {
+      validarCampoIndividual(confirmarSenhaInput, validarConfirmacaoDeSenha);
+    }
+  });
+});
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   limparAviso();
 
-  // Validações no front antes de enviar
-  if (senhaInput.value.length < 8) {
-    mostrarErroNoCampo(senhaInput, "A senha deve ter pelo menos 8 caracteres.");
+  const erroSenha = validarSenha();
+  if (erroSenha) {
+    mostrarErroNoCampo(senhaInput, erroSenha);
     return;
   }
 
-  if (senhaInput.value !== confirmarSenhaInput.value) {
-    mostrarErroNoCampo(confirmarSenhaInput, "As senhas não coincidem.");
+  const erroConfirmacao = validarConfirmacaoDeSenha();
+  if (erroConfirmacao) {
+    mostrarErroNoCampo(confirmarSenhaInput, erroConfirmacao);
     return;
   }
 
