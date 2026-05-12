@@ -2,7 +2,11 @@ const express = require("express");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const db = require("../db/db");
-const { isAuthenticated, isBarbearia } = require("../middleware/auth");
+const {
+  isAuthenticated,
+  isBarbearia,
+  isBarbeiro,
+} = require("../middleware/auth");
 const { recordExists } = require("../utils/dbChecks");
 const { normalizeDigits, normalizeTelefone } = require("../utils/normalizers");
 const responseMessages = require("../utils/responseMessages");
@@ -97,8 +101,70 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 router.get("/agenda", (req, res) => {
   res.sendFile(path.join(__dirname, "../views/agenda_barbeiro/index.html"));
+=======
+router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      `SELECT
+         id,
+         nome,
+         sobrenome,
+         email,
+         telefone
+       FROM barbeiro
+       WHERE barbearia_id = ?
+         AND ativo = TRUE
+       ORDER BY nome ASC`,
+      [req.session.user.id]
+    );
+
+    const barbeiros = rows.map((b) => ({
+      id: b.id,
+      nome_completo: `${b.nome} ${b.sobrenome}`,
+      iniciais: (b.nome[0] + b.sobrenome[0]).toUpperCase(),
+      email: b.email,
+      telefone: b.telefone,
+    }));
+
+    return res.json({ barbeiros });
+  } catch (error) {
+    console.error("Erro ao listar barbeiros:", error);
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
+  }
+});
+
+router.get("/dashboard", isAuthenticated, isBarbeiro, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/dashboard_barbeiro/index.html"));
+});
+
+// Visualizar horarios da barbearia
+
+router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
+  try {
+    // O barbeiro tem barbearia_id na sessão pois foi cadastrado por uma barbearia
+    const [horarios] = await db.execute(
+      `SELECT dia_semana, abertura, fechamento, fechado
+       FROM horario_funcionamento
+       WHERE barbearia_id = (
+         SELECT barbearia_id FROM barbeiro WHERE id = ?
+       )
+       ORDER BY dia_semana`,
+      [req.session.user.id]
+    );
+
+    return res.json({ horarios });
+  } catch (error) {
+    console.error("Erro ao buscar horários:", error);
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
+  }
+>>>>>>> 53fa693f05d7331c19a21f314219f7ed8c6be47e
 });
 
 module.exports = router;

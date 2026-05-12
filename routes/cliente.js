@@ -39,7 +39,7 @@ router.post("/cadastro", async (req, res) => {
     const senhaHash = await bcrypt.hash(cliente.senha, 10);
 
     const [result] = await db.execute(
-      "INSERT INTO cliente (barbearia_id, nome, sobrenome, email, telefone, senha) VALUES (1,?,?,?,?,?);",
+      "INSERT INTO cliente (nome, sobrenome, email, telefone, senha) VALUES (?,?,?,?,?);",
       [
         cliente.nome,
         cliente.sobrenome,
@@ -61,12 +61,52 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 // ─── Dashboard
+=======
+router.post(
+  "/cliente-barbearia",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const cliente = req.body.cliente_id;
+    const barbearias = req.body.barbearias;
+
+    try {
+      if (!Array.isArray(barbearias) || barbearias.length == 0) {
+        return res.status(400).json({
+          erros: responseMessages.invalidBarbearias,
+        });
+      }
+
+      for (const barbearia of barbearias) {
+        await db.execute(
+          `
+          INSERT INTO cliente_barbearias 
+          (barbearia_id, cliente_id) 
+          VALUES (?, ?)
+          `,
+          [barbearia, cliente]
+        );
+      }
+      return res.status(201).json({
+        message: responseMessages.linkedCliente,
+      });
+    } catch (error) {
+      console.log("Erro ao linkar cliente à uma barbearia:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
+  }
+);
+>>>>>>> 53fa693f05d7331c19a21f314219f7ed8c6be47e
 
 router.get("/dashboard", isAuthenticated, isCliente, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_cliente/index.html"));
 });
 
+<<<<<<< HEAD
 // ─── Página de agenda / booking
 
 router.get("/agenda", isAuthenticated, isCliente, (req, res) => {
@@ -132,12 +172,30 @@ router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
     return res.json({ barbearia: rows[0], horarios, agendamentos });
   } catch (error) {
     console.error("Erro ao buscar barbearia:", error);
+=======
+router.get("/horarios", isAuthenticated, isCliente, async (req, res) => {
+  try {
+    const [horarios] = await db.execute(
+      `SELECT dia_semana, abertura, fechamento, fechado
+       FROM horario_funcionamento
+       WHERE barbearia_id = (
+         SELECT barbearia_id FROM cliente WHERE id = ?
+       )
+       ORDER BY dia_semana`,
+      [req.session.user.id]
+    );
+
+    return res.json({ horarios });
+  } catch (error) {
+    console.error("Erro ao buscar horários:", error);
+>>>>>>> 53fa693f05d7331c19a21f314219f7ed8c6be47e
     return res
       .status(500)
       .json({ error: responseMessages.internalServerError });
   }
 });
 
+<<<<<<< HEAD
 // ─── Barbeiros de uma barbearia
 
 router.get(
@@ -406,4 +464,6 @@ router.delete(
   }
 );
 
+=======
+>>>>>>> 53fa693f05d7331c19a21f314219f7ed8c6be47e
 module.exports = router;

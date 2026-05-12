@@ -1,3 +1,5 @@
+//codigo igual ao do cliente, só mudando o fetch para /barbeiro/horarios
+
 const DIAS = [
   "Domingo",
   "Segunda",
@@ -13,10 +15,9 @@ async function carregarHorarios() {
   const container = document.getElementById("horarios-container");
 
   try {
-    const resposta = await fetch("/cliente/horarios");
+    const resposta = await fetch("/barbeiro/horarios");
     const corpo = await resposta.json();
 
-    // Esconde o aviso de carregamento
     status.style.display = "none";
 
     if (!corpo.horarios || corpo.horarios.length === 0) {

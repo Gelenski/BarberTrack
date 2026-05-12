@@ -18,6 +18,7 @@ const responseMessages = {
   createdCliente: "Usuario cadastrado com sucesso.",
   createdBarbeiro: "Barbeiro cadastrado com sucesso.",
   createdBarbearia: "Barbearia cadastrada com sucesso",
+  linkedCliente: "Cliente linkado com sucesso",
   userNotFound: "Usuario nao encontrado",
   invalidCredentials: "E-mail ou senha incorreto",
   sessionError: "Erro ao iniciar sessao",
@@ -33,6 +34,10 @@ const responseMessages = {
   passwordUpdated: "Senha redefinida com sucesso.",
   requiredResetFields: "E-mail e tipo de perfil sao obrigatorios.",
   requiredNewPasswordFields: "Token e nova senha sao obrigatorios.",
+  invalidDiaSemana: "Dia da semana inválido.",
+  requiredHorarioFields: "Informe abertura e fechamento para os dias abertos.",
+  invalidHorarioRange: "O horário de abertura deve ser anterior ao fechamento.",
+  createdHorarios: "Horários salvos com sucesso.",
 };
 
 module.exports = responseMessages;

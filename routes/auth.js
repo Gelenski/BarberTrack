@@ -75,6 +75,21 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// ─── Logout
+
+router.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Erro ao destruir sessao:", err);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
+    res.clearCookie("connect.sid");
+    return res.json({ success: true, redirect: "/auth/login" });
+  });
+});
+
 // ─── Reset de senha
 
 router.get("/reset-senha", (req, res) => {
