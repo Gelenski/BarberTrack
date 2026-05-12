@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BarberTrack - Dashboard da Barbearia</title>
-    <link rel="stylesheet" href="/styles/dashboard_barbearia.css" />
+    <link rel="stylesheet" href="/styles/globalDashboard.css" />
     <script src="/scripts/dashboard_barbearia.js" defer></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
@@ -12,7 +12,6 @@
     />
   </head>
   <body>
-    <!--  -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <!-- TOPBAR -->
@@ -21,14 +20,11 @@
         <div class="bt-logo-icon">✂</div>
         <span class="bt-logo-text">BarberTrack</span>
       </a>
-
       <div class="topbar-right">
         <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
           <span></span><span></span><span></span>
         </button>
-        <span class="greeting"
-          >Olá, <strong id="nome-barbearia">...</strong></span
-        >
+        <span class="greeting">Olá, <strong id="nome-barbearia">...</strong></span>
         <div class="avatar"></div>
       </div>
     </header>
@@ -42,7 +38,9 @@
           <a class="nav-item active" href="#">
             <span class="icon">◈</span> Dashboard
           </a>
-          <a class="nav-item" href="#"> <span class="icon">📅</span> Agenda </a>
+          <a class="nav-item" href="/barbearia/agenda">
+            <span class="icon">📅</span> Agenda
+          </a>
           <a class="nav-item" href="#">
             <span class="icon">💰</span> Financeiro
           </a>
@@ -61,7 +59,6 @@
           <a class="nav-item" href="#">
             <span class="icon">🛠</span> Serviços
           </a>
-          <!-- ✅ Novo item adicionado -->
           <a class="nav-item" href="#secao-horarios">
             <span class="icon">🕐</span> Horários
           </a>
@@ -88,36 +85,28 @@
             <h1>Dashboard</h1>
             <span class="date-label" id="data-atual"></span>
           </div>
-          <a href="#" class="btn-primary"> + Novo Agendamento </a>
+          <a href="/barbearia/agenda" class="btn-primary">+ Novo Agendamento</a>
         </div>
 
         <!-- MÉTRICAS -->
         <div class="metrics-grid">
           <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>Faturamento Hoje
-            </div>
+            <div class="metric-label"><span class="dot"></span>Faturamento Hoje</div>
             <div class="metric-value gold">R$ 847</div>
             <div class="metric-change">▲ 12% vs ontem</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>Atendimentos Hoje
-            </div>
+            <div class="metric-label"><span class="dot"></span>Atendimentos Hoje</div>
             <div class="metric-value">18</div>
             <div class="metric-change">▲ 3 a mais que ontem</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>Ticket Médio
-            </div>
+            <div class="metric-label"><span class="dot"></span>Ticket Médio</div>
             <div class="metric-value">R$ 47</div>
             <div class="metric-change neutral">— igual à semana passada</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>Pendentes Hoje
-            </div>
+            <div class="metric-label"><span class="dot"></span>Pendentes Hoje</div>
             <div class="metric-value">4</div>
             <div class="metric-change down">▼ 2 confirmações pendentes</div>
           </div>
@@ -129,69 +118,12 @@
           <div class="card">
             <div class="card-header">
               <span class="card-title">Agenda de Hoje</span>
-              <a class="card-action" href="#">Ver completa →</a>
+              <a class="card-action" href="/barbearia/agenda">Ver completa →</a>
             </div>
-            <div class="agenda-list">
-              <div class="agenda-item">
-                <span class="agenda-time">08:30</span>
-                <div class="agenda-divider"></div>
-                <div class="agenda-info">
-                  <div class="agenda-client">Carlos Mendes</div>
-                  <div class="agenda-service">Corte + Barba • 60 min</div>
-                </div>
-                <div class="agenda-barber">João</div>
-                <span class="status-pill concluido">Concluído</span>
-              </div>
-              <div class="agenda-item">
-                <span class="agenda-time">09:30</span>
-                <div class="agenda-divider"></div>
-                <div class="agenda-info">
-                  <div class="agenda-client">Rafael Souza</div>
-                  <div class="agenda-service">Corte Social • 40 min</div>
-                </div>
-                <div class="agenda-barber">Pedro</div>
-                <span class="status-pill andamento">Em andamento</span>
-              </div>
-              <div class="agenda-item">
-                <span class="agenda-time">10:15</span>
-                <div class="agenda-divider"></div>
-                <div class="agenda-info">
-                  <div class="agenda-client">Marcos Lima</div>
-                  <div class="agenda-service">Barba Modelada • 30 min</div>
-                </div>
-                <div class="agenda-barber">João</div>
-                <span class="status-pill confirmado">Confirmado</span>
-              </div>
-              <div class="agenda-item">
-                <span class="agenda-time">11:00</span>
-                <div class="agenda-divider"></div>
-                <div class="agenda-info">
-                  <div class="agenda-client">Bruno Alves</div>
-                  <div class="agenda-service">Corte + Sobrancelha • 50 min</div>
-                </div>
-                <div class="agenda-barber">Lucas</div>
-                <span class="status-pill pendente">Pendente</span>
-              </div>
-              <div class="agenda-item">
-                <span class="agenda-time">11:45</span>
-                <div class="agenda-divider"></div>
-                <div class="agenda-info">
-                  <div class="agenda-client">Diego Costa</div>
-                  <div class="agenda-service">Corte Degradê • 45 min</div>
-                </div>
-                <div class="agenda-barber">Pedro</div>
-                <span class="status-pill confirmado">Confirmado</span>
-              </div>
-              <div class="agenda-item">
-                <span class="agenda-time">13:00</span>
-                <div class="agenda-divider"></div>
-                <div class="agenda-info">
-                  <div class="agenda-client">Felipe Nunes</div>
-                  <div class="agenda-service">Corte + Barba • 60 min</div>
-                </div>
-                <div class="agenda-barber">Lucas</div>
-                <span class="status-pill pendente">Pendente</span>
-              </div>
+            <div class="agenda-list" id="agenda-hoje-list">
+              <div class="barber-skeleton" style="height:56px;border-radius:8px;"></div>
+              <div class="barber-skeleton" style="height:56px;border-radius:8px;margin-top:.5rem;"></div>
+              <div class="barber-skeleton" style="height:56px;border-radius:8px;margin-top:.5rem;"></div>
             </div>
           </div>
 
@@ -213,7 +145,7 @@
                   <span class="qa-label">Novo Cliente</span>
                   <span class="qa-sub">Cadastrar ficha</span>
                 </a>
-                <a class="qa-btn" href="#">
+                <a class="qa-btn" href="/barbearia/agenda">
                   <span class="qa-icon">📅</span>
                   <span class="qa-label">Agendar</span>
                   <span class="qa-sub">Novo horário</span>
@@ -240,32 +172,15 @@
           </div>
         </div>
 
-        <!-- ✅ SEÇÃO DE HORÁRIOS -->
-        <div
-          class="card"
-          id="secao-horarios"
-          style="margin-top: 1.25rem; padding: 1.25rem"
-        >
+        <!-- SEÇÃO DE HORÁRIOS -->
+        <div class="card" id="secao-horarios" style="margin-top: 1.25rem; padding: 1.25rem">
           <div class="card-header">
             <span class="card-title">Horários de Funcionamento</span>
           </div>
-
           <form id="form-horarios">
             <div id="dias-container"></div>
-
-            <div
-              style="
-                margin-top: 1rem;
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-              "
-            >
-              <button
-                type="submit"
-                class="btn-primary"
-                id="btn-salvar-horarios"
-              >
+            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem;">
+              <button type="submit" class="btn-primary" id="btn-salvar-horarios">
                 Salvar Horários
               </button>
               <span id="horarios-aviso"></span>

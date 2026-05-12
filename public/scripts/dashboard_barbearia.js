@@ -73,8 +73,11 @@ function mostrarData() {
 }
 
 // Executa a função ao carregar a página
-window.onload = mostrarData;
-
+window.onload = function () {
+  mostrarData();
+  carregarAgendaHoje();
+  carregarHorarios();
+};
 carregarBarbeiros();
 
 // ─── Menu hamburguer
@@ -293,8 +296,49 @@ document
     }
   });
 
+async function carregarAgendaHoje() {
+  const lista = document.getElementById("agenda-hoje-list");
+  const hoje = new Date().toISOString().split("T")[0];
+
+  try {
+    const res = await fetch(`/barbearia/agenda/agendamentos?data=${hoje}`);
+    if (!res.ok) throw new Error();
+    const { agendamentos } = await res.json();
+
+    if (!agendamentos.length) {
+      lista.innerHTML = `
+        <div style="text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;">
+          Nenhum agendamento para hoje.
+        </div>`;
+      return;
+    }
+
+    lista.innerHTML = agendamentos.map((a) => {
+      const hora = new Date(a.horario).toLocaleTimeString("pt-BR", {
+        hour: "2-digit", minute: "2-digit",
+      });
+      const statusLabel = { confirmado: "Confirmado", concluido: "Concluído", cancelado: "Cancelado" };
+      return `
+        <div class="agenda-item">
+          <span class="agenda-time">${hora}</span>
+          <div class="agenda-divider"></div>
+          <div class="agenda-info">
+            <div class="agenda-client">${a.cliente_nome}</div>
+            <div class="agenda-service">${a.servico_nome} · ${a.duracao_min} min</div>
+          </div>
+          <div class="agenda-barber">${a.barbeiro_nome.split(" ")[0]}</div>
+          <span class="status-pill ${a.status}">${statusLabel[a.status] ?? a.status}</span>
+        </div>`;
+    }).join("");
+  } catch (_) {
+    lista.innerHTML = `
+      <div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.85rem;">
+        Erro ao carregar agenda.
+      </div>`;
+  }
+}
+
 // Inicia o carregamento dos horários assim que a página carrega
-carregarHorarios();
 
 // ════════════════════════════════════════════
 // FIM NOVO
