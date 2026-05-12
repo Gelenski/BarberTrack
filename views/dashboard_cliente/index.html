@@ -12,7 +12,6 @@
   </head>
   <body>
     <div class="bt-card wide">
-      <!-- LOGO -->
       <a href="/" class="bt-logo">
         <div class="bt-logo-icon">✂</div>
         <span class="bt-logo-text">BarberTrack</span>
@@ -23,19 +22,49 @@
 
       <hr class="bt-divider" />
 
-      <!-- HORÁRIOS DA BARBEARIA -->
-      <h2 class="bt-title" style="font-size: 1.25rem; margin-bottom: 0.25rem">
+      <!-- BARBEARIA ATIVA -->
+      <h2 class="bt-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">
+        Barbearia Atual
+      </h2>
+      <p class="bt-subtitle">Selecione qual barbearia deseja visualizar.</p>
+      <select class="bt-select" id="select-barbearia-ativa" style="margin-bottom: 1rem;">
+        <option value="">Carregando...</option>
+      </select>
+
+      <!-- HORÁRIOS -->
+      <h2 class="bt-title" style="font-size: 1.1rem; margin-bottom: 0.25rem;">
         Horários de Funcionamento
       </h2>
-      <p class="bt-subtitle">Confira quando a barbearia está disponível.</p>
-
-      <!-- Estado de carregamento -->
       <div id="horarios-status" class="bt-form-status is-info">
         Carregando horários...
       </div>
-
-      <!-- Lista de horários -->
       <div id="horarios-container"></div>
+
+      <hr class="bt-divider" />
+
+      <!-- MINHAS BARBEARIAS -->
+      <h2 class="bt-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">
+        Minhas Barbearias
+      </h2>
+      <p class="bt-subtitle">Barbearias que você frequenta.</p>
+      <div id="minhas-barbearias"></div>
+
+      <hr class="bt-divider" />
+
+      <!-- ADICIONAR BARBEARIA -->
+      <h2 class="bt-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">
+        Adicionar Barbearia
+      </h2>
+      <p class="bt-subtitle">Vincule-se a uma nova barbearia.</p>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <select class="bt-select" id="select-nova-barbearia">
+          <option value="">Selecione uma barbearia</option>
+        </select>
+        <button class="bt-btn" id="btn-adicionar-barbearia" style="margin-top: 0; width: auto; padding: 0.65rem 1rem;">
+          Adicionar
+        </button>
+      </div>
+      <div id="aviso-barbearia" style="margin-top: 0.5rem;"></div>
 
       <hr class="bt-divider" />
 
