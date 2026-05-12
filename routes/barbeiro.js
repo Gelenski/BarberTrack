@@ -30,46 +30,27 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
   };
 
   const validationError = validateBarbeiroPayload(barbeiro);
-
   if (validationError) {
     return res.status(400).json({ error: validationError });
   }
 
   try {
-    const cpfJaCadastrado = await recordExists(
-      db,
-      "barbeiro",
-      "cpf",
-      barbeiro.cpf
-    );
-
+    const cpfJaCadastrado = await recordExists(db, "barbeiro", "cpf", barbeiro.cpf);
     if (cpfJaCadastrado) {
-      return res
-        .status(409)
-        .json({ error: responseMessages.duplicateBarbeiroCpf });
+      return res.status(409).json({ error: responseMessages.duplicateBarbeiroCpf });
     }
 
-    const emailJaCadastrado = await recordExists(
-      db,
-      "barbeiro",
-      "email",
-      barbeiro.email
-    );
-
+    const emailJaCadastrado = await recordExists(db, "barbeiro", "email", barbeiro.email);
     if (emailJaCadastrado) {
-      return res
-        .status(409)
-        .json({ error: responseMessages.duplicateBarbeiroEmail });
+      return res.status(409).json({ error: responseMessages.duplicateBarbeiroEmail });
     }
 
     const senhaHash = await bcrypt.hash(barbeiro.senha, 10);
 
     const [result] = await db.execute(
-      `
-      INSERT INTO barbeiro
+      `INSERT INTO barbeiro
         (barbearia_id, nome, sobrenome, cpf, email, telefone, senha)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         req.session.user.id,
         barbeiro.nome,
@@ -95,28 +76,22 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
     });
   } catch (error) {
     console.error("Erro no cadastro de barbeiro:", error);
-    return res
-      .status(500)
-      .json({ error: responseMessages.internalServerError });
+    return res.status(500).json({ error: responseMessages.internalServerError });
   }
 });
 
-<<<<<<< HEAD
+// ─── Agenda do barbeiro (feature/agenda)
 router.get("/agenda", (req, res) => {
   res.sendFile(path.join(__dirname, "../views/agenda_barbeiro/index.html"));
-=======
+});
+
+// ─── Listar barbeiros da barbearia
 router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
   try {
     const [rows] = await db.execute(
-      `SELECT
-         id,
-         nome,
-         sobrenome,
-         email,
-         telefone
+      `SELECT id, nome, sobrenome, email, telefone
        FROM barbeiro
-       WHERE barbearia_id = ?
-         AND ativo = TRUE
+       WHERE barbearia_id = ? AND ativo = TRUE
        ORDER BY nome ASC`,
       [req.session.user.id]
     );
@@ -132,9 +107,7 @@ router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
     return res.json({ barbeiros });
   } catch (error) {
     console.error("Erro ao listar barbeiros:", error);
-    return res
-      .status(500)
-      .json({ error: responseMessages.internalServerError });
+    return res.status(500).json({ error: responseMessages.internalServerError });
   }
 });
 
@@ -142,11 +115,8 @@ router.get("/dashboard", isAuthenticated, isBarbeiro, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_barbeiro/index.html"));
 });
 
-// Visualizar horarios da barbearia
-
 router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
   try {
-    // O barbeiro tem barbearia_id na sessão pois foi cadastrado por uma barbearia
     const [horarios] = await db.execute(
       `SELECT dia_semana, abertura, fechamento, fechado
        FROM horario_funcionamento
@@ -156,15 +126,11 @@ router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
        ORDER BY dia_semana`,
       [req.session.user.id]
     );
-
     return res.json({ horarios });
   } catch (error) {
     console.error("Erro ao buscar horários:", error);
-    return res
-      .status(500)
-      .json({ error: responseMessages.internalServerError });
+    return res.status(500).json({ error: responseMessages.internalServerError });
   }
->>>>>>> 53fa693f05d7331c19a21f314219f7ed8c6be47e
 });
 
 module.exports = router;
