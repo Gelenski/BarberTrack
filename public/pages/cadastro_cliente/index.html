@@ -11,6 +11,53 @@
     <link href="/styles/global.css" rel="stylesheet" />
     <script src="/scripts/form-feedback.js" defer></script>
     <script src="/pages/cadastro_cliente/script.js" defer></script>
+
+    <style>
+      .barbearias-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+
+      .barbearia-card {
+        position: relative;
+      }
+
+      .barbearia-card input {
+        display: none;
+      }
+
+      .barbearia-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 1rem;
+
+        border: 2px solid #dcdcdc;
+        border-radius: 12px;
+
+        background: white;
+
+        cursor: pointer;
+
+        transition: all 0.2s ease;
+
+        font-weight: 500;
+      }
+
+      .barbearia-label:hover {
+        border-color: #111827;
+        transform: translateY(-2px);
+      }
+
+      .barbearia-card input:checked + .barbearia-label {
+        background: #111827;
+        color: white;
+        border-color: #111827;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+    </style>
   </head>
   <body>
     <div class="bt-card">
@@ -109,17 +156,24 @@
 
         <hr class="bt-divider" />
 
-<div class="mb-3">
-  <label class="bt-label">Barbearia(s)</label>
-  <p class="bt-subtitle" style="margin-bottom: 0.75rem;">
-    Selecione as barbearias que você frequenta.
-  </p>
-  <div id="lista-barbearias" class="bt-form-status is-info">
-    Carregando barbearias...
-  </div>
-</div>
+        <div class="mb-3">
+          <label class="bt-label">Barbearia(s)</label>
 
+          <p class="bt-subtitle" style="margin-bottom: 0.75rem">
+            Selecione as barbearias que você frequenta.
+          </p>
 
+          <!-- INPUT DE BUSCA -->
+          <input
+            type="text"
+            id="filtro-barbearias"
+            class="form-control mb-3"
+            placeholder="Buscar barbearia..."
+          />
+
+          <!-- LISTA -->
+          <div id="lista-barbearias"></div>
+        </div>
 
         <button type="submit" class="bt-btn">Cadastrar</button>
       </form>

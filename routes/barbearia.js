@@ -106,7 +106,9 @@ router.post("/cadastro", async (req, res) => {
 
 router.get("/listar", async (req, res) => {
   try {
-    const [result] = await db.execute("SELECT nome_fantasia FROM barbearia;");
+    const [result] = await db.execute(
+      "SELECT id, nome_fantasia FROM barbearia;"
+    );
 
     return res.status(200).json({
       message: result,

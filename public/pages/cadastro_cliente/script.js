@@ -48,6 +48,10 @@ function formatarTelefone(valor) {
 }
 
 function pegarDadosDoCliente() {
+  const barbeariasSelecionadas = Array.from(
+    document.querySelectorAll('input[name="barbearias"]:checked')
+  ).map((input) => Number(input.value));
+
   return {
     nome: campoNome.value.trim(),
     sobrenome: campoSobrenome.value.trim(),
@@ -55,6 +59,8 @@ function pegarDadosDoCliente() {
     telefone: removerNaoNumeros(campoTelefone.value),
     senha: campoSenha.value,
     confirmarSenha: campoConfirmarSenha.value,
+
+    barbeariasIds: barbeariasSelecionadas,
   };
 }
 
@@ -182,6 +188,168 @@ function validarCampo(campo) {
 
   return true;
 }
+document.addEventListener("DOMContentLoaded", () => {
+  let todasBarbearias = [];
+
+  let paginaAtual = 1;
+  const itensPorPagina = 5;
+
+  async function carregarBarbearias() {
+    const container = document.getElementById("lista-barbearias");
+
+    try {
+      container.innerHTML = `
+        <div class="text-center py-3">
+          <div class="spinner-border text-primary"></div>
+        </div>
+      `;
+
+      const response = await fetch("/barbearia/listar");
+
+      const data = await response.json();
+
+      todasBarbearias = data.message;
+
+      renderizarBarbearias(todasBarbearias);
+    } catch (error) {
+      console.error(error);
+
+      container.innerHTML = `
+        <div class="alert alert-danger">
+          Erro ao carregar barbearias.
+        </div>
+      `;
+    }
+  }
+
+  function renderizarBarbearias(lista) {
+    const container = document.getElementById("lista-barbearias");
+
+    container.innerHTML = "";
+
+    if (!lista.length) {
+      container.innerHTML = `
+        <div class="alert alert-warning">
+          Nenhuma barbearia encontrada.
+        </div>
+      `;
+      return;
+    }
+
+    // CALCULA ÍNDICES
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+
+    // PEGA APENAS ITENS DA PÁGINA
+    const paginaItens = lista.slice(inicio, fim);
+
+    const grid = document.createElement("div");
+    grid.className = "barbearias-grid";
+
+    paginaItens.forEach((barbearia) => {
+      const item = document.createElement("div");
+
+      item.className = "barbearia-card";
+
+      item.innerHTML = `
+        <input
+          type="checkbox"
+          name="barbearias"
+          value="${barbearia.id}"
+          id="barbearia-${barbearia.id}"
+        />
+
+        <label
+          for="barbearia-${barbearia.id}"
+          class="barbearia-label"
+        >
+          ${barbearia.nome_fantasia}
+        </label>
+      `;
+
+      grid.appendChild(item);
+    });
+
+    container.appendChild(grid);
+
+    renderizarPaginacao(lista);
+  }
+
+  function renderizarPaginacao(lista) {
+    const totalPaginas = Math.ceil(lista.length / itensPorPagina);
+
+    const paginacaoExistente = document.getElementById("paginacao");
+
+    if (paginacaoExistente) {
+      paginacaoExistente.remove();
+    }
+
+    const paginacao = document.createElement("div");
+
+    paginacao.id = "paginacao";
+    paginacao.className = "d-flex justify-content-center gap-2 mt-3";
+
+    // BOTÃO ANTERIOR
+    const btnAnterior = document.createElement("button");
+
+    btnAnterior.innerText = "Anterior";
+
+    btnAnterior.disabled = paginaAtual === 1;
+
+    btnAnterior.className = "btn btn-outline-primary";
+
+    btnAnterior.addEventListener("click", () => {
+      paginaAtual--;
+
+      renderizarBarbearias(lista);
+    });
+
+    // BOTÃO PRÓXIMO
+    const btnProximo = document.createElement("button");
+
+    btnProximo.innerText = "Próximo";
+
+    btnProximo.disabled = paginaAtual === totalPaginas;
+
+    btnProximo.className = "btn btn-outline-primary";
+
+    btnProximo.addEventListener("click", () => {
+      paginaAtual++;
+
+      renderizarBarbearias(lista);
+    });
+
+    // TEXTO DA PÁGINA
+    const info = document.createElement("span");
+
+    info.className = "align-self-center";
+
+    info.innerText = `Página ${paginaAtual} de ${totalPaginas}`;
+
+    paginacao.appendChild(btnAnterior);
+    paginacao.appendChild(info);
+    paginacao.appendChild(btnProximo);
+
+    document.getElementById("lista-barbearias").appendChild(paginacao);
+  }
+
+  // FILTRO
+  const filtro = document.getElementById("filtro-barbearias");
+
+  filtro.addEventListener("input", (e) => {
+    const termo = e.target.value.toLowerCase();
+
+    paginaAtual = 1;
+
+    const filtradas = todasBarbearias.filter((barbearia) =>
+      barbearia.nome_fantasia.toLowerCase().includes(termo)
+    );
+
+    renderizarBarbearias(filtradas);
+  });
+
+  carregarBarbearias();
+});
 
 function validarFormulario() {
   const nomeValido = validarCampo(campoNome);
@@ -233,6 +401,7 @@ async function enviarCadastro(dadosCliente) {
       email: dadosCliente.email,
       telefone: dadosCliente.telefone,
       senha: dadosCliente.senha,
+      barbeariasIds: dadosCliente.barbeariasIds,
     }),
   });
 
