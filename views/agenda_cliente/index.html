@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BarberTrack - Agendar</title>
+    <link rel="stylesheet" href="/styles/dashboard_barbearia.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ─── Info da barbearia ─── */
+      .barbearia-header {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        animation: fadeUp 0.3s ease both;
+      }
+      .barbearia-header-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--gold-dark);
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 1.5rem;
+        border: 1.5px solid rgba(201, 168, 76, 0.35);
+        flex-shrink: 0;
+      }
+      .barbearia-header-info {
+        flex: 1;
+      }
+      .barbearia-header-name {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        color: var(--text);
+        margin-bottom: 0.3rem;
+      }
+      .barbearia-header-meta {
+        font-size: 0.8rem;
+        color: var(--muted);
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .barbearia-header-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .btn-favoritar {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 0.85rem;
+        color: var(--muted);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
+      }
+      .btn-favoritar:hover {
+        border-color: var(--gold-dark);
+        color: var(--gold);
+      }
+      .btn-favoritar.favorita {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      /* ─── Grid inferior ─── */
+      .agenda-booking-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 1.25rem;
+        align-items: start;
+      }
+      @media (max-width: 860px) {
+        .agenda-booking-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ─── Agenda geral (próximos horários) ─── */
+      .horarios-livres {
+        margin-top: 0.5rem;
+      }
+      .hl-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.65rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.85rem;
+        color: var(--text);
+      }
+      .hl-item:last-child {
+        border-bottom: none;
+      }
+      .hl-time {
+        color: var(--gold);
+        font-weight: 500;
+        min-width: 48px;
+        font-feature-settings: "tnum";
+      }
+      .hl-barber {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      /* ─── Formulário de agendamento ─── */
+      .booking-form-card {
+        position: sticky;
+        top: 80px;
+      }
+      .form-label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+      .form-select,
+      .form-input {
+        width: 100%;
+        background: var(--bg);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        padding: 0.65rem 0.9rem;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.9rem;
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        appearance: none;
+        cursor: pointer;
+        margin-bottom: 1rem;
+      }
+      .form-select:focus,
+      .form-input:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+      }
+      .form-select option {
+        background: var(--surface);
+      }
+      .servico-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .servico-card {
+        background: var(--surface-2);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem;
+        cursor: pointer;
+        transition: border-color 0.15s;
+        text-align: left;
+      }
+      .servico-card:hover {
+        border-color: var(--gold-dark);
+      }
+      .servico-card.selected {
+        border-color: var(--gold);
+        background: rgba(201, 168, 76, 0.07);
+      }
+      .servico-card-nome {
+        font-size: 0.83rem;
+        font-weight: 500;
+        color: var(--text);
+        margin-bottom: 0.2rem;
+      }
+      .servico-card-info {
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .servico-card-preco {
+        font-size: 0.8rem;
+        color: var(--gold);
+        margin-top: 0.25rem;
+      }
+
+      /* ─── Slots ─── */
+      .slots-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+      }
+      .slot-btn {
+        background: var(--surface-2);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 0.25rem;
+        color: var(--text);
+        font-size: 0.82rem;
+        font-feature-settings: "tnum";
+        cursor: pointer;
+        text-align: center;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .slot-btn:hover {
+        border-color: var(--gold-dark);
+        background: rgba(201, 168, 76, 0.05);
+      }
+      .slot-btn.selected {
+        border-color: var(--gold);
+        background: rgba(201, 168, 76, 0.12);
+        color: var(--gold);
+        font-weight: 500;
+      }
+      .slots-empty {
+        text-align: center;
+        padding: 1rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      /* ─── Confirmação ─── */
+      .confirm-box {
+        background: rgba(201, 168, 76, 0.07);
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+      }
+      .confirm-box-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.3rem;
+      }
+      .confirm-box-label {
+        color: var(--muted);
+      }
+      .confirm-box-value {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .confirm-box-total {
+        border-top: 1px solid var(--border);
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+      }
+      .confirm-box-total .confirm-box-value {
+        color: var(--gold);
+        font-size: 1rem;
+      }
+
+      .btn-confirmar {
+        width: 100%;
+        background: var(--gold);
+        color: #0f0d0b;
+        border: none;
+        border-radius: 6px;
+        padding: 0.85rem;
+        font-family: "Playfair Display", serif;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        box-shadow: 0 4px 18px rgba(201, 168, 76, 0.25);
+        transition:
+          background 0.2s,
+          box-shadow 0.2s;
+      }
+      .btn-confirmar:hover {
+        background: var(--gold-light);
+        box-shadow: 0 6px 26px rgba(201, 168, 76, 0.4);
+      }
+      .btn-confirmar:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      /* ─── Sucesso ─── */
+      .success-card {
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+        animation: fadeUp 0.35s ease both;
+      }
+      .success-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+      }
+      .success-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+      }
+      .success-sub {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      .btn-voltar {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.65rem 1.5rem;
+        color: var(--text);
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: border-color 0.15s;
+      }
+      .btn-voltar:hover {
+        border-color: var(--gold-dark);
+      }
+
+      .step-hidden {
+        display: none !important;
+      }
+      .loading-spinner {
+        text-align: center;
+        padding: 1rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <a href="/cliente/dashboard" class="bt-logo">
+        <div class="bt-logo-icon">✂</div>
+        <span class="bt-logo-text">BarberTrack</span>
+      </a>
+      <div class="topbar-right">
+        <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="greeting"
+          >Olá, <strong id="nome-cliente">...</strong></span
+        >
+        <div class="avatar" id="avatar-inicial"></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <span class="sidebar-label">Principal</span>
+          <a class="nav-item" href="/cliente/dashboard">
+            <span class="icon">◈</span> Início
+          </a>
+          <a class="nav-item active" href="#">
+            <span class="icon">📅</span> Agendar
+          </a>
+        </div>
+        <hr class="sidebar-divider" />
+        <div class="sidebar-section">
+          <span class="sidebar-label">Sistema</span>
+          <button class="nav-item" id="btn-logout">
+            <span class="icon">↩</span> Sair
+          </button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <!-- Cabeçalho da barbearia -->
+        <div class="barbearia-header" id="barbearia-header">
+          <div class="barbearia-header-icon">✂</div>
+          <div class="barbearia-header-info">
+            <div class="barbearia-header-name" id="barbearia-nome">
+              Carregando...
+            </div>
+            <div class="barbearia-header-meta">
+              <span id="barbearia-email"></span>
+              <span id="barbearia-tel"></span>
+            </div>
+          </div>
+          <div class="barbearia-header-actions">
+            <button class="btn-favoritar" id="btn-favoritar">
+              ☆ Favoritar
+            </button>
+            <a
+              href="/cliente/dashboard"
+              class="btn-remover"
+              style="
+                padding: 0.5rem 0.85rem;
+                text-decoration: none;
+                font-size: 0.8rem;
+              "
+              >← Voltar</a
+            >
+          </div>
+        </div>
+
+        <!-- SUCESSO (oculto até confirmação) -->
+        <div class="card success-card step-hidden" id="step-sucesso">
+          <span class="success-icon">✅</span>
+          <div class="success-title">Agendamento Confirmado!</div>
+          <div class="success-sub" id="sucesso-descricao"></div>
+          <a href="/cliente/dashboard" class="btn-voltar">← Voltar ao início</a>
+        </div>
+
+        <!-- GRID PRINCIPAL -->
+        <div class="agenda-booking-grid" id="main-grid">
+          <!-- COLUNA ESQUERDA: Agenda geral da barbearia -->
+          <div class="card" id="card-agenda-geral">
+            <div class="card-header">
+              <span class="card-title">Agenda da Barbearia</span>
+              <span class="card-action" id="agenda-data-label"></span>
+            </div>
+            <div id="agenda-geral-lista">
+              <div class="loading-spinner">Carregando...</div>
+            </div>
+          </div>
+
+          <!-- COLUNA DIREITA: Formulário de agendamento -->
+          <div class="card booking-form-card">
+            <div class="card-header">
+              <span class="card-title">Realizar Agendamento</span>
+            </div>
+
+            <!-- Selecionar barbeiro -->
+            <label class="form-label">Barbeiro</label>
+            <select class="form-select" id="sel-barbeiro">
+              <option value="">Selecione um barbeiro...</option>
+            </select>
+
+            <!-- Selecionar serviço -->
+            <label class="form-label">Serviço</label>
+            <div class="servico-cards" id="servico-cards">
+              <div class="loading-spinner" style="grid-column: 1/-1">
+                Carregando...
+              </div>
+            </div>
+
+            <!-- Data -->
+            <label class="form-label">Data</label>
+            <input type="date" class="form-input" id="inp-data" />
+
+            <!-- Slots disponíveis -->
+            <div id="slots-section" class="step-hidden">
+              <label class="form-label">Horário disponível</label>
+              <div class="slots-grid" id="slots-grid"></div>
+            </div>
+
+            <!-- Resumo da confirmação -->
+            <div class="confirm-box step-hidden" id="confirm-box">
+              <div class="confirm-box-row">
+                <span class="confirm-box-label">Barbeiro</span>
+                <span class="confirm-box-value" id="conf-barbeiro">—</span>
+              </div>
+              <div class="confirm-box-row">
+                <span class="confirm-box-label">Serviço</span>
+                <span class="confirm-box-value" id="conf-servico">—</span>
+              </div>
+              <div class="confirm-box-row">
+                <span class="confirm-box-label">Data / Hora</span>
+                <span class="confirm-box-value" id="conf-horario">—</span>
+              </div>
+              <div class="confirm-box-row confirm-box-total">
+                <span class="confirm-box-label">Total</span>
+                <span class="confirm-box-value" id="conf-preco">—</span>
+              </div>
+            </div>
+
+            <button class="btn-confirmar" id="btn-confirmar" disabled>
+              Confirmar Agendamento
+            </button>
+
+            <div
+              id="form-status"
+              style="
+                margin-top: 0.75rem;
+                font-size: 0.83rem;
+                text-align: center;
+                color: var(--error);
+                display: none;
+              "
+            ></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="/scripts/agenda_cliente.js"></script>
+  </body>
+</html>
