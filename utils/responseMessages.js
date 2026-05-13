@@ -14,7 +14,7 @@ const responseMessages = {
   invalidEmail: "Email invalido.",
   invalidCnpj: "CNPJ invalido. Ele deve conter 14 digitos.",
   invalidTelefone: "Telefone invalido. Ele deve conter 10 ou 11 digitos.",
-  invalidPasswordLength: "A senha deve ter pelo menos 8 caracteres",
+  invalidPasswordLength: "A senha deve ter pelo menos 8 caracteres.",
   createdCliente: "Usuario cadastrado com sucesso.",
   createdBarbeiro: "Barbeiro cadastrado com sucesso.",
   createdBarbearia: "Barbearia cadastrada com sucesso",
