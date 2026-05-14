@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BarberTrack - Usuários</title>
+    <link rel="stylesheet" href="/styles/dashboard_barbearia.css" />
+    <link rel="stylesheet" href="/styles/usuarios_barbearia.css" />
+    <script src="/scripts/usuarios_barbearia.js" defer></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <a href="/barbearia/dashboard" class="bt-logo">
+        <div class="bt-logo-icon">
+          <i class="fa-solid fa-scissors"></i>
+        </div>
+        <span class="bt-logo-text">BarberTrack</span>
+      </a>
+      <div class="topbar-right">
+        <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="greeting"
+          >Olá, <strong id="nome-barbearia">...</strong></span
+        >
+        <div class="avatar"></div>
+      </div>
+    </header>
+
+    <!-- LAYOUT -->
+    <div class="layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <span class="sidebar-label">Principal</span>
+          <a class="nav-item" href="/barbearia/dashboard">
+            <span class="icon"><i class="fa-solid fa-diamond"></i></span>
+            Dashboard
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon"><i class="fa-solid fa-calendar-days"></i></span>
+            Agenda
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon"
+              ><i class="fa-solid fa-hand-holding-dollar"></i
+            ></span>
+            Financeiro
+          </a>
+        </div>
+
+        <hr class="sidebar-divider" />
+
+        <div class="sidebar-section">
+          <span class="sidebar-label">Gestão</span>
+          <a class="nav-item active" href="/barbearia/usuarios">
+            <span class="icon"><i class="fa-solid fa-users"></i></span> Usuários
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon"><i class="fa-solid fa-scissors"></i></span>
+            Serviços
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon"><i class="fa-solid fa-clock"></i></span> Horários
+          </a>
+        </div>
+
+        <hr class="sidebar-divider" />
+
+        <div class="sidebar-section">
+          <span class="sidebar-label">Sistema</span>
+          <button class="nav-item" id="btn-config">
+            <span class="icon"><i class="fa-solid fa-sliders"></i></span>
+            Configurações
+          </button>
+          <button class="nav-item" id="btn-logout">
+            <span class="icon"
+              ><i class="fa-solid fa-right-from-bracket"></i
+            ></span>
+            Sair
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+          <div>
+            <h1>Usuários</h1>
+            <span class="date-label"
+              >Gerencie barbeiros e clientes da sua barbearia</span
+            >
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="gu-tabs">
+          <button class="gu-tab active" data-tab="barbeiros">
+            <i class="fa-solid fa-user-tie"></i> Barbeiros
+            <span class="gu-tab-count" id="count-barbeiros">—</span>
+          </button>
+          <button class="gu-tab" data-tab="clientes">
+            <span class="qa-icon"><i class="fa-solid fa-user"></i></span>
+            Clientes
+            <span class="gu-tab-count" id="count-clientes">—</span>
+          </button>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="gu-toolbar">
+          <div class="gu-search-wrap">
+            <i class="fa-solid fa-magnifying-glass gu-search-icon"></i>
+            <input
+              type="text"
+              class="gu-search"
+              id="gu-search"
+              placeholder="Buscar por nome ou e-mail..."
+            />
+          </div>
+          <div class="gu-filter-wrap">
+            <select class="gu-filter" id="gu-filter-status">
+              <option value="todos">Todos os status</option>
+              <option value="ativo">Ativos</option>
+              <option value="inativo">Inativos</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TABELA -->
+        <div class="card gu-table-card">
+          <div class="gu-table-wrap">
+            <table class="gu-table">
+              <thead>
+                <tr>
+                  <th>Usuário</th>
+                  <th>E-mail</th>
+                  <th>Telefone</th>
+                  <th>Cadastro</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="gu-tbody">
+                <!-- preenchido via JS -->
+              </tbody>
+            </table>
+
+            <!-- Estados vazios / erro / loading -->
+            <div class="gu-state" id="gu-loading">
+              <div class="gu-spinner"></div>
+              <span>Carregando...</span>
+            </div>
+            <div class="gu-state hidden" id="gu-empty">
+              <i class="fa-solid fa-users-slash gu-state-icon"></i>
+              <span>Nenhum usuário encontrado.</span>
+            </div>
+            <div class="gu-state hidden" id="gu-error">
+              <i
+                class="fa-solid fa-triangle-exclamation gu-state-icon error"
+              ></i>
+              <span id="gu-error-msg">Erro ao carregar dados.</span>
+              <button class="gu-retry" id="gu-retry">
+                <i class="fa-solid fa-rotate-right"></i> Tentar novamente
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO -->
+    <div class="gu-modal-overlay hidden" id="modal-overlay">
+      <div class="gu-modal">
+        <div class="gu-modal-icon" id="modal-icon">
+          <i class="fa-solid fa-circle-question"></i>
+        </div>
+        <h3 class="gu-modal-title" id="modal-title">Confirmar ação</h3>
+        <p class="gu-modal-desc" id="modal-desc"></p>
+        <div class="gu-modal-actions">
+          <button class="gu-modal-btn cancel" id="modal-cancel">
+            Cancelar
+          </button>
+          <button class="gu-modal-btn confirm" id="modal-confirm">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO -->
+
+    <div class="gu-modal-overlay hidden" id="modal-edicao-overlay">
+      <div class="gu-modal gu-modal-edicao">
+        <div class="gu-modal-header">
+          <h3 class="gu-modal-title" id="modal-edicao-title">Editar usuário</h3>
+          <button
+            class="gu-modal-close"
+            id="modal-edicao-fechar"
+            aria-label="Fechar"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="gu-modal-error hidden" id="modal-edicao-erro"></div>
+        <div class="gu-modal-success hidden" id="modal-edicao-sucesso"></div>
+
+        <form id="form-edicao" autocomplete="off">
+          <div class="gu-edit-grid">
+            <div class="gu-edit-field">
+              <label class="gu-edit-label" for="edit-nome">Nome</label>
+              <input
+                class="gu-edit-input"
+                type="text"
+                id="edit-nome"
+                name="nome"
+              />
+            </div>
+            <div class="gu-edit-field">
+              <label class="gu-edit-label" for="edit-sobrenome"
+                >Sobrenome</label
+              >
+              <input
+                class="gu-edit-input"
+                type="text"
+                id="edit-sobrenome"
+                name="sobrenome"
+              />
+            </div>
+            <div class="gu-edit-field">
+              <label class="gu-edit-label" for="edit-email">E-mail</label>
+              <input
+                class="gu-edit-input"
+                type="email"
+                id="edit-email"
+                name="email"
+              />
+            </div>
+            <div class="gu-edit-field">
+              <label class="gu-edit-label" for="edit-telefone">Telefone</label>
+              <input
+                class="gu-edit-input"
+                type="text"
+                id="edit-telefone"
+                name="telefone"
+                placeholder="Somente números"
+              />
+            </div>
+
+            <!-- CPF — visível somente para barbeiros -->
+            <div class="gu-edit-field" id="edit-field-cpf">
+              <label class="gu-edit-label" for="edit-cpf">CPF</label>
+              <input
+                class="gu-edit-input"
+                type="text"
+                id="edit-cpf"
+                name="cpf"
+                placeholder="Somente números"
+                maxlength="11"
+              />
+            </div>
+
+            <!-- Senha -->
+            <div class="gu-edit-field gu-edit-field--full">
+              <label class="gu-edit-label" for="edit-senha">
+                Nova senha
+                <span class="gu-edit-label-hint"
+                  >(deixe em branco para não alterar)</span
+                >
+              </label>
+              <input
+                class="gu-edit-input"
+                type="password"
+                id="edit-senha"
+                name="senha"
+                placeholder="Mínimo 8 caracteres"
+              />
+            </div>
+          </div>
+
+          <div class="gu-modal-actions" style="margin-top: 1.5rem">
+            <button
+              type="button"
+              class="gu-modal-btn cancel"
+              id="modal-edicao-cancelar"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="gu-modal-btn confirm ativar"
+              id="modal-edicao-salvar"
+            >
+              <i class="fa-solid fa-floppy-disk"></i> Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
