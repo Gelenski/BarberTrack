@@ -370,6 +370,10 @@ router.post(
   }
 );
 
+router.get("/usuarios", isAuthenticated, isBarbearia, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/usuarios_barbearia/index.html"));
+});
+
 // ─── Rota para exibir os horários de funcionamento da barbearia logada e permitir edição  ADICIONADO POR ULTIMO
 
 const { validateHorariosPayload } = require("../validators/horario");
