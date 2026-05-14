@@ -6,38 +6,39 @@ const router = express.Router();
 
 router.post("/", isAuthenticated, isBarbeiro, async (req, res) => {
   const {
-    // Agendamento
     cliente_id,
-    horario, // "2025-05-20 14:00:00"
+    horario,
     observacao,
-
-    // Opção A — serviço existente
     servico_id,
-
-    // Opção B — serviço novo
     servico_nome,
     servico_duracao_min,
     servico_preco,
   } = req.body;
 
-  const barbeiro_id = req.barbeiro.id;
-  const barbearia_id = req.barbeiro.barbearia_id;
+  const barbeiroId = req.session.user.id;
+  const nomeServicoNormalizado = String(servico_nome || "").trim();
+  const duracaoServico = Number(servico_duracao_min);
+  const precoServico = Number(servico_preco);
 
-  // ── 1. Validação de campos obrigatórios do agendamento ───────────────
   if (!cliente_id || !horario) {
-    return res
-      .status(400)
-      .json({ erro: "cliente_id e horario são obrigatórios." });
+    return res.status(400).json({
+      erro: "cliente_id e horario sao obrigatorios.",
+    });
   }
 
   const horarioDate = new Date(horario);
-  if (isNaN(horarioDate) || horarioDate <= new Date()) {
-    return res.status(400).json({ erro: "Horário inválido ou no passado." });
+  if (Number.isNaN(horarioDate.getTime()) || horarioDate <= new Date()) {
+    return res.status(400).json({
+      erro: "Horario invalido ou no passado.",
+    });
   }
 
-  // ── 2. Validação da origem do serviço (A ou B, nunca os dois) ────────
   const usandoExistente = !!servico_id;
-  const usandoNovo = !!(servico_nome || servico_duracao_min || servico_preco);
+  const usandoNovo = !!(
+    nomeServicoNormalizado ||
+    servico_duracao_min !== undefined ||
+    servico_preco !== undefined
+  );
 
   if (!usandoExistente && !usandoNovo) {
     return res.status(400).json({
@@ -47,122 +48,165 @@ router.post("/", isAuthenticated, isBarbeiro, async (req, res) => {
 
   if (usandoExistente && usandoNovo) {
     return res.status(400).json({
-      erro: "Informe apenas servico_id OU os dados do novo serviço, não os dois.",
+      erro: "Informe apenas servico_id OU os dados do novo servico, nao os dois.",
     });
   }
 
   if (usandoNovo) {
-    if (!servico_nome || !servico_duracao_min || servico_preco === undefined) {
+    if (
+      !nomeServicoNormalizado ||
+      servico_duracao_min === undefined ||
+      servico_preco === undefined
+    ) {
       return res.status(400).json({
-        erro: "Para criar um serviço, informe servico_nome, servico_duracao_min e servico_preco.",
+        erro: "Para criar um servico, informe servico_nome, servico_duracao_min e servico_preco.",
       });
     }
-    if (
-      !Number.isInteger(Number(servico_duracao_min)) ||
-      Number(servico_duracao_min) <= 0
-    ) {
-      return res
-        .status(400)
-        .json({ erro: "servico_duracao_min deve ser um inteiro positivo." });
+
+    if (!Number.isInteger(duracaoServico) || duracaoServico <= 0) {
+      return res.status(400).json({
+        erro: "servico_duracao_min deve ser um inteiro positivo.",
+      });
     }
-    if (isNaN(Number(servico_preco)) || Number(servico_preco) < 0) {
-      return res.status(400).json({ erro: "servico_preco inválido." });
+
+    if (Number.isNaN(precoServico) || precoServico < 0) {
+      return res.status(400).json({
+        erro: "servico_preco invalido.",
+      });
     }
   }
 
   const conn = await pool.getConnection();
+
   try {
     await conn.beginTransaction();
 
-    // ── 3. Cliente existe e está vinculado à barbearia ───────────────
+    const [[barbeiroLogado]] = await conn.query(
+      `SELECT id, barbearia_id, ativo
+         FROM barbeiro
+        WHERE id = ?`,
+      [barbeiroId]
+    );
+
+    if (!barbeiroLogado) {
+      await conn.rollback();
+      return res.status(404).json({
+        erro: "Barbeiro nao encontrado.",
+      });
+    }
+
+    if (!barbeiroLogado.ativo) {
+      await conn.rollback();
+      return res.status(403).json({
+        erro: "Barbeiro inativo nao pode criar agendamentos.",
+      });
+    }
+
+    const barbeariaId = barbeiroLogado.barbearia_id;
+
     const [[clienteVinculo]] = await conn.query(
       `SELECT cb.id
          FROM cliente_barbearias cb
          JOIN cliente c ON c.id = cb.cliente_id
-        WHERE cb.cliente_id   = ?
+        WHERE cb.cliente_id = ?
           AND cb.barbearia_id = ?
           AND c.ativo = TRUE`,
-      [cliente_id, barbearia_id]
+      [cliente_id, barbeariaId]
     );
+
     if (!clienteVinculo) {
       await conn.rollback();
-      return res
-        .status(404)
-        .json({ erro: "Cliente não encontrado nesta barbearia." });
+      return res.status(404).json({
+        erro: "Cliente nao encontrado nesta barbearia.",
+      });
     }
 
-    // ── 4. Barbeiro ativo e pertence à barbearia ─────────────────────
     const [[barbeiro]] = await conn.query(
-      `SELECT id FROM barbeiro
+      `SELECT id
+         FROM barbeiro
         WHERE id = ? AND barbearia_id = ? AND ativo = TRUE`,
-      [barbeiro_id, barbearia_id]
+      [barbeiroId, barbeariaId]
     );
+
     if (!barbeiro) {
       await conn.rollback();
-      return res
-        .status(403)
-        .json({ erro: "Barbeiro inativo ou sem vínculo com a barbearia." });
+      return res.status(403).json({
+        erro: "Barbeiro inativo ou sem vinculo com a barbearia.",
+      });
     }
 
-    // ── 5. Resolve o serviço ─────────────────────────────────────────
+    let servicoCriado = false;
+    let servicoReutilizado = false;
     let resolvedServico;
 
     if (usandoExistente) {
-      // 5A. Busca serviço existente — deve pertencer à barbearia e estar ativo
       const [[servicoExistente]] = await conn.query(
-        `SELECT id, duracao_min FROM servico
+        `SELECT id, duracao_min
+           FROM servico
           WHERE id = ? AND barbearia_id = ? AND ativo = TRUE`,
-        [servico_id, barbearia_id]
+        [servico_id, barbeariaId]
       );
+
       if (!servicoExistente) {
         await conn.rollback();
-        return res
-          .status(404)
-          .json({ erro: "Serviço não encontrado ou inativo." });
+        return res.status(404).json({
+          erro: "Servico nao encontrado ou inativo.",
+        });
       }
+
       resolvedServico = servicoExistente;
     } else {
-      // 5B. Cria o serviço novo dentro da mesma transação
-      const [insertServico] = await conn.query(
-        `INSERT INTO servico (barbearia_id, nome, duracao_min, preco, ativo)
-         VALUES (?, ?, ?, ?, TRUE)`,
-        [
-          barbearia_id,
-          servico_nome.trim(),
-          Number(servico_duracao_min),
-          Number(servico_preco),
-        ]
+      const [[servicoPorNome]] = await conn.query(
+        `SELECT id, duracao_min
+           FROM servico
+          WHERE barbearia_id = ?
+            AND ativo = TRUE
+            AND TRIM(LOWER(nome)) = TRIM(LOWER(?))
+          LIMIT 1`,
+        [barbeariaId, nomeServicoNormalizado]
       );
-      resolvedServico = {
-        id: insertServico.insertId,
-        duracao_min: Number(servico_duracao_min),
-      };
+
+      if (servicoPorNome) {
+        resolvedServico = servicoPorNome;
+        servicoReutilizado = true;
+      } else {
+        const [insertServico] = await conn.query(
+          `INSERT INTO servico (barbearia_id, nome, duracao_min, preco, ativo)
+           VALUES (?, ?, ?, ?, TRUE)`,
+          [barbeariaId, nomeServicoNormalizado, duracaoServico, precoServico]
+        );
+
+        resolvedServico = {
+          id: insertServico.insertId,
+          duracao_min: duracaoServico,
+        };
+        servicoCriado = true;
+      }
     }
 
-    const { id: finalServicoid, duracao_min: duracao } = resolvedServico;
-
-    // ── 6. Horário dentro do expediente do barbeiro ──────────────────
+    const { id: finalServicoId, duracao_min: duracao } = resolvedServico;
     const diaSemana = horarioDate.getDay();
     const horaInicio = horarioDate.toTimeString().slice(0, 8);
     const horaFim = calcularHoraFim(horarioDate, duracao);
 
     const [[expediente]] = await conn.query(
-      `SELECT id FROM horario_barbeiro
-        WHERE barbeiro_id  = ?
-          AND dia_semana   = ?
+      `SELECT id
+         FROM horario_barbeiro
+        WHERE barbeiro_id = ?
+          AND dia_semana = ?
           AND hora_inicio <= ?
-          AND hora_fim    >= ?
+          AND hora_fim >= ?
           AND ativo = TRUE`,
-      [barbeiro_id, diaSemana, horaInicio, horaFim]
+      [barbeiroId, diaSemana, horaInicio, horaFim]
     );
+
     if (!expediente) {
       await conn.rollback();
-      return res
-        .status(409)
-        .json({ erro: "Horário fora do expediente do barbeiro." });
+      return res.status(409).json({
+        erro: "Horario fora do expediente do barbeiro.",
+      });
     }
 
-    // ── 7. Conflito na agenda do barbeiro ────────────────────────────
     const horarioFimDatetime = new Date(
       horarioDate.getTime() + duracao * 60000
     );
@@ -172,46 +216,46 @@ router.post("/", isAuthenticated, isBarbeiro, async (req, res) => {
          FROM agendamento a
          JOIN servico s ON s.id = a.servico_id
         WHERE a.barbeiro_id = ?
-          AND a.status      = 'confirmado'
-          AND a.horario     < ?
+          AND a.status != 'cancelado'
+          AND a.horario < ?
           AND DATE_ADD(a.horario, INTERVAL s.duracao_min MINUTE) > ?`,
-      [barbeiro_id, horarioFimDatetime, horarioDate]
+      [barbeiroId, horarioFimDatetime, horarioDate]
     );
+
     if (conflitoBarbeiro) {
       await conn.rollback();
-      return res
-        .status(409)
-        .json({ erro: "Barbeiro já possui agendamento neste horário." });
+      return res.status(409).json({
+        erro: "Barbeiro ja possui agendamento neste horario.",
+      });
     }
 
-    // ── 8. Conflito na agenda do cliente ─────────────────────────────
     const [[conflitoCliente]] = await conn.query(
       `SELECT a.id
          FROM agendamento a
          JOIN servico s ON s.id = a.servico_id
         WHERE a.cliente_id = ?
-          AND a.status     = 'confirmado'
-          AND a.horario    < ?
+          AND a.status != 'cancelado'
+          AND a.horario < ?
           AND DATE_ADD(a.horario, INTERVAL s.duracao_min MINUTE) > ?`,
       [cliente_id, horarioFimDatetime, horarioDate]
     );
+
     if (conflitoCliente) {
       await conn.rollback();
-      return res
-        .status(409)
-        .json({ erro: "Cliente já possui agendamento neste horário." });
+      return res.status(409).json({
+        erro: "Cliente ja possui agendamento neste horario.",
+      });
     }
 
-    // ── 9. Persiste o agendamento ────────────────────────────────────
     const [result] = await conn.query(
       `INSERT INTO agendamento
          (barbearia_id, cliente_id, barbeiro_id, servico_id, horario, status, observacao)
        VALUES (?, ?, ?, ?, ?, 'confirmado', ?)`,
       [
-        barbearia_id,
+        barbeariaId,
         cliente_id,
-        barbeiro_id,
-        finalServicoid,
+        barbeiroId,
+        finalServicoId,
         horario,
         observacao ?? null,
       ]
@@ -222,13 +266,16 @@ router.post("/", isAuthenticated, isBarbeiro, async (req, res) => {
     return res.status(201).json({
       mensagem: "Agendamento criado com sucesso.",
       agendamento_id: result.insertId,
-      servico_id: finalServicoid,
-      servico_criado: usandoNovo, // informa ao front se foi criado ou reutilizado
+      servico_id: finalServicoId,
+      servico_criado: servicoCriado,
+      servico_reutilizado: servicoReutilizado,
     });
   } catch (err) {
     await conn.rollback();
     console.error(err);
-    return res.status(500).json({ erro: "Erro interno ao criar agendamento." });
+    return res.status(500).json({
+      erro: "Erro interno ao criar agendamento.",
+    });
   } finally {
     conn.release();
   }
