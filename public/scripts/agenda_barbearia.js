@@ -16,7 +16,9 @@ function inicializarUsuario() {
   try {
     const u = JSON.parse(localStorage.getItem("usuarioLogado"));
     if (u?.nome) document.getElementById("nome-barbearia").textContent = u.nome;
-  } catch (_) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // ─── Carregar agendamentos
@@ -37,7 +39,10 @@ async function carregarAgendamentos() {
     popularFiltro(barbeiros);
     renderTabela(agendamentos);
     renderMetricas(agendamentos);
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     mostrarErro();
   }
 }
@@ -133,6 +138,7 @@ function renderMetricas(agendamentos) {
 }
 
 // ─── Atualizar status
+// eslint-disable-next-line no-unused-vars
 async function atualizarStatus(id, sel) {
   const novoStatus = sel.value;
   sel.className = `status-select status-${novoStatus}`;
@@ -142,7 +148,9 @@ async function atualizarStatus(id, sel) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: novoStatus }),
     });
-  } catch (_) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // ─── Estados de loading / erro
@@ -193,7 +201,10 @@ async function logout() {
     const res = await fetch("/auth/logout", { method: "POST" });
     const d = await res.json();
     window.location.href = d.redirect || "/auth/login";
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     window.location.href = "/auth/login";
   }
 }

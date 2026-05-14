@@ -53,7 +53,9 @@ function inicializarUsuario() {
       document.getElementById("avatar-inicial").textContent =
         u.nome[0].toUpperCase();
     }
-  } catch (_) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // ─── Barbearia
@@ -79,7 +81,10 @@ async function carregarBarbearia() {
     } else {
       btnFav.dataset.isFav = "0";
     }
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     document.getElementById("barbearia-nome").textContent =
       "Barbearia não encontrada";
   }
@@ -106,7 +111,9 @@ async function toggleFavoritar() {
       btn.classList.add("favorita");
       btn.dataset.isFav = "1";
     }
-  } catch (_) {}
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // ─── Agenda geral da barbearia (visão pública — próximos slots confirmados)
@@ -151,7 +158,10 @@ async function carregarAgendaGeral() {
         })
         .join("") +
       `</div>`;
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     lista.innerHTML = `<div style="padding:1rem;color:var(--muted);font-size:.82rem;">Erro ao carregar agenda.</div>`;
   }
 }
@@ -172,7 +182,10 @@ async function carregarBarbeiros() {
       barbeiros
         .map((b) => `<option value="${b.id}">${b.nome}</option>`)
         .join("");
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     sel.innerHTML = `<option value="">Erro ao carregar barbeiros</option>`;
   }
 }
@@ -213,11 +226,15 @@ async function carregarServicos() {
       </button>`
       )
       .join("");
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     container.innerHTML = `<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Erro ao carregar serviços.</p>`;
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function selecionarServico(id) {
   state.servicoSelecionado = state.servicos.find((s) => s.id === id) || null;
   state.slotSelecionado = null;
@@ -274,11 +291,15 @@ async function atualizarSlots() {
           `<button class="slot-btn" onclick="selecionarSlot('${s}', this)">${s}</button>`
       )
       .join("");
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     grid.innerHTML = `<div class="slots-empty" style="grid-column:1/-1;">Erro ao buscar horários.</div>`;
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function selecionarSlot(slot, btn) {
   state.slotSelecionado = slot;
   document
@@ -383,7 +404,10 @@ async function confirmarAgendamento() {
     });
     document.getElementById("sucesso-descricao").textContent =
       `${state.servicoSelecionado.nome} com ${barbeiroNome} — ${dtStr}`;
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     statusEl.textContent = "Erro de conexão. Tente novamente.";
     statusEl.style.display = "block";
     btn.disabled = false;
@@ -417,7 +441,10 @@ async function logout() {
     const res = await fetch("/auth/logout", { method: "POST" });
     const d = await res.json();
     window.location.href = d.redirect || "/auth/login";
-  } catch (_) {
+  } catch (error) {
+    console.error(error);
+  }
+  {
     window.location.href = "/auth/login";
   }
 }

@@ -107,18 +107,6 @@ CREATE TABLE agendamento (
   FOREIGN KEY (servico_id) REFERENCES servico(id)
 );
 
-CREATE TABLE horario_barbearia (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  barbearia_id INT UNSIGNED NOT NULL,
-  dia_semana TINYINT NOT NULL, -- 0=domingo, 1=segunda ... 6=sabado
-  hora_abertura TIME NOT NULL,
-  hora_fechamento TIME NOT NULL,
-  ativo BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (barbearia_id) REFERENCES barbearia(id)
-);
-
 CREATE TABLE horario_barbeiro (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   barbeiro_id INT UNSIGNED NOT NULL,

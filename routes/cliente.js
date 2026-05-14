@@ -30,14 +30,22 @@ router.post("/cadastro", async (req, res) => {
   try {
     const emailJaCadastrado = await recordExists(db, "cliente", "email", email);
     if (emailJaCadastrado) {
-      return res.status(409).json({ error: responseMessages.duplicateClienteEmail });
+      return res
+        .status(409)
+        .json({ error: responseMessages.duplicateClienteEmail });
     }
 
     const senhaHash = await bcrypt.hash(cliente.senha, 10);
 
     const [result] = await db.execute(
       "INSERT INTO cliente (nome, sobrenome, email, telefone, senha) VALUES (?,?,?,?,?);",
-      [cliente.nome, cliente.sobrenome, cliente.email, cliente.telefone, senhaHash]
+      [
+        cliente.nome,
+        cliente.sobrenome,
+        cliente.email,
+        cliente.telefone,
+        senhaHash,
+      ]
     );
 
     return res.status(201).json({
@@ -46,33 +54,44 @@ router.post("/cadastro", async (req, res) => {
     });
   } catch (error) {
     console.error("Erro no cadastro de cliente:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
 // ─── Vincular cliente a barbearias
 
-router.post("/cliente-barbearia", isAuthenticated, isCliente, async (req, res) => {
-  const cliente = req.body.cliente_id;
-  const barbearias = req.body.barbearias;
+router.post(
+  "/cliente-barbearia",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const cliente = req.body.cliente_id;
+    const barbearias = req.body.barbearias;
 
-  try {
-    if (!Array.isArray(barbearias) || barbearias.length === 0) {
-      return res.status(400).json({ erros: responseMessages.invalidBarbearias });
-    }
+    try {
+      if (!Array.isArray(barbearias) || barbearias.length === 0) {
+        return res
+          .status(400)
+          .json({ erros: responseMessages.invalidBarbearias });
+      }
 
-    for (const barbearia of barbearias) {
-      await db.execute(
-        `INSERT INTO cliente_barbearias (barbearia_id, cliente_id) VALUES (?, ?)`,
-        [barbearia, cliente]
-      );
+      for (const barbearia of barbearias) {
+        await db.execute(
+          `INSERT INTO cliente_barbearias (barbearia_id, cliente_id) VALUES (?, ?)`,
+          [barbearia, cliente]
+        );
+      }
+      return res.status(201).json({ message: responseMessages.linkedCliente });
+    } catch (error) {
+      console.error("Erro ao linkar cliente à uma barbearia:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
     }
-    return res.status(201).json({ message: responseMessages.linkedCliente });
-  } catch (error) {
-    console.error("Erro ao linkar cliente à uma barbearia:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
   }
-});
+);
 
 // ─── Dashboard
 
@@ -102,7 +121,9 @@ router.get("/horarios", isAuthenticated, isCliente, async (req, res) => {
     return res.json({ horarios });
   } catch (error) {
     console.error("Erro ao buscar horários:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
@@ -119,7 +140,9 @@ router.get("/barbearias", isAuthenticated, isCliente, async (req, res) => {
     return res.json({ barbearias });
   } catch (error) {
     console.error("Erro ao listar barbearias:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
@@ -163,127 +186,152 @@ router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
     return res.json({ barbearia: rows[0], horarios, agendamentos });
   } catch (error) {
     console.error("Erro ao buscar barbearia:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
 // ─── Barbeiros de uma barbearia
 
-router.get("/barbearia/:id/barbeiros", isAuthenticated, isCliente, async (req, res) => {
-  const barbeariaId = req.params.id;
-  try {
-    const [barbeiros] = await db.execute(
-      `SELECT id, CONCAT(nome, ' ', sobrenome) AS nome
+router.get(
+  "/barbearia/:id/barbeiros",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const barbeariaId = req.params.id;
+    try {
+      const [barbeiros] = await db.execute(
+        `SELECT id, CONCAT(nome, ' ', sobrenome) AS nome
        FROM barbeiro
        WHERE barbearia_id = ? AND ativo = TRUE
        ORDER BY nome ASC`,
-      [barbeariaId]
-    );
-    return res.json({ barbeiros });
-  } catch (error) {
-    console.error("Erro ao buscar barbeiros:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+        [barbeariaId]
+      );
+      return res.json({ barbeiros });
+    } catch (error) {
+      console.error("Erro ao buscar barbeiros:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
   }
-});
+);
 
 // ─── Serviços de uma barbearia
 
-router.get("/barbearia/:id/servicos", isAuthenticated, isCliente, async (req, res) => {
-  const barbeariaId = req.params.id;
-  try {
-    const [servicos] = await db.execute(
-      `SELECT id, nome, duracao_min, preco
+router.get(
+  "/barbearia/:id/servicos",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const barbeariaId = req.params.id;
+    try {
+      const [servicos] = await db.execute(
+        `SELECT id, nome, duracao_min, preco
        FROM servico
        WHERE barbearia_id = ? AND ativo = TRUE
        ORDER BY nome ASC`,
-      [barbeariaId]
-    );
-    return res.json({ servicos });
-  } catch (error) {
-    console.error("Erro ao buscar serviços:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+        [barbeariaId]
+      );
+      return res.json({ servicos });
+    } catch (error) {
+      console.error("Erro ao buscar serviços:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
   }
-});
+);
 
 // ─── Slots disponíveis de um barbeiro
 // GET /cliente/barbeiro/:id/slots?data=YYYY-MM-DD&servico_id=X
 
-router.get("/barbeiro/:id/slots", isAuthenticated, isCliente, async (req, res) => {
-  const barbeiroId = req.params.id;
-  const { data, servico_id } = req.query;
+router.get(
+  "/barbeiro/:id/slots",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const barbeiroId = req.params.id;
+    const { data, servico_id } = req.query;
 
-  if (!data || !servico_id) {
-    return res.status(400).json({ error: "Parâmetros obrigatórios: data e servico_id." });
-  }
+    if (!data || !servico_id) {
+      return res
+        .status(400)
+        .json({ error: "Parâmetros obrigatórios: data e servico_id." });
+    }
 
-  try {
-    const [servicos] = await db.execute(
-      "SELECT duracao_min FROM servico WHERE id = ? AND ativo = TRUE",
-      [servico_id]
-    );
-    if (!servicos.length)
-      return res.status(404).json({ error: "Serviço não encontrado." });
-    const duracaoMin = servicos[0].duracao_min;
+    try {
+      const [servicos] = await db.execute(
+        "SELECT duracao_min FROM servico WHERE id = ? AND ativo = TRUE",
+        [servico_id]
+      );
+      if (!servicos.length)
+        return res.status(404).json({ error: "Serviço não encontrado." });
+      const duracaoMin = servicos[0].duracao_min;
 
-    const [barbeiros] = await db.execute(
-      "SELECT id, barbearia_id FROM barbeiro WHERE id = ? AND ativo = TRUE",
-      [barbeiroId]
-    );
-    if (!barbeiros.length)
-      return res.status(404).json({ error: "Barbeiro não encontrado." });
-    const barbeariaId = barbeiros[0].barbearia_id;
+      const [barbeiros] = await db.execute(
+        "SELECT id, barbearia_id FROM barbeiro WHERE id = ? AND ativo = TRUE",
+        [barbeiroId]
+      );
+      if (!barbeiros.length)
+        return res.status(404).json({ error: "Barbeiro não encontrado." });
+      const barbeariaId = barbeiros[0].barbearia_id;
 
-    const dataObj = new Date(data + "T12:00:00");
-    const diaSemana = dataObj.getDay();
+      const dataObj = new Date(data + "T12:00:00");
+      const diaSemana = dataObj.getDay();
 
-    const [horBarbearia] = await db.execute(
-      `SELECT hora_abertura, hora_fechamento
+      const [horBarbearia] = await db.execute(
+        `SELECT hora_abertura, hora_fechamento
        FROM horario_barbearia
        WHERE barbearia_id = ? AND dia_semana = ? AND ativo = TRUE`,
-      [barbeariaId, diaSemana]
-    );
-    if (!horBarbearia.length) return res.json({ slots: [] });
+        [barbeariaId, diaSemana]
+      );
+      if (!horBarbearia.length) return res.json({ slots: [] });
 
-    const [horBarbeiro] = await db.execute(
-      `SELECT hora_inicio, hora_fim
+      const [horBarbeiro] = await db.execute(
+        `SELECT hora_inicio, hora_fim
        FROM horario_barbeiro
        WHERE barbeiro_id = ? AND dia_semana = ? AND ativo = TRUE`,
-      [barbeiroId, diaSemana]
-    );
-    if (!horBarbeiro.length) return res.json({ slots: [] });
+        [barbeiroId, diaSemana]
+      );
+      if (!horBarbeiro.length) return res.json({ slots: [] });
 
-    const { timeToMinutes, minutesToTime } = require("../utils/slots");
-    const inicioMin = Math.max(
-      timeToMinutes(horBarbearia[0].hora_abertura),
-      timeToMinutes(horBarbeiro[0].hora_inicio)
-    );
-    const fimMin = Math.min(
-      timeToMinutes(horBarbearia[0].hora_fechamento),
-      timeToMinutes(horBarbeiro[0].hora_fim)
-    );
+      const { timeToMinutes, minutesToTime } = require("../utils/slots");
+      const inicioMin = Math.max(
+        timeToMinutes(horBarbearia[0].hora_abertura),
+        timeToMinutes(horBarbeiro[0].hora_inicio)
+      );
+      const fimMin = Math.min(
+        timeToMinutes(horBarbearia[0].hora_fechamento),
+        timeToMinutes(horBarbeiro[0].hora_fim)
+      );
 
-    const [agendamentosExistentes] = await db.execute(
-      `SELECT a.horario, s.duracao_min
+      const [agendamentosExistentes] = await db.execute(
+        `SELECT a.horario, s.duracao_min
        FROM agendamento a
        JOIN servico s ON s.id = a.servico_id
        WHERE a.barbeiro_id = ? AND DATE(a.horario) = ? AND a.status != 'cancelado'`,
-      [barbeiroId, data]
-    );
+        [barbeiroId, data]
+      );
 
-    const slots = generateSlots(
-      data,
-      minutesToTime(inicioMin),
-      minutesToTime(fimMin),
-      duracaoMin,
-      agendamentosExistentes
-    );
+      const slots = generateSlots(
+        data,
+        minutesToTime(inicioMin),
+        minutesToTime(fimMin),
+        duracaoMin,
+        agendamentosExistentes
+      );
 
-    return res.json({ slots });
-  } catch (error) {
-    console.error("Erro ao gerar slots:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+      return res.json({ slots });
+    } catch (error) {
+      console.error("Erro ao gerar slots:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
   }
-});
+);
 
 // ─── Criar agendamento
 
@@ -293,7 +341,8 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
 
   if (!barbearia_id || !barbeiro_id || !servico_id || !horario) {
     return res.status(400).json({
-      error: "Campos obrigatórios: barbearia_id, barbeiro_id, servico_id, horario.",
+      error:
+        "Campos obrigatórios: barbearia_id, barbeiro_id, servico_id, horario.",
     });
   }
 
@@ -324,7 +373,9 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
     );
 
     if (conflito.length) {
-      return res.status(409).json({ error: "Horário não disponível. Escolha outro slot." });
+      return res
+        .status(409)
+        .json({ error: "Horário não disponível. Escolha outro slot." });
     }
 
     const [result] = await db.execute(
@@ -339,7 +390,9 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao criar agendamento:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
@@ -365,35 +418,46 @@ router.get("/agendamentos", isAuthenticated, isCliente, async (req, res) => {
     return res.json({ agendamentos });
   } catch (error) {
     console.error("Erro ao buscar agendamentos:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
 // ─── Cancelar agendamento
 
-router.delete("/agendamento/:id", isAuthenticated, isCliente, async (req, res) => {
-  const clienteId = req.session.user.id;
-  const agendamentoId = req.params.id;
-  try {
-    const [rows] = await db.execute(
-      "SELECT id, status FROM agendamento WHERE id = ? AND cliente_id = ?",
-      [agendamentoId, clienteId]
-    );
-    if (!rows.length)
-      return res.status(404).json({ error: "Agendamento não encontrado." });
-    if (rows[0].status === "cancelado") {
-      return res.status(400).json({ error: "Agendamento já está cancelado." });
-    }
+router.delete(
+  "/agendamento/:id",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const clienteId = req.session.user.id;
+    const agendamentoId = req.params.id;
+    try {
+      const [rows] = await db.execute(
+        "SELECT id, status FROM agendamento WHERE id = ? AND cliente_id = ?",
+        [agendamentoId, clienteId]
+      );
+      if (!rows.length)
+        return res.status(404).json({ error: "Agendamento não encontrado." });
+      if (rows[0].status === "cancelado") {
+        return res
+          .status(400)
+          .json({ error: "Agendamento já está cancelado." });
+      }
 
-    await db.execute(
-      "UPDATE agendamento SET status = 'cancelado' WHERE id = ?",
-      [agendamentoId]
-    );
-    return res.json({ message: "Agendamento cancelado com sucesso." });
-  } catch (error) {
-    console.error("Erro ao cancelar agendamento:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+      await db.execute(
+        "UPDATE agendamento SET status = 'cancelado' WHERE id = ?",
+        [agendamentoId]
+      );
+      return res.json({ message: "Agendamento cancelado com sucesso." });
+    } catch (error) {
+      console.error("Erro ao cancelar agendamento:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
   }
-});
+);
 
 module.exports = router;

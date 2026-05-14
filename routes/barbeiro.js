@@ -35,14 +35,28 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
   }
 
   try {
-    const cpfJaCadastrado = await recordExists(db, "barbeiro", "cpf", barbeiro.cpf);
+    const cpfJaCadastrado = await recordExists(
+      db,
+      "barbeiro",
+      "cpf",
+      barbeiro.cpf
+    );
     if (cpfJaCadastrado) {
-      return res.status(409).json({ error: responseMessages.duplicateBarbeiroCpf });
+      return res
+        .status(409)
+        .json({ error: responseMessages.duplicateBarbeiroCpf });
     }
 
-    const emailJaCadastrado = await recordExists(db, "barbeiro", "email", barbeiro.email);
+    const emailJaCadastrado = await recordExists(
+      db,
+      "barbeiro",
+      "email",
+      barbeiro.email
+    );
     if (emailJaCadastrado) {
-      return res.status(409).json({ error: responseMessages.duplicateBarbeiroEmail });
+      return res
+        .status(409)
+        .json({ error: responseMessages.duplicateBarbeiroEmail });
     }
 
     const senhaHash = await bcrypt.hash(barbeiro.senha, 10);
@@ -76,7 +90,9 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
     });
   } catch (error) {
     console.error("Erro no cadastro de barbeiro:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
@@ -107,7 +123,9 @@ router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
     return res.json({ barbeiros });
   } catch (error) {
     console.error("Erro ao listar barbeiros:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
@@ -129,7 +147,9 @@ router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
     return res.json({ horarios });
   } catch (error) {
     console.error("Erro ao buscar horários:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
   }
 });
 
