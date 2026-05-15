@@ -11,34 +11,162 @@
     />
   </head>
   <body>
-    <div class="bt-card wide">
-      <!-- LOGO -->
+    <div class="bt-card bt-dashboard-shell">
       <a href="/" class="bt-logo">
         <div class="bt-logo-icon">✂</div>
         <span class="bt-logo-text">BarberTrack</span>
       </a>
 
-      <!-- BOAS VINDAS -->
-      <h1 class="bt-title">Olá, Barbeiro!</h1>
-      <p class="bt-subtitle">Bem-vindo ao seu painel.</p>
-
-      <hr class="bt-divider" />
-
-      <!-- HORÁRIOS DA BARBEARIA -->
-      <h2 class="bt-title" style="font-size: 1.25rem; margin-bottom: 0.25rem">
-        Horários de Funcionamento
-      </h2>
-      <p class="bt-subtitle">Confira quando a barbearia está aberta.</p>
-
-      <div id="horarios-status" class="bt-form-status is-info">
-        Carregando horários...
+      <div class="bt-dashboard-header">
+        <div>
+          <h1 class="bt-title">Olá, Barbeiro!</h1>
+          <p class="bt-subtitle">
+            Confira os horários da barbearia e registre um novo agendamento.
+          </p>
+        </div>
+        <div class="bt-chip" id="dashboard-badge">Painel ativo</div>
       </div>
 
-      <div id="horarios-container"></div>
+      <div class="bt-section-card">
+        <div class="bt-section-heading">
+          <h2 class="bt-title bt-title-sm">Horários de funcionamento</h2>
+          <p class="bt-subtitle bt-subtitle-tight">
+            Disponibilidade geral da barbearia para você se orientar.
+          </p>
+        </div>
 
-      <hr class="bt-divider" />
+        <div id="horarios-status" class="bt-form-status is-info">
+          Carregando horários...
+        </div>
+        <div id="horarios-container" class="bt-list-stack"></div>
+      </div>
 
-      <button class="bt-btn" id="btn-logout">Sair</button>
+      <div class="bt-section-card">
+        <div class="bt-section-heading">
+          <h2 class="bt-title bt-title-sm">Novo agendamento</h2>
+          <p class="bt-subtitle bt-subtitle-tight">
+            Escolha um cliente, defina o horário e use um serviço existente ou
+            cadastre um novo na hora.
+          </p>
+        </div>
+
+        <div id="agendamento-status" class="bt-form-status is-info">
+          Carregando clientes e serviços...
+        </div>
+
+        <form id="agendamento-form" class="bt-form-grid" novalidate>
+          <div>
+            <label class="bt-label" for="cliente_id">Cliente</label>
+            <select
+              id="cliente_id"
+              name="cliente_id"
+              class="bt-select"
+              required
+            >
+              <option value="">Selecione um cliente</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="bt-label" for="horario">Data e hora</label>
+            <input
+              id="horario"
+              name="horario"
+              type="datetime-local"
+              class="bt-input"
+              required
+            />
+          </div>
+
+          <div class="bt-field-span">
+            <span class="bt-label">Origem do serviço</span>
+            <div class="bt-choice-row">
+              <label class="bt-choice-pill">
+                <input
+                  type="radio"
+                  name="tipo_servico"
+                  value="existente"
+                  checked
+                />
+                <span>Usar existente</span>
+              </label>
+              <label class="bt-choice-pill">
+                <input type="radio" name="tipo_servico" value="novo" />
+                <span>Criar novo</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="servico-existente-group" class="bt-field-span">
+            <label class="bt-label" for="servico_id">Serviço existente</label>
+            <select id="servico_id" name="servico_id" class="bt-select">
+              <option value="">Selecione um serviço</option>
+            </select>
+          </div>
+
+          <div id="servico-novo-group" class="bt-field-span" hidden>
+            <div class="bt-row">
+              <div>
+                <label class="bt-label" for="servico_nome"
+                  >Nome do serviço</label
+                >
+                <input
+                  id="servico_nome"
+                  name="servico_nome"
+                  type="text"
+                  class="bt-input"
+                  placeholder="Ex.: Corte + Barba"
+                />
+              </div>
+
+              <div>
+                <label class="bt-label" for="servico_duracao_min"
+                  >Duração</label
+                >
+                <input
+                  id="servico_duracao_min"
+                  name="servico_duracao_min"
+                  type="number"
+                  min="1"
+                  step="1"
+                  class="bt-input"
+                  placeholder="45"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="bt-label" for="servico_preco">Preço</label>
+              <input
+                id="servico_preco"
+                name="servico_preco"
+                type="number"
+                min="0"
+                step="0.01"
+                class="bt-input"
+                placeholder="50.00"
+              />
+            </div>
+          </div>
+
+          <div class="bt-field-span">
+            <label class="bt-label" for="observacao">Observação</label>
+            <input
+              id="observacao"
+              name="observacao"
+              type="text"
+              class="bt-input"
+              placeholder="Opcional"
+            />
+          </div>
+
+          <button class="bt-btn bt-field-span" id="btn-agendar" type="submit">
+            Confirmar agendamento
+          </button>
+        </form>
+      </div>
+
+      <button class="bt-btn bt-btn-secondary" id="btn-logout">Sair</button>
     </div>
 
     <script src="/scripts/dashboard_barbeiro.js"></script>

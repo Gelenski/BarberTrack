@@ -30,7 +30,6 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
   };
 
   const validationError = validateBarbeiroPayload(barbeiro);
-
   if (validationError) {
     return res.status(400).json({ error: validationError });
   }
@@ -42,7 +41,6 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
       "cpf",
       barbeiro.cpf
     );
-
     if (cpfJaCadastrado) {
       return res
         .status(409)
@@ -55,7 +53,6 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
       "email",
       barbeiro.email
     );
-
     if (emailJaCadastrado) {
       return res
         .status(409)
@@ -65,11 +62,9 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
     const senhaHash = await bcrypt.hash(barbeiro.senha, 10);
 
     const [result] = await db.execute(
-      `
-      INSERT INTO barbeiro
+      `INSERT INTO barbeiro
         (barbearia_id, nome, sobrenome, cpf, email, telefone, senha)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         req.session.user.id,
         barbeiro.nome,
@@ -101,18 +96,18 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
   }
 });
 
+// ─── Agenda do barbeiro (feature/agenda)
+router.get("/agenda", (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/agenda_barbeiro/index.html"));
+});
+
+// ─── Listar barbeiros da barbearia
 router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
   try {
     const [rows] = await db.execute(
-      `SELECT
-         id,
-         nome,
-         sobrenome,
-         email,
-         telefone
+      `SELECT id, nome, sobrenome, email, telefone
        FROM barbeiro
-       WHERE barbearia_id = ?
-         AND ativo = TRUE
+       WHERE barbearia_id = ? AND ativo = TRUE
        ORDER BY nome ASC`,
       [req.session.user.id]
     );
@@ -138,11 +133,53 @@ router.get("/dashboard", isAuthenticated, isBarbeiro, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_barbeiro/index.html"));
 });
 
-// Visualizar horarios da barbearia
+router.get("/clientes", isAuthenticated, isBarbeiro, async (req, res) => {
+  try {
+    const [clientes] = await db.execute(
+      `SELECT c.id, c.nome, c.sobrenome, c.telefone
+         FROM cliente c
+         JOIN cliente_barbearias cb ON cb.cliente_id = c.id
+        WHERE cb.barbearia_id = (
+          SELECT barbearia_id FROM barbeiro WHERE id = ?
+        )
+          AND c.ativo = TRUE
+        ORDER BY c.nome ASC, c.sobrenome ASC`,
+      [req.session.user.id]
+    );
+
+    return res.json({ clientes });
+  } catch (error) {
+    console.error("Erro ao buscar clientes do barbeiro:", error);
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
+  }
+});
+
+router.get("/servicos", isAuthenticated, isBarbeiro, async (req, res) => {
+  try {
+    const [servicos] = await db.execute(
+      `SELECT id, nome, duracao_min, preco
+         FROM servico
+        WHERE barbearia_id = (
+          SELECT barbearia_id FROM barbeiro WHERE id = ?
+        )
+          AND ativo = TRUE
+        ORDER BY nome ASC`,
+      [req.session.user.id]
+    );
+
+    return res.json({ servicos });
+  } catch (error) {
+    console.error("Erro ao buscar servicos do barbeiro:", error);
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
+  }
+});
 
 router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
   try {
-    // O barbeiro tem barbearia_id na sessão pois foi cadastrado por uma barbearia
     const [horarios] = await db.execute(
       `SELECT dia_semana, abertura, fechamento, fechado
        FROM horario_funcionamento
@@ -152,7 +189,6 @@ router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
        ORDER BY dia_semana`,
       [req.session.user.id]
     );
-
     return res.json({ horarios });
   } catch (error) {
     console.error("Erro ao buscar horários:", error);

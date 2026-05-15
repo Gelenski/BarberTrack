@@ -62,6 +62,7 @@ CREATE TABLE barbeiro (
     email VARCHAR(100) NULL,
     telefone VARCHAR(20) NULL,
     senha CHAR(60) NOT NULL,
+    senha CHAR(60) NOT NULL,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -78,15 +79,42 @@ CREATE TABLE reset_senha (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE servico (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  barbearia_id INT UNSIGNED NOT NULL,
+  nome VARCHAR(100) NOT NULL,
+  duracao_min INT NOT NULL,
+  preco DECIMAL(10,2) NOT NULL,
+  ativo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (barbearia_id) REFERENCES barbearia(id)
+);
+
 CREATE TABLE agendamento (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   barbearia_id INT UNSIGNED NOT NULL,
   cliente_id INT UNSIGNED NOT NULL,
   barbeiro_id INT UNSIGNED NOT NULL,
+  servico_id INT UNSIGNED NOT NULL,
   horario DATETIME NOT NULL,
-  tipo VARCHAR(60), -- cabelo, barba, cabelo-barba
-  estado VARCHAR(20), -- agendado, cancelado
-FOREIGN KEY (barbearia_id) REFERENCES barbearia(id),
-FOREIGN KEY (cliente_id) REFERENCES cliente(id),
-FOREIGN KEY (barbeiro_id) REFERENCES barbeiro(id)
+  status ENUM('confirmado', 'cancelado', 'concluido') DEFAULT 'confirmado',
+  observacao VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (barbearia_id) REFERENCES barbearia(id),
+  FOREIGN KEY (cliente_id) REFERENCES cliente(id),
+  FOREIGN KEY (barbeiro_id) REFERENCES barbeiro(id),
+  FOREIGN KEY (servico_id) REFERENCES servico(id)
+);
+
+CREATE TABLE horario_barbeiro (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  barbeiro_id INT UNSIGNED NOT NULL,
+  dia_semana TINYINT NOT NULL, -- 0=domingo, 1=segunda ... 6=sabado
+  hora_inicio TIME NOT NULL,
+  hora_fim TIME NOT NULL,
+  ativo BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (barbeiro_id) REFERENCES barbeiro(id)
 );
