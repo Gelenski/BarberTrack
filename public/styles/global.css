@@ -465,3 +465,31 @@ body {
     flex-direction: column;
   }
 }
+
+.bt-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bt-input-wrapper .bt-input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.bt-toggle-senha {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.bt-toggle-senha:hover {
+  color: #333;
+}
