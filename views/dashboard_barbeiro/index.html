@@ -1,267 +1,221 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>BarberTrack - Dashboard do Barbeiro</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="/styles/globalDashboard.css" />
+  <title>BarberTrack - Dashboard do Barbeiro</title>
 
-    <script src="/scripts/dashboard_barbeiro.js" defer></script>
+  <link rel="stylesheet" href="/styles/globalDashboard.css" />
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-  </head>
+  <script src="/scripts/dashboard_barbeiro.js" defer></script>
 
-  <body>
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+</head>
 
-    <header class="topbar">
-      <a href="/barbeiro/dashboard" class="bt-logo">
-        <div class="bt-logo-icon">✂</div>
-        <span class="bt-logo-text">BarberTrack</span>
-      </a>
+<body>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-      <div class="topbar-right">
-        <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+  <header class="topbar">
+    <a href="/barbeiro/dashboard" class="bt-logo">
+      <div class="bt-logo-icon">✂</div>
+      <span class="bt-logo-text">BarberTrack</span>
+    </a>
 
-        <span class="greeting">
-          Olá, <strong id="nome-barbeiro">...</strong>
-        </span>
+    <div class="topbar-right">
+      <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-        <div class="avatar" id="avatar-inicial"></div>
+      <span class="greeting">
+        Olá, <strong id="nome-barbeiro">...</strong>
+      </span>
+
+      <div class="avatar" id="avatar-inicial"></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <span class="sidebar-label">Principal</span>
+
+        <a class="nav-item active" href="/barbeiro/dashboard">
+          <span class="icon">◈</span>
+          Dashboard
+        </a>
+
+        <a class="nav-item" href="/barbeiro/agenda">
+          <span class="icon">📅</span>
+          Minha Agenda
+        </a>
       </div>
-    </header>
 
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="sidebar-section">
-          <span class="sidebar-label">Principal</span>
+      <hr class="sidebar-divider" />
 
-          <a class="nav-item active" href="/barbeiro/dashboard">
-            <span class="icon">◈</span>
-            Dashboard
-          </a>
+      <div class="sidebar-section">
+        <span class="sidebar-label">Sistema</span>
 
-          <a class="nav-item" href="/barbeiro/agenda">
-            <span class="icon">📅</span>
-            Minha Agenda
-          </a>
+        <button class="nav-item" id="btn-logout">
+          <span class="icon">↩</span>
+          Sair
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <span class="date-label" id="data-atual"></span>
         </div>
 
-        <hr class="sidebar-divider" />
+        <a href="/barbeiro/agenda" class="btn-primary">
+          Ver agenda completa
+        </a>
+      </div>
 
-        <div class="sidebar-section">
-          <span class="sidebar-label">Sistema</span>
-
-          <button class="nav-item" id="btn-logout">
-            <span class="icon">↩</span>
-            Sair
-          </button>
+      <!-- MÉTRICAS -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="dot"></span>
+            Atendimentos Hoje
+          </div>
+          <div class="metric-value" id="m-total">--</div>
+          <div class="metric-change neutral" id="m-total-info">
+            Carregando...
+          </div>
         </div>
-      </aside>
 
-      <main class="main">
-        <div class="page-header">
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="dot"></span>
+            Confirmados
+          </div>
+          <div class="metric-value" id="m-confirmados">--</div>
+          <div class="metric-change neutral">agendados para hoje</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="dot"></span>
+            Receita do Dia
+          </div>
+          <div class="metric-value gold" id="m-receita">--</div>
+          <div class="metric-change neutral">excluindo cancelados</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="dot"></span>
+            Próximo Cliente
+          </div>
+          <div class="metric-value" id="m-proximo">--</div>
+          <div class="metric-change neutral" id="m-proximo-info">–</div>
+        </div>
+      </div>
+
+      <!-- AGENDA DO DIA -->
+      <div class="card" style="margin-top: 0">
+        <div class="card-header">
+          <span class="card-title">Agenda de Hoje</span>
+          <a class="card-action" href="/barbeiro/agenda">Ver completa →</a>
+        </div>
+
+        <div id="agenda-status" class="bt-form-status is-info">
+          Carregando agenda...
+        </div>
+
+        <div class="agenda-list" id="agenda-container"></div>
+      </div>
+
+      <!-- NOVO AGENDAMENTO -->
+      <div class="card" style="margin-top: 1.25rem">
+        <div class="card-header">
+          <span class="card-title">Novo agendamento</span>
+        </div>
+
+        <p class="bt-subtitle bt-subtitle-tight" style="margin-bottom: 1rem">
+          Escolha um cliente, defina o horário e use um serviço existente ou
+          cadastre um novo.
+        </p>
+
+        <div id="agendamento-status" class="bt-form-status is-info">
+          Carregando clientes e serviços...
+        </div>
+
+        <form id="agendamento-form" class="bt-form-grid" novalidate>
           <div>
-            <h1>Dashboard</h1>
-            <span class="date-label" id="data-atual"></span>
+            <label class="bt-label" for="cliente_id">Cliente</label>
+            <select id="cliente_id" name="cliente_id" class="bt-select" required>
+              <option value="">Selecione um cliente</option>
+            </select>
           </div>
 
-          <a href="/barbeiro/agenda" class="btn-primary">
-            Ver agenda completa
-          </a>
-        </div>
+          <div>
+            <label class="bt-label" for="horario">Data e hora</label>
+            <input id="horario" name="horario" type="datetime-local" class="bt-input" required />
+          </div>
 
-        <!-- MÉTRICAS -->
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>
-              Atendimentos Hoje
-            </div>
-            <div class="metric-value" id="m-total">--</div>
-            <div class="metric-change neutral" id="m-total-info">
-              Carregando...
+          <div class="bt-field-span">
+            <span class="bt-label">Origem do serviço</span>
+            <div class="bt-choice-row">
+              <label class="bt-choice-pill">
+                <input type="radio" name="tipo_servico" value="existente" checked />
+                <span>Usar existente</span>
+              </label>
+              <label class="bt-choice-pill">
+                <input type="radio" name="tipo_servico" value="novo" />
+                <span>Criar novo</span>
+              </label>
             </div>
           </div>
 
-          <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>
-              Confirmados
-            </div>
-            <div class="metric-value" id="m-confirmados">--</div>
-            <div class="metric-change neutral">agendados para hoje</div>
+          <div id="servico-existente-group" class="bt-field-span">
+            <label class="bt-label" for="servico_id">Serviço existente</label>
+            <select id="servico_id" name="servico_id" class="bt-select">
+              <option value="">Selecione um serviço</option>
+            </select>
           </div>
 
-          <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>
-              Receita do Dia
-            </div>
-            <div class="metric-value gold" id="m-receita">--</div>
-            <div class="metric-change neutral">excluindo cancelados</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-label">
-              <span class="dot"></span>
-              Próximo Cliente
-            </div>
-            <div class="metric-value" id="m-proximo">--</div>
-            <div class="metric-change neutral" id="m-proximo-info">–</div>
-          </div>
-        </div>
-
-        <!-- AGENDA DO DIA -->
-        <div class="bt-section-card">
-          <div class="bt-section-heading">
-            <h2 class="bt-title bt-title-sm">Agenda de Hoje</h2>
-            <p class="bt-subtitle bt-subtitle-tight">
-              Seus próximos atendimentos.
-            </p>
-          </div>
-
-          <div id="agenda-status" class="bt-form-status is-info">
-            Carregando agenda...
-          </div>
-
-          <div id="agenda-container" class="bt-list-stack"></div>
-        </div>
-
-        <!-- NOVO AGENDAMENTO -->
-        <div class="card" style="margin-top: 1.25rem">
-          <div class="card-header">
-            <span class="card-title">Novo agendamento</span>
-          </div>
-
-          <p class="bt-subtitle bt-subtitle-tight" style="margin-bottom: 1rem">
-            Escolha um cliente, defina o horário e use um serviço existente ou
-            cadastre um novo.
-          </p>
-
-          <div id="agendamento-status" class="bt-form-status is-info">
-            Carregando clientes e serviços...
-          </div>
-
-          <form id="agendamento-form" class="bt-form-grid" novalidate>
-            <div>
-              <label class="bt-label" for="cliente_id">Cliente</label>
-              <select
-                id="cliente_id"
-                name="cliente_id"
-                class="bt-select"
-                required
-              >
-                <option value="">Selecione um cliente</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="bt-label" for="horario">Data e hora</label>
-              <input
-                id="horario"
-                name="horario"
-                type="datetime-local"
-                class="bt-input"
-                required
-              />
-            </div>
-
-            <div class="bt-field-span">
-              <span class="bt-label">Origem do serviço</span>
-              <div class="bt-choice-row">
-                <label class="bt-choice-pill">
-                  <input
-                    type="radio"
-                    name="tipo_servico"
-                    value="existente"
-                    checked
-                  />
-                  <span>Usar existente</span>
-                </label>
-                <label class="bt-choice-pill">
-                  <input type="radio" name="tipo_servico" value="novo" />
-                  <span>Criar novo</span>
-                </label>
-              </div>
-            </div>
-
-            <div id="servico-existente-group" class="bt-field-span">
-              <label class="bt-label" for="servico_id">Serviço existente</label>
-              <select id="servico_id" name="servico_id" class="bt-select">
-                <option value="">Selecione um serviço</option>
-              </select>
-            </div>
-
-            <div id="servico-novo-group" class="bt-field-span" hidden>
-              <div class="bt-row">
-                <div>
-                  <label class="bt-label" for="servico_nome"
-                    >Nome do serviço</label
-                  >
-                  <input
-                    id="servico_nome"
-                    name="servico_nome"
-                    type="text"
-                    class="bt-input"
-                    placeholder="Ex.: Corte + Barba"
-                  />
-                </div>
-                <div>
-                  <label class="bt-label" for="servico_duracao_min"
-                    >Duração</label
-                  >
-                  <input
-                    id="servico_duracao_min"
-                    name="servico_duracao_min"
-                    type="number"
-                    min="1"
-                    step="1"
-                    class="bt-input"
-                    placeholder="45"
-                  />
-                </div>
+          <div id="servico-novo-group" class="bt-field-span" hidden>
+            <div class="bt-row">
+              <div>
+                <label class="bt-label" for="servico_nome">Nome do serviço</label>
+                <input id="servico_nome" name="servico_nome" type="text" class="bt-input"
+                  placeholder="Ex.: Corte + Barba" />
               </div>
               <div>
-                <label class="bt-label" for="servico_preco">Preço</label>
-                <input
-                  id="servico_preco"
-                  name="servico_preco"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="bt-input"
-                  placeholder="50.00"
-                />
+                <label class="bt-label" for="servico_duracao_min">Duração</label>
+                <input id="servico_duracao_min" name="servico_duracao_min" type="number" min="1" step="1"
+                  class="bt-input" placeholder="45" />
               </div>
             </div>
-
-            <div class="bt-field-span">
-              <label class="bt-label" for="observacao">Observação</label>
-              <input
-                id="observacao"
-                name="observacao"
-                type="text"
-                class="bt-input"
-                placeholder="Opcional"
-              />
+            <div>
+              <label class="bt-label" for="servico_preco">Preço</label>
+              <input id="servico_preco" name="servico_preco" type="number" min="0" step="0.01" class="bt-input"
+                placeholder="50.00" />
             </div>
+          </div>
 
-            <button class="bt-btn bt-field-span" id="btn-agendar" type="submit">
-              Confirmar agendamento
-            </button>
-          </form>
-        </div>
-      </main>
-    </div>
-  </body>
+          <div class="bt-field-span">
+            <label class="bt-label" for="observacao">Observação</label>
+            <input id="observacao" name="observacao" type="text" class="bt-input" placeholder="Opcional" />
+          </div>
+
+          <button class="bt-btn bt-field-span" id="btn-agendar" type="submit">
+            Confirmar agendamento
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+
 </html>

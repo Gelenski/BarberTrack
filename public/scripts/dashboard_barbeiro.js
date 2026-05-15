@@ -112,15 +112,21 @@ async function carregarAgendamentosHoje() {
           hour: "2-digit",
           minute: "2-digit",
         });
+        const statusLabel = {
+          confirmado: "Confirmado",
+          concluido: "Concluído",
+          cancelado: "Cancelado",
+        };
         return `
-          <div class="bt-list-row">
-            <div>
-              <div class="bt-list-title">${a.cliente_nome}</div>
-              <div class="bt-list-meta">${a.servico_nome} · ${a.duracao_min} min</div>
-            </div>
-            <div class="bt-list-meta is-gold">${hora}</div>
-          </div>
-        `;
+      <div class="agenda-item">
+        <span class="agenda-time">${hora}</span>
+        <div class="agenda-divider"></div>
+        <div class="agenda-info">
+          <div class="agenda-client">${a.cliente_nome}</div>
+          <div class="agenda-service">${a.servico_nome} · ${a.duracao_min} min</div>
+        </div>
+        <span class="status-pill ${a.status}">${statusLabel[a.status] ?? a.status}</span>
+      </div>`;
       })
       .join("");
   } catch (error) {
