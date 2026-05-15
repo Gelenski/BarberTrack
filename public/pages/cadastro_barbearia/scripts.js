@@ -134,13 +134,15 @@ function validarTelefone() {
 
 function validarSenha() {
   const { senha } = pegarDadosDaBarbearia();
+  const senhaRegex =
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
   if (!senha) {
     return "Informe uma senha.";
   }
 
-  if (senha.length < 8) {
-    return "A senha deve ter pelo menos 8 caracteres.";
+  if (!senhaRegex.test(senha)) {
+    return "A senha deve ter pelo menos 8 caracteres, 1 letra maiúscula, 1 número e 1 caractere especial";
   }
 
   return null;

@@ -1,0 +1,609 @@
+/* ── TABS ── */
+.gu-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.3rem;
+  width: fit-content;
+}
+
+.gu-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.gu-tab:hover {
+  color: var(--text);
+}
+
+.gu-tab.active {
+  background: rgba(201, 168, 76, 0.12);
+  color: var(--gold);
+}
+
+.gu-tab-count {
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.7rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-feature-settings: "tnum";
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.gu-tab.active .gu-tab-count {
+  background: rgba(201, 168, 76, 0.15);
+  color: var(--gold);
+  border-color: rgba(201, 168, 76, 0.3);
+}
+
+/* ── TOOLBAR ── */
+.gu-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.gu-search-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.gu-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.gu-search {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem 0.6rem 2.2rem;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.gu-search::placeholder {
+  color: var(--muted);
+  opacity: 0.65;
+}
+
+.gu-search:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+}
+
+.gu-filter-wrap select {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 2rem 0.6rem 0.9rem;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23c9a84c' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 12px;
+  transition: border-color 0.2s;
+}
+
+.gu-filter-wrap select:focus {
+  border-color: var(--gold);
+}
+
+/* ── TABELA ── */
+.gu-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.gu-table-wrap {
+  overflow-x: auto;
+  min-height: 220px;
+  position: relative;
+}
+
+.gu-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.gu-table thead tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.gu-table th {
+  padding: 0.85rem 1.25rem;
+  text-align: left;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.gu-table td {
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.gu-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.gu-table tbody tr {
+  transition: background 0.12s;
+}
+
+.gu-table tbody tr:hover {
+  background: var(--surface-2);
+}
+
+/* Célula de usuário com avatar */
+.gu-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gu-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gold-dark);
+  display: grid;
+  place-items: center;
+  font-family: "Playfair Display", serif;
+  font-size: 0.85rem;
+  color: var(--gold-light);
+  flex-shrink: 0;
+  border: 1.5px solid rgba(201, 168, 76, 0.3);
+}
+
+.gu-user-name {
+  font-weight: 500;
+  color: var(--text);
+  font-size: 0.875rem;
+}
+
+/* Status pill */
+.gu-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.gu-status.ativo {
+  background: rgba(74, 170, 114, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(74, 170, 114, 0.3);
+}
+
+.gu-status.inativo {
+  background: rgba(122, 112, 96, 0.12);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.gu-status i {
+  font-size: 0.6rem;
+}
+
+/* Botão de ação */
+.gu-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: "DM Sans", sans-serif;
+  cursor: pointer;
+  border: 1px solid;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.gu-action-btn.desativar {
+  background: rgba(217, 95, 75, 0.08);
+  border-color: rgba(217, 95, 75, 0.3);
+  color: #ffb1a5;
+}
+
+.gu-action-btn.desativar:hover {
+  background: rgba(217, 95, 75, 0.16);
+}
+
+.gu-action-btn.ativar {
+  background: rgba(74, 170, 114, 0.08);
+  border-color: rgba(74, 170, 114, 0.3);
+  color: var(--success);
+}
+
+.gu-action-btn.ativar:hover {
+  background: rgba(74, 170, 114, 0.16);
+}
+
+.gu-action-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* ── ESTADOS ── */
+.gu-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
+}
+
+.gu-state.hidden {
+  display: none;
+}
+
+.gu-state-icon {
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+.gu-state-icon.error {
+  color: var(--error);
+  opacity: 0.7;
+}
+
+/* Spinner */
+.gu-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gu-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  background: none;
+  border: 1px solid rgba(217, 95, 75, 0.35);
+  border-radius: 6px;
+  color: #ffb1a5;
+  font-size: 0.8rem;
+  font-family: "DM Sans", sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.gu-retry:hover {
+  background: rgba(217, 95, 75, 0.1);
+}
+
+/* ── MODAL ── */
+.gu-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.gu-modal-overlay.hidden {
+  display: none;
+}
+
+.gu-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem 1.75rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  animation: fadeUp 0.25s ease both;
+}
+
+.gu-modal-icon {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+}
+
+.gu-modal-icon.desativar {
+  color: var(--error);
+}
+.gu-modal-icon.ativar {
+  color: var(--success);
+}
+
+.gu-modal-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.2rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.gu-modal-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+}
+
+.gu-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.gu-modal-btn {
+  flex: 1;
+  padding: 0.7rem;
+  border-radius: 7px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: background 0.15s;
+}
+
+.gu-modal-btn.cancel {
+  background: none;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.gu-modal-btn.cancel:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.gu-modal-btn.confirm.desativar {
+  background: rgba(217, 95, 75, 0.12);
+  border-color: rgba(217, 95, 75, 0.4);
+  color: #ffb1a5;
+}
+
+.gu-modal-btn.confirm.desativar:hover {
+  background: rgba(217, 95, 75, 0.22);
+}
+
+.gu-modal-btn.confirm.ativar {
+  background: rgba(74, 170, 114, 0.12);
+  border-color: rgba(74, 170, 114, 0.4);
+  color: var(--success);
+}
+
+.gu-modal-btn.confirm.ativar:hover {
+  background: rgba(74, 170, 114, 0.22);
+}
+
+.gu-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* ── RESPONSIVO ── */
+@media (max-width: 600px) {
+  .gu-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gu-filter-wrap select {
+    width: 100%;
+  }
+
+  .gu-table th:nth-child(3),
+  .gu-table td:nth-child(3),
+  .gu-table th:nth-child(4),
+  .gu-table td:nth-child(4) {
+    display: none;
+  }
+}
+.gu-action-btn.editar {
+  background: rgba(201, 168, 76, 0.08);
+  border-color: rgba(201, 168, 76, 0.3);
+  color: var(--gold);
+}
+
+.gu-action-btn.editar:hover {
+  background: rgba(201, 168, 76, 0.16);
+}
+
+.gu-actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── MODAL DE EDIÇÃO ── */
+
+.gu-modal-edicao {
+  max-width: 520px;
+  text-align: left;
+  padding: 1.75rem;
+}
+
+.gu-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.gu-modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.gu-modal-close:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.gu-modal-error,
+.gu-modal-success {
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+
+.gu-modal-error {
+  background: rgba(217, 95, 75, 0.1);
+  border: 1px solid rgba(217, 95, 75, 0.3);
+  color: #ffb1a5;
+}
+
+.gu-modal-success {
+  background: rgba(74, 170, 114, 0.1);
+  border: 1px solid rgba(74, 170, 114, 0.3);
+  color: var(--success);
+}
+
+/* Grid de campos */
+.gu-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.gu-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.gu-edit-field--full {
+  grid-column: 1 / -1;
+}
+
+.gu-edit-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gu-edit-label-hint {
+  font-size: 0.65rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.gu-edit-input {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.gu-edit-input::placeholder {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+.gu-edit-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+}
+
+.gu-edit-input.is-invalid {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(217, 95, 75, 0.1);
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  .gu-edit-grid {
+    grid-template-columns: 1fr;
+  }
+}

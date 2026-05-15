@@ -53,6 +53,145 @@ body {
   max-width: 520px;
 }
 
+.bt-dashboard-shell {
+  max-width: 840px;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.bt-dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bt-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(201, 168, 76, 0.28);
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold-light);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bt-section-card {
+  background: linear-gradient(
+    180deg,
+    rgba(34, 31, 27, 0.96) 0%,
+    rgba(26, 23, 20, 0.98) 100%
+  );
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+.bt-section-heading {
+  margin-bottom: 1rem;
+}
+
+.bt-title.bt-title-sm {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.bt-subtitle.bt-subtitle-tight {
+  margin-bottom: 0;
+}
+
+.bt-list-stack {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bt-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bt-list-row:last-child {
+  border-bottom: none;
+}
+
+.bt-list-title {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.bt-list-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.bt-list-meta.is-gold {
+  color: var(--gold);
+}
+
+.bt-form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.bt-field-span {
+  grid-column: 1 / -1;
+}
+
+.bt-choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.bt-choice-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(15, 13, 11, 0.7);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.1s ease;
+}
+
+.bt-choice-pill:hover {
+  border-color: rgba(201, 168, 76, 0.4);
+}
+
+.bt-choice-pill:has(input:checked) {
+  border-color: rgba(201, 168, 76, 0.7);
+  background: rgba(201, 168, 76, 0.12);
+  transform: translateY(-1px);
+}
+
+.bt-choice-pill input {
+  accent-color: var(--gold);
+}
+
+.bt-btn.bt-btn-secondary {
+  background: transparent !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+.bt-btn.bt-btn-secondary:hover {
+  background: rgba(201, 168, 76, 0.08) !important;
+  border-color: rgba(201, 168, 76, 0.35) !important;
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -316,5 +455,13 @@ body {
 
   .bt-card {
     padding: 1.75rem 1.25rem;
+  }
+
+  .bt-dashboard-header {
+    flex-direction: column;
+  }
+
+  .bt-choice-row {
+    flex-direction: column;
   }
 }

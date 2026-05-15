@@ -10,6 +10,10 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
   </head>
   <body>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
@@ -17,7 +21,9 @@
     <!-- TOPBAR -->
     <header class="topbar">
       <a href="/barbearia/dashboard" class="bt-logo">
-        <div class="bt-logo-icon">✂</div>
+        <div class="bt-logo-icon">
+          <i class="fa-solid fa-scissors"></i>
+        </div>
         <span class="bt-logo-text">BarberTrack</span>
       </a>
       <div class="topbar-right">
@@ -36,13 +42,24 @@
         <div class="sidebar-section">
           <span class="sidebar-label">Principal</span>
           <a class="nav-item active" href="#">
-            <span class="icon">◈</span> Dashboard
+            <span class="icon"><i class="fa-solid fa-diamond"></i></span>
+            Dashboard
           </a>
+<<<<<<< HEAD
           <a class="nav-item" href="/barbearia/agenda">
             <span class="icon">📅</span> Agenda
           </a>
+=======
+>>>>>>> origin/feature/cadastro-agendamento
           <a class="nav-item" href="#">
-            <span class="icon">💰</span> Financeiro
+            <span class="icon"><i class="fa-solid fa-calendar-days"></i></span>
+            Agenda
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon"
+              ><i class="fa-solid fa-hand-holding-dollar"></i
+            ></span>
+            Financeiro
           </a>
         </div>
 
@@ -50,17 +67,21 @@
 
         <div class="sidebar-section">
           <span class="sidebar-label">Gestão</span>
-          <a class="nav-item" href="#">
-            <span class="icon">✂</span> Barbeiros
+          <a class="nav-item" href="/barbearia/usuarios">
+            <span class="icon"><i class="fa-solid fa-users"></i></span> Usuários
           </a>
           <a class="nav-item" href="#">
-            <span class="icon">👤</span> Clientes
+            <span class="icon"><i class="fa-solid fa-scissors"></i></span>
+            Serviços
           </a>
+<<<<<<< HEAD
           <a class="nav-item" href="#">
             <span class="icon">🛠</span> Serviços
           </a>
+=======
+>>>>>>> origin/feature/cadastro-agendamento
           <a class="nav-item" href="#secao-horarios">
-            <span class="icon">🕐</span> Horários
+            <span class="icon"><i class="fa-solid fa-clock"></i></span> Horários
           </a>
         </div>
 
@@ -69,10 +90,14 @@
         <div class="sidebar-section">
           <span class="sidebar-label">Sistema</span>
           <button class="nav-item" id="btn-config">
-            <span class="icon">⚙</span> Configurações
+            <span class="icon"><i class="fa-solid fa-sliders"></i></span>
+            Configurações
           </button>
           <button class="nav-item" id="btn-logout">
-            <span class="icon">↩</span> Sair
+            <span class="icon"
+              ><i class="fa-solid fa-right-from-bracket"></i
+            ></span>
+            Sair
           </button>
         </div>
       </aside>
@@ -136,22 +161,33 @@
               </div>
               <div class="quick-actions">
                 <a class="qa-btn" href="/barbeiro/cadastro">
-                  <span class="qa-icon">✂</span>
+                  <span class="qa-icon"
+                    ><i class="fa-solid fa-user-tie"></i
+                  ></span>
                   <span class="qa-label">Cadastrar Barbeiro</span>
                   <span class="qa-sub">Adicionar à equipe</span>
                 </a>
                 <a class="qa-btn" href="#">
-                  <span class="qa-icon">👤</span>
+                  <span class="qa-icon"><i class="fa-solid fa-user"></i></span>
                   <span class="qa-label">Novo Cliente</span>
                   <span class="qa-sub">Cadastrar ficha</span>
                 </a>
+<<<<<<< HEAD
                 <a class="qa-btn" href="/barbearia/agenda">
                   <span class="qa-icon">📅</span>
+=======
+                <a class="qa-btn" href="#">
+                  <span class="qa-icon"
+                    ><i class="fa-solid fa-calendar-days"></i
+                  ></span>
+>>>>>>> origin/feature/cadastro-agendamento
                   <span class="qa-label">Agendar</span>
                   <span class="qa-sub">Novo horário</span>
                 </a>
                 <a class="qa-btn" href="#">
-                  <span class="qa-icon">📊</span>
+                  <span class="qa-icon"
+                    ><i class="fa-solid fa-chart-line"></i
+                  ></span>
                   <span class="qa-label">Relatório</span>
                   <span class="qa-sub">Ver semana</span>
                 </a>
@@ -173,7 +209,15 @@
         </div>
 
         <!-- SEÇÃO DE HORÁRIOS -->
+<<<<<<< HEAD
         <div class="card" id="secao-horarios" style="margin-top: 1.25rem; padding: 1.25rem">
+=======
+        <div
+          class="card"
+          id="secao-horarios"
+          style="margin-top: 1.25rem; padding: 1.25rem"
+        >
+>>>>>>> origin/feature/cadastro-agendamento
           <div class="card-header">
             <span class="card-title">Horários de Funcionamento</span>
           </div>
