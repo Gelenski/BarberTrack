@@ -1,53 +1,106 @@
-const DIAS = [
-  "Domingo",
-  "Segunda",
-  "Terca",
-  "Quarta",
-  "Quinta",
-  "Sexta",
-  "Sabado",
-];
-
 const state = {
   clientes: [],
   servicos: [],
 };
 
+// ─── Init
 document.addEventListener("DOMContentLoaded", () => {
+  inicializarUsuario();
+  mostrarData();
+  inicializarSidebar();
   configurarCampoHorario();
   configurarFormulario();
   configurarLogout();
-  carregarDashboard();
+
+  carregarAgendamentosHoje();
+  carregarDadosFormulario();
 });
 
-async function carregarDashboard() {
-  await Promise.all([carregarHorarios(), carregarDadosFormulario()]);
+// ─── Usuário
+function inicializarUsuario() {
+  try {
+    const u = JSON.parse(localStorage.getItem("usuarioLogado"));
+    if (u?.nome) {
+      document.getElementById("nome-barbeiro").textContent = u.nome;
+      const avatar = document.getElementById("avatar-inicial");
+      if (avatar) avatar.textContent = u.nome[0].toUpperCase();
+    }
+  } catch {
+    /* intencional */
+  }
 }
 
-async function carregarHorarios() {
-  const status = document.getElementById("horarios-status");
-  const container = document.getElementById("horarios-container");
+// ─── Data
+function mostrarData() {
+  const el = document.getElementById("data-atual");
+  if (!el) return;
+  el.textContent = new Date().toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+// ─── Métricas
+function atualizarMetricas(agendamentos) {
+  const total = agendamentos.length;
+  const confirmados = agendamentos.filter(
+    (a) => a.status === "confirmado"
+  ).length;
+  const receita = agendamentos
+    .filter((a) => a.status !== "cancelado")
+    .reduce((sum, a) => sum + Number(a.preco || 0), 0);
+
+  document.getElementById("m-total").textContent = total;
+  document.getElementById("m-total-info").textContent =
+    total === 1 ? "1 atendimento hoje" : `${total} atendimentos hoje`;
+  document.getElementById("m-confirmados").textContent = confirmados;
+  document.getElementById("m-receita").textContent =
+    `R$ ${receita.toFixed(2).replace(".", ",")}`;
+
+  const agora = new Date();
+  const proximo = agendamentos
+    .filter((a) => a.status === "confirmado" && new Date(a.horario) >= agora)
+    .sort((a, b) => new Date(a.horario) - new Date(b.horario))[0];
+
+  if (proximo) {
+    const hora = new Date(proximo.horario).toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    document.getElementById("m-proximo").textContent = hora;
+    document.getElementById("m-proximo-info").textContent =
+      proximo.cliente_nome || "—";
+  } else {
+    document.getElementById("m-proximo").textContent = "—";
+    document.getElementById("m-proximo-info").textContent = "Nenhum próximo";
+  }
+}
+
+// ─── Agenda do dia
+async function carregarAgendamentosHoje() {
+  const status = document.getElementById("agenda-status");
+  const container = document.getElementById("agenda-container");
 
   try {
     const hoje = new Date().toISOString().split("T")[0];
+    const resposta = await fetch(`/barbeiro/agenda/agendamentos?data=${hoje}`);
+    const corpo = await resposta.json();
 
-    const res = await fetch(`/barbeiro/agenda/agendamentos?data=${hoje}`);
-
-    if (!res.ok) {
-      throw new Error("Nao foi possivel carregar os horarios.");
+    if (!resposta.ok) {
+      throw new Error(corpo.error || "Não foi possível carregar agenda.");
     }
 
-    const body = await res.json();
-    const agendamentos = body.agendamentos || [];
+    const agendamentos = corpo.agendamentos || [];
 
-    atualizarMetricas?.(agendamentos);
+    atualizarMetricas(agendamentos);
 
     if (!agendamentos.length) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;">
-          Nenhum agendamento para hoje.
-        </div>
-      `;
+      status.style.display = "block";
+      status.textContent = "Nenhum agendamento para hoje.";
+      status.className = "bt-form-status is-info";
+      container.innerHTML = "";
       return;
     }
 
@@ -59,38 +112,26 @@ async function carregarHorarios() {
           hour: "2-digit",
           minute: "2-digit",
         });
-
         return `
-          <div class="agenda-item">
-            <span class="agenda-time">${hora}</span>
-
-            <div class="agenda-divider"></div>
-
-            <div class="agenda-info">
-              <div class="agenda-client">
-                ${a.cliente_nome}
-              </div>
-
-              <div class="agenda-service">
-                ${a.servico_nome} · ${a.duracao_min} min
-                ${a.cliente_telefone ? `· ${a.cliente_telefone}` : ""}
-              </div>
+          <div class="bt-list-row">
+            <div>
+              <div class="bt-list-title">${a.cliente_nome}</div>
+              <div class="bt-list-meta">${a.servico_nome} · ${a.duracao_min} min</div>
             </div>
+            <div class="bt-list-meta is-gold">${hora}</div>
           </div>
         `;
       })
       .join("");
   } catch (error) {
     status.style.display = "block";
-    status.textContent =
-      error.message || "Erro ao carregar horarios.";
-
+    status.textContent = error.message || "Erro ao carregar agenda.";
     status.className = "bt-form-status is-error";
-
     container.innerHTML = "";
   }
 }
 
+// ─── Formulário de agendamento
 async function carregarDadosFormulario() {
   const status = document.getElementById("agendamento-status");
   const clienteSelect = document.getElementById("cliente_id");
@@ -105,17 +146,10 @@ async function carregarDadosFormulario() {
     const clientesBody = await clientesRes.json();
     const servicosBody = await servicosRes.json();
 
-    if (!clientesRes.ok) {
-      throw new Error(
-        clientesBody.error || "Nao foi possivel carregar os clientes."
-      );
-    }
-
-    if (!servicosRes.ok) {
-      throw new Error(
-        servicosBody.error || "Nao foi possivel carregar os servicos."
-      );
-    }
+    if (!clientesRes.ok)
+      throw new Error(clientesBody.error || "Erro ao carregar clientes.");
+    if (!servicosRes.ok)
+      throw new Error(servicosBody.error || "Erro ao carregar serviços.");
 
     state.clientes = clientesBody.clientes || [];
     state.servicos = servicosBody.servicos || [];
@@ -123,16 +157,16 @@ async function carregarDadosFormulario() {
     clienteSelect.innerHTML = [
       '<option value="">Selecione um cliente</option>',
       ...state.clientes.map(
-        (cliente) =>
-          `<option value="${cliente.id}">${cliente.nome} ${cliente.sobrenome}${cliente.telefone ? ` · ${cliente.telefone}` : ""}</option>`
+        (c) =>
+          `<option value="${c.id}">${c.nome} ${c.sobrenome}${c.telefone ? ` · ${c.telefone}` : ""}</option>`
       ),
     ].join("");
 
     servicoSelect.innerHTML = [
       '<option value="">Selecione um serviço</option>',
       ...state.servicos.map(
-        (servico) =>
-          `<option value="${servico.id}">${servico.nome} · ${servico.duracao_min} min · R$ ${Number(servico.preco).toFixed(2)}</option>`
+        (s) =>
+          `<option value="${s.id}">${s.nome} · ${s.duracao_min} min · R$ ${Number(s.preco).toFixed(2)}</option>`
       ),
     ].join("");
 
@@ -149,25 +183,22 @@ async function carregarDadosFormulario() {
     status.style.display = state.servicos.length ? "none" : "block";
     if (!state.servicos.length) {
       status.textContent =
-        "Nenhum servico ativo encontrado. Voce ainda pode criar um servico novo no agendamento.";
+        "Nenhum serviço ativo encontrado. Você ainda pode criar um serviço novo no agendamento.";
       status.className = "bt-form-status is-info";
     }
   } catch (error) {
     alternarFormularioDisponivel(false);
     status.style.display = "block";
-    status.textContent = error.message || "Erro ao carregar o formulario.";
+    status.textContent = error.message || "Erro ao carregar o formulário.";
     status.className = "bt-form-status is-error";
   }
 }
 
 function configurarFormulario() {
   const form = document.getElementById("agendamento-form");
-  const radios = document.querySelectorAll('input[name="tipo_servico"]');
-
-  radios.forEach((radio) => {
+  document.querySelectorAll('input[name="tipo_servico"]').forEach((radio) => {
     radio.addEventListener("change", atualizarModoServico);
   });
-
   form.addEventListener("submit", enviarAgendamento);
   atualizarModoServico();
 }
@@ -195,25 +226,21 @@ function atualizarModoServico() {
 }
 
 function configurarCampoHorario() {
-  const campoHorario = document.getElementById("horario");
-  campoHorario.min = gerarMinimoHorario();
-}
-
-function gerarMinimoHorario() {
+  const campo = document.getElementById("horario");
   const agora = new Date();
   agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
-  return agora.toISOString().slice(0, 16);
+  campo.min = agora.toISOString().slice(0, 16);
 }
 
-function alternarFormularioDisponivel(estaDisponivel) {
-  const elementos = document.querySelectorAll(
-    "#agendamento-form input, #agendamento-form select, #agendamento-form button"
-  );
-
-  elementos.forEach((elemento) => {
-    if (elemento.id === "btn-logout") return;
-    elemento.disabled = !estaDisponivel;
-  });
+function alternarFormularioDisponivel(disponivel) {
+  document
+    .querySelectorAll(
+      "#agendamento-form input, #agendamento-form select, #agendamento-form button"
+    )
+    .forEach((el) => {
+      if (el.id === "btn-logout") return;
+      el.disabled = !disponivel;
+    });
 }
 
 async function enviarAgendamento(event) {
@@ -246,14 +273,14 @@ async function enviarAgendamento(event) {
 
   if (!payload.cliente_id || !payload.horario) {
     status.style.display = "block";
-    status.textContent = "Selecione um cliente e informe um horario valido.";
+    status.textContent = "Selecione um cliente e informe um horário válido.";
     status.className = "bt-form-status is-error";
     return;
   }
 
   if (!usandoNovo && !payload.servico_id) {
     status.style.display = "block";
-    status.textContent = "Selecione um servico existente para continuar.";
+    status.textContent = "Selecione um serviço existente para continuar.";
     status.className = "bt-form-status is-error";
     return;
   }
@@ -274,14 +301,14 @@ async function enviarAgendamento(event) {
     const body = await response.json();
 
     if (!response.ok) {
-      throw new Error(body.erro || body.error || "Nao foi possivel agendar.");
+      throw new Error(body.erro || body.error || "Não foi possível agendar.");
     }
 
     const tipoServico = body.servico_criado
-      ? "Servico criado e vinculado ao agendamento."
+      ? "Serviço criado e vinculado ao agendamento."
       : body.servico_reutilizado
-        ? "Servico existente reaproveitado automaticamente."
-        : "Servico existente utilizado no agendamento.";
+        ? "Serviço existente reaproveitado automaticamente."
+        : "Serviço existente utilizado no agendamento.";
 
     status.textContent = `${body.mensagem || "Agendamento criado com sucesso."} ${tipoServico}`;
     status.className = "bt-form-status is-success";
@@ -291,6 +318,7 @@ async function enviarAgendamento(event) {
     }
 
     formResetAposSucesso();
+    carregarAgendamentosHoje();
   } catch (error) {
     status.textContent = error.message || "Erro ao criar agendamento.";
     status.className = "bt-form-status is-error";
@@ -311,7 +339,7 @@ function formResetAposSucesso() {
 function adicionarServicoCriadoAoSelect(servicoId, payload) {
   if (!servicoId || !payload?.servico_nome) return;
 
-  const jaExiste = state.servicos.some((servico) => servico.id === servicoId);
+  const jaExiste = state.servicos.some((s) => s.id === servicoId);
   if (jaExiste) return;
 
   const novoServico = {
@@ -324,12 +352,12 @@ function adicionarServicoCriadoAoSelect(servicoId, payload) {
   state.servicos.push(novoServico);
   state.servicos.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 
-  const servicoSelect = document.getElementById("servico_id");
-  servicoSelect.innerHTML = [
+  const sel = document.getElementById("servico_id");
+  sel.innerHTML = [
     '<option value="">Selecione um serviço</option>',
     ...state.servicos.map(
-      (servico) =>
-        `<option value="${servico.id}">${servico.nome} · ${servico.duracao_min} min · R$ ${Number(servico.preco).toFixed(2)}</option>`
+      (s) =>
+        `<option value="${s.id}">${s.nome} · ${s.duracao_min} min · R$ ${Number(s.preco).toFixed(2)}</option>`
     ),
   ].join("");
 }
@@ -339,11 +367,42 @@ function formatarHorarioParaApi(valor) {
   return `${valor}:00`.replace("T", " ");
 }
 
+// ─── Sidebar
+function inicializarSidebar() {
+  const btn = document.getElementById("btn-hamburger");
+  const sidebar = document.querySelector(".sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    const aberto = sidebar.classList.contains("is-open");
+    sidebar.classList.toggle("is-open", !aberto);
+    overlay.classList.toggle("is-open", !aberto);
+    btn.classList.toggle("is-open", !aberto);
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.remove("is-open");
+    overlay.classList.remove("is-open");
+    btn.classList.remove("is-open");
+  });
+
+  sidebar.querySelectorAll(".nav-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      if (window.innerWidth <= 900) {
+        sidebar.classList.remove("is-open");
+        overlay.classList.remove("is-open");
+        btn.classList.remove("is-open");
+      }
+    });
+  });
+}
+
+// ─── Logout
 function configurarLogout() {
   document.getElementById("btn-logout").addEventListener("click", async () => {
     const btn = document.getElementById("btn-logout");
     btn.disabled = true;
-
     try {
       const res = await fetch("/auth/logout", { method: "POST" });
       const data = await res.json();

@@ -232,8 +232,8 @@ router.get("/horario", isAuthenticated, isBarbearia, async (req, res) => {
   const barbeariaId = req.session.user.id;
   try {
     const [horarios] = await db.execute(
-      `SELECT id, dia_semana, hora_abertura, hora_fechamento, ativo
-       FROM horario_barbearia
+      `SELECT id, dia_semana, abertura, fechamento,
+       FROM horario_funcionamento
        WHERE barbearia_id = ?
        ORDER BY dia_semana ASC`,
       [barbeariaId]
@@ -261,18 +261,18 @@ router.post("/horario", isAuthenticated, isBarbearia, async (req, res) => {
   try {
     for (const h of horarios) {
       await db.execute(
-        `INSERT INTO horario_barbearia (barbearia_id, dia_semana, hora_abertura, hora_fechamento, ativo)
+        `INSERT INTO horario_funcionamento (barbearia_id, dia_semana, abertura, fechamento, fechado)
          VALUES (?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
-           hora_abertura   = VALUES(hora_abertura),
-           hora_fechamento = VALUES(hora_fechamento),
-           ativo           = VALUES(ativo)`,
+           abertura   = VALUES(abertura),
+           fechamento = VALUES(fechamento),
+           fechado           = VALUES(fechado)`,
         [
           barbeariaId,
           h.dia_semana,
-          h.hora_abertura,
-          h.hora_fechamento,
-          h.ativo !== false,
+          h.abertura,
+          h.fechamento,
+          h.fechado !== false,
         ]
       );
     }

@@ -199,13 +199,17 @@ router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
 });
 
 // ─── Agendamentos do barbeiro (por data)
-router.get("/agenda/agendamentos", isAuthenticated, isBarbeiro, async (req, res) => {
-  const barbeiroId = req.session.user.id;
-  const data = req.query.data || new Date().toISOString().split("T")[0];
+router.get(
+  "/agenda/agendamentos",
+  isAuthenticated,
+  isBarbeiro,
+  async (req, res) => {
+    const barbeiroId = req.session.user.id;
+    const data = req.query.data || new Date().toISOString().split("T")[0];
 
-  try {
-    const [agendamentos] = await db.execute(
-      `SELECT
+    try {
+      const [agendamentos] = await db.execute(
+        `SELECT
          a.id, a.horario, a.status, a.observacao,
          CONCAT(c.nome, ' ', c.sobrenome) AS cliente_nome,
          c.telefone                        AS cliente_telefone,
@@ -218,14 +222,17 @@ router.get("/agenda/agendamentos", isAuthenticated, isBarbeiro, async (req, res)
        WHERE a.barbeiro_id = ?
          AND DATE(a.horario) = ?
        ORDER BY a.horario ASC`,
-      [barbeiroId, data]
-    );
+        [barbeiroId, data]
+      );
 
-    return res.json({ agendamentos });
-  } catch (error) {
-    console.error("Erro ao buscar agenda do barbeiro:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+      return res.json({ agendamentos });
+    } catch (error) {
+      console.error("Erro ao buscar agenda do barbeiro:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
   }
-});
+);
 
 module.exports = router;

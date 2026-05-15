@@ -19,13 +19,6 @@ INSERT INTO servico (barbearia_id, nome, duracao_min, preco) VALUES
 
 -- ─── Horário de funcionamento da barbearia ───────────────────
 -- 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab
-INSERT INTO horario_barbearia (barbearia_id, dia_semana, hora_abertura, hora_fechamento) VALUES
-(1, 1, '09:00', '18:00'),
-(1, 2, '09:00', '18:00'),
-(1, 3, '09:00', '18:00'),
-(1, 4, '09:00', '18:00'),
-(1, 5, '09:00', '18:00'),
-(1, 6, '09:00', '16:00');
 
 -- ─── Horário de trabalho dos barbeiros ───────────────────────
 -- João (id=1): seg-sex 09h-17h

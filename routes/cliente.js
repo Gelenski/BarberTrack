@@ -159,8 +159,8 @@ router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
       return res.status(404).json({ error: "Barbearia não encontrada." });
 
     const [horarios] = await db.execute(
-      `SELECT dia_semana, hora_abertura, hora_fechamento
-       FROM horario_barbearia
+      `SELECT dia_semana, abertura, fechamento
+       FROM horario_funcionamento
        WHERE barbearia_id = ? AND ativo = TRUE
        ORDER BY dia_semana ASC`,
       [barbeariaId]
@@ -282,8 +282,8 @@ router.get(
       const diaSemana = dataObj.getDay();
 
       const [horBarbearia] = await db.execute(
-        `SELECT hora_abertura, hora_fechamento
-       FROM horario_barbearia
+        `SELECT abertura, fechamento
+       FROM horario_funcionamento
        WHERE barbearia_id = ? AND dia_semana = ? AND ativo = TRUE`,
         [barbeariaId, diaSemana]
       );

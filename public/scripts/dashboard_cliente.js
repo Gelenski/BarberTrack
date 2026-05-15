@@ -2,7 +2,10 @@
 const dataAtualEl = document.getElementById("data-atual");
 if (dataAtualEl) {
   dataAtualEl.textContent = new Date().toLocaleDateString("pt-BR", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 }
 
@@ -16,7 +19,9 @@ function carregarDadosCliente() {
       if (nomeEl) nomeEl.textContent = usuario.nome;
       if (avatarEl) avatarEl.textContent = usuario.nome[0].toUpperCase();
     }
-  } catch (_) {}
+  } catch {
+    /* intencional */
+  }
 }
 
 // ─── Agendamentos (próximos + histórico) — uma única chamada
@@ -49,7 +54,10 @@ async function carregarAgendamentos() {
           </div>`;
         atualizarMetricaProximo(null);
       } else {
-        listaProximos.innerHTML = proximos.slice(0, 5).map(renderizarAgendamento).join("");
+        listaProximos.innerHTML = proximos
+          .slice(0, 5)
+          .map(renderizarAgendamento)
+          .join("");
         atualizarMetricaProximo(proximos[0]);
       }
     }
@@ -63,14 +71,19 @@ async function carregarAgendamentos() {
             Nenhum histórico disponível.
           </div>`;
       } else {
-        listaHistorico.innerHTML = historico.slice(0, 3).map(renderizarAgendamento).join("");
+        listaHistorico.innerHTML = historico
+          .slice(0, 3)
+          .map(renderizarAgendamento)
+          .join("");
       }
     }
 
     atualizarMetricasMes(agendamentos);
-  } catch (_) {
-    if (listaProximos) listaProximos.innerHTML = `<div class="barber-empty">Erro ao carregar agendamentos.</div>`;
-    if (listaHistorico) listaHistorico.innerHTML = `<div class="barber-empty">Erro ao carregar histórico.</div>`;
+  } catch {
+    if (listaProximos)
+      listaProximos.innerHTML = `<div class="barber-empty">Erro ao carregar agendamentos.</div>`;
+    if (listaHistorico)
+      listaHistorico.innerHTML = `<div class="barber-empty">Erro ao carregar histórico.</div>`;
   }
 }
 
@@ -96,7 +109,9 @@ async function carregarBarbearias() {
       return;
     }
 
-    lista.innerHTML = barbearias.map((b) => `
+    lista.innerHTML = barbearias
+      .map(
+        (b) => `
       <div class="barber-item">
         <div class="barber-avatar">${b.nome_fantasia[0].toUpperCase()}</div>
         <div class="barber-info">
@@ -104,18 +119,31 @@ async function carregarBarbearias() {
           <div class="barber-role">${b.email || b.telefone || "Barbearia"}</div>
         </div>
         <a href="/cliente/agenda?barbearia_id=${b.id}" style="font-size:.75rem;color:var(--gold);text-decoration:none;">Agendar</a>
-      </div>`).join("");
-  } catch (_) {
-    if (lista) lista.innerHTML = `<div class="barber-empty">Erro ao carregar barbearias.</div>`;
+      </div>`
+      )
+      .join("");
+  } catch {
+    if (lista)
+      lista.innerHTML = `<div class="barber-empty">Erro ao carregar barbearias.</div>`;
   }
 }
 
 // ─── Helpers
 function renderizarAgendamento(ag) {
   const data = new Date(ag.horario);
-  const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const dataFormatada = data.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
-  const statusLabel = { confirmado: "Confirmado", concluido: "Concluído", cancelado: "Cancelado" };
+  const hora = data.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const dataFormatada = data.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
+  const statusLabel = {
+    confirmado: "Confirmado",
+    concluido: "Concluído",
+    cancelado: "Cancelado",
+  };
 
   return `
     <div class="agenda-item">
@@ -141,8 +169,14 @@ function atualizarMetricaProximo(ag) {
   }
 
   const data = new Date(ag.horario);
-  const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const dataFormatada = data.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  const hora = data.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const dataFormatada = data.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
 
   if (valorEl) valorEl.textContent = hora;
   if (infoEl) infoEl.textContent = `${dataFormatada} · ${ag.servico_nome}`;
@@ -152,7 +186,10 @@ function atualizarMetricasMes(agendamentos) {
   const agora = new Date();
   const agMes = agendamentos.filter((ag) => {
     const d = new Date(ag.horario);
-    return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+    return (
+      d.getMonth() === agora.getMonth() &&
+      d.getFullYear() === agora.getFullYear()
+    );
   });
 
   const totalGasto = agMes.reduce((acc, ag) => acc + Number(ag.preco || 0), 0);
@@ -162,7 +199,8 @@ function atualizarMetricasMes(agendamentos) {
   const cortesInfoEl = document.getElementById("cortes-mes-info");
 
   if (cortesEl) cortesEl.textContent = agMes.length;
-  if (gastoEl) gastoEl.textContent = `R$ ${totalGasto.toFixed(2).replace(".", ",")}`;
+  if (gastoEl)
+    gastoEl.textContent = `R$ ${totalGasto.toFixed(2).replace(".", ",")}`;
   if (cortesInfoEl) cortesInfoEl.textContent = "cortes realizados";
 }
 

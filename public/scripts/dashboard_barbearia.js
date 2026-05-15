@@ -313,12 +313,18 @@ async function carregarAgendaHoje() {
       return;
     }
 
-    lista.innerHTML = agendamentos.map((a) => {
-      const hora = new Date(a.horario).toLocaleTimeString("pt-BR", {
-        hour: "2-digit", minute: "2-digit",
-      });
-      const statusLabel = { confirmado: "Confirmado", concluido: "Concluído", cancelado: "Cancelado" };
-      return `
+    lista.innerHTML = agendamentos
+      .map((a) => {
+        const hora = new Date(a.horario).toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const statusLabel = {
+          confirmado: "Confirmado",
+          concluido: "Concluído",
+          cancelado: "Cancelado",
+        };
+        return `
         <div class="agenda-item">
           <span class="agenda-time">${hora}</span>
           <div class="agenda-divider"></div>
@@ -329,8 +335,9 @@ async function carregarAgendaHoje() {
           <div class="agenda-barber">${a.barbeiro_nome.split(" ")[0]}</div>
           <span class="status-pill ${a.status}">${statusLabel[a.status] ?? a.status}</span>
         </div>`;
-    }).join("");
-  } catch (_) {
+      })
+      .join("");
+  } catch {
     lista.innerHTML = `
       <div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.85rem;">
         Erro ao carregar agenda.

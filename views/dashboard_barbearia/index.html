@@ -30,7 +30,9 @@
         <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
           <span></span><span></span><span></span>
         </button>
-        <span class="greeting">Olá, <strong id="nome-barbearia">...</strong></span>
+        <span class="greeting"
+          >Olá, <strong id="nome-barbearia">...</strong></span
+        >
         <div class="avatar"></div>
       </div>
     </header>
@@ -45,12 +47,6 @@
             <span class="icon"><i class="fa-solid fa-diamond"></i></span>
             Dashboard
           </a>
-<<<<<<< HEAD
-          <a class="nav-item" href="/barbearia/agenda">
-            <span class="icon">📅</span> Agenda
-          </a>
-=======
->>>>>>> origin/feature/cadastro-agendamento
           <a class="nav-item" href="#">
             <span class="icon"><i class="fa-solid fa-calendar-days"></i></span>
             Agenda
@@ -74,12 +70,9 @@
             <span class="icon"><i class="fa-solid fa-scissors"></i></span>
             Serviços
           </a>
-<<<<<<< HEAD
           <a class="nav-item" href="#">
             <span class="icon">🛠</span> Serviços
           </a>
-=======
->>>>>>> origin/feature/cadastro-agendamento
           <a class="nav-item" href="#secao-horarios">
             <span class="icon"><i class="fa-solid fa-clock"></i></span> Horários
           </a>
@@ -116,22 +109,30 @@
         <!-- MÉTRICAS -->
         <div class="metrics-grid">
           <div class="metric-card">
-            <div class="metric-label"><span class="dot"></span>Faturamento Hoje</div>
+            <div class="metric-label">
+              <span class="dot"></span>Faturamento Hoje
+            </div>
             <div class="metric-value gold">R$ 847</div>
             <div class="metric-change">▲ 12% vs ontem</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label"><span class="dot"></span>Atendimentos Hoje</div>
+            <div class="metric-label">
+              <span class="dot"></span>Atendimentos Hoje
+            </div>
             <div class="metric-value">18</div>
             <div class="metric-change">▲ 3 a mais que ontem</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label"><span class="dot"></span>Ticket Médio</div>
+            <div class="metric-label">
+              <span class="dot"></span>Ticket Médio
+            </div>
             <div class="metric-value">R$ 47</div>
             <div class="metric-change neutral">— igual à semana passada</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label"><span class="dot"></span>Pendentes Hoje</div>
+            <div class="metric-label">
+              <span class="dot"></span>Pendentes Hoje
+            </div>
             <div class="metric-value">4</div>
             <div class="metric-change down">▼ 2 confirmações pendentes</div>
           </div>
@@ -146,9 +147,18 @@
               <a class="card-action" href="/barbearia/agenda">Ver completa →</a>
             </div>
             <div class="agenda-list" id="agenda-hoje-list">
-              <div class="barber-skeleton" style="height:56px;border-radius:8px;"></div>
-              <div class="barber-skeleton" style="height:56px;border-radius:8px;margin-top:.5rem;"></div>
-              <div class="barber-skeleton" style="height:56px;border-radius:8px;margin-top:.5rem;"></div>
+              <div
+                class="barber-skeleton"
+                style="height: 56px; border-radius: 8px"
+              ></div>
+              <div
+                class="barber-skeleton"
+                style="height: 56px; border-radius: 8px; margin-top: 0.5rem"
+              ></div>
+              <div
+                class="barber-skeleton"
+                style="height: 56px; border-radius: 8px; margin-top: 0.5rem"
+              ></div>
             </div>
           </div>
 
@@ -172,15 +182,8 @@
                   <span class="qa-label">Novo Cliente</span>
                   <span class="qa-sub">Cadastrar ficha</span>
                 </a>
-<<<<<<< HEAD
                 <a class="qa-btn" href="/barbearia/agenda">
                   <span class="qa-icon">📅</span>
-=======
-                <a class="qa-btn" href="#">
-                  <span class="qa-icon"
-                    ><i class="fa-solid fa-calendar-days"></i
-                  ></span>
->>>>>>> origin/feature/cadastro-agendamento
                   <span class="qa-label">Agendar</span>
                   <span class="qa-sub">Novo horário</span>
                 </a>
@@ -209,22 +212,29 @@
         </div>
 
         <!-- SEÇÃO DE HORÁRIOS -->
-<<<<<<< HEAD
-        <div class="card" id="secao-horarios" style="margin-top: 1.25rem; padding: 1.25rem">
-=======
         <div
           class="card"
           id="secao-horarios"
           style="margin-top: 1.25rem; padding: 1.25rem"
         >
->>>>>>> origin/feature/cadastro-agendamento
           <div class="card-header">
             <span class="card-title">Horários de Funcionamento</span>
           </div>
           <form id="form-horarios">
             <div id="dias-container"></div>
-            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem;">
-              <button type="submit" class="btn-primary" id="btn-salvar-horarios">
+            <div
+              style="
+                margin-top: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+              "
+            >
+              <button
+                type="submit"
+                class="btn-primary"
+                id="btn-salvar-horarios"
+              >
                 Salvar Horários
               </button>
               <span id="horarios-aviso"></span>
