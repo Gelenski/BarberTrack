@@ -161,7 +161,7 @@ router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
     const [horarios] = await db.execute(
       `SELECT dia_semana, abertura, fechamento
        FROM horario_funcionamento
-       WHERE barbearia_id = ? AND ativo = TRUE
+       WHERE barbearia_id = ? AND fechado = TRUE
        ORDER BY dia_semana ASC`,
       [barbeariaId]
     );
@@ -284,7 +284,7 @@ router.get(
       const [horBarbearia] = await db.execute(
         `SELECT abertura, fechamento
        FROM horario_funcionamento
-       WHERE barbearia_id = ? AND dia_semana = ? AND ativo = TRUE`,
+       WHERE barbearia_id = ? AND dia_semana = ? AND fechado = TRUE`,
         [barbeariaId, diaSemana]
       );
       if (!horBarbearia.length) return res.json({ slots: [] });
