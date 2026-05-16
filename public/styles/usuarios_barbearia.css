@@ -602,8 +602,150 @@
   display: none !important;
 }
 
-@media (max-width: 480px) {
-  .gu-edit-grid {
-    grid-template-columns: 1fr;
-  }
+.gu-action-btn.editar {
+  background: rgba(201, 168, 76, 0.08);
+  border-color: rgba(201, 168, 76, 0.3);
+  color: var(--gold);
+}
+
+.gu-action-btn.editar:hover {
+  background: rgba(201, 168, 76, 0.16);
+}
+
+.gu-actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── MODAL DE EDIÇÃO ── */
+
+.gu-modal-edicao {
+  max-width: 520px;
+  text-align: left;
+  padding: 1.75rem;
+}
+
+.gu-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.gu-modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.gu-modal-close:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.gu-modal-error,
+.gu-modal-success {
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+
+.gu-modal-error {
+  background: rgba(217, 95, 75, 0.1);
+  border: 1px solid rgba(217, 95, 75, 0.3);
+  color: #ffb1a5;
+}
+
+.gu-modal-success {
+  background: rgba(74, 170, 114, 0.1);
+  border: 1px solid rgba(74, 170, 114, 0.3);
+  color: var(--success);
+}
+
+/* Grid de campos */
+.gu-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.gu-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.gu-edit-field--full {
+  grid-column: 1 / -1;
+}
+
+.gu-edit-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gu-edit-label-hint {
+  font-size: 0.65rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.gu-edit-input {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.gu-edit-input::placeholder {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+.gu-edit-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+}
+
+.gu-edit-input.is-invalid {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(217, 95, 75, 0.1);
+}
+
+/* Feedback por campo — modal de edição */
+.campo-erro {
+  font-size: 0.72rem;
+  color: #ffb1a5;
+  margin-top: 0.25rem;
+  display: block;
+  min-height: 1rem;
+}
+
+.gu-edit-input.is-valid {
+  border-color: var(--success) !important;
+  box-shadow: 0 0 0 3px rgba(74, 170, 114, 0.1) !important;
 }
