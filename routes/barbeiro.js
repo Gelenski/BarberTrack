@@ -199,35 +199,77 @@ router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
 });
 
 // ─── Agendamentos do barbeiro (por data)
+// ─── Agendamentos do barbeiro (por data ou intervalo)
 router.get(
   "/agenda/agendamentos",
   isAuthenticated,
   isBarbeiro,
   async (req, res) => {
     const barbeiroId = req.session.user.id;
-    const data = req.query.data || new Date().toISOString().split("T")[0];
+    const { data, data_inicio, data_fim } = req.query;
+
+    // Suporta data única ou intervalo
+    const inicio =
+      data_inicio || data || new Date().toISOString().split("T")[0];
+    const fim = data_fim || data_inicio || inicio;
 
     try {
       const [agendamentos] = await db.execute(
         `SELECT
-         a.id, a.horario, a.status, a.observacao,
-         CONCAT(c.nome, ' ', c.sobrenome) AS cliente_nome,
-         c.telefone                        AS cliente_telefone,
-         s.nome                            AS servico_nome,
-         s.duracao_min,
-         s.preco
-       FROM agendamento a
-       JOIN cliente c ON c.id = a.cliente_id
-       JOIN servico s ON s.id = a.servico_id
-       WHERE a.barbeiro_id = ?
-         AND DATE(a.horario) = ?
-       ORDER BY a.horario ASC`,
-        [barbeiroId, data]
+           a.id, a.horario, a.status, a.observacao,
+           CONCAT(c.nome, ' ', c.sobrenome) AS cliente_nome,
+           c.telefone                        AS cliente_telefone,
+           s.nome                            AS servico_nome,
+           s.duracao_min,
+           s.preco
+         FROM agendamento a
+         JOIN cliente c ON c.id = a.cliente_id
+         JOIN servico s ON s.id = a.servico_id
+         WHERE a.barbeiro_id = ?
+           AND DATE(a.horario) BETWEEN ? AND ?
+         ORDER BY a.horario ASC`,
+        [barbeiroId, inicio, fim]
       );
 
       return res.json({ agendamentos });
     } catch (error) {
       console.error("Erro ao buscar agenda do barbeiro:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
+  }
+);
+
+// ─── Atualizar status do agendamento
+router.patch(
+  "/agendamento/:id/status",
+  isAuthenticated,
+  isBarbeiro,
+  async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const statusValidos = ["confirmado", "concluido", "cancelado"];
+    if (!statusValidos.includes(status)) {
+      return res.status(400).json({ error: "Status inválido." });
+    }
+
+    try {
+      const [result] = await db.execute(
+        `UPDATE agendamento
+         SET status = ?
+         WHERE id = ? AND barbeiro_id = ?`,
+        [status, id, req.session.user.id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Agendamento não encontrado." });
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
       return res
         .status(500)
         .json({ error: responseMessages.internalServerError });

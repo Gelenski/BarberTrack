@@ -232,7 +232,7 @@ router.get("/horario", isAuthenticated, isBarbearia, async (req, res) => {
   const barbeariaId = req.session.user.id;
   try {
     const [horarios] = await db.execute(
-      `SELECT id, dia_semana, abertura, fechamento,
+      `SELECT id, dia_semana, abertura, fechamento
        FROM horario_funcionamento
        WHERE barbearia_id = ?
        ORDER BY dia_semana ASC`,
