@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BarberTrack - Dashboard da Barbearia</title>
-    <link rel="stylesheet" href="/styles/dashboard_barbearia.css" />
+    <link rel="stylesheet" href="/styles/globalDashboard.css" />
     <script src="/scripts/dashboard_barbearia.js" defer></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
@@ -223,7 +223,7 @@
                   <span class="qa-label">Cadastrar Barbeiro</span>
                   <span class="qa-sub">Adicionar à equipe</span>
                 </a>
-                <a class="qa-btn" href="#">
+                <a class="qa-btn" href="#" data-modal="cliente">
                   <span class="qa-icon"><i class="fa-solid fa-user"></i></span>
                   <span class="qa-label">Novo Cliente</span>
                   <span class="qa-sub">Cadastrar ficha</span>
@@ -292,6 +292,104 @@
           </form>
         </div>
       </main>
+    </div>
+    <!-- MODAL CADASTRO DE CLIENTE -->
+
+    <div class="modal-overlay hidden" id="modal-cliente-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            <i class="fa-solid fa-user"></i> Novo Cliente
+          </h3>
+          <button
+            class="modal-close"
+            id="modal-cliente-fechar"
+            aria-label="Fechar"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="modal-feedback hidden" id="modal-cliente-erro"></div>
+        <div
+          class="modal-feedback success hidden"
+          id="modal-cliente-sucesso"
+        ></div>
+
+        <form id="form-cliente" autocomplete="off">
+          <div class="modal-grid">
+            <div class="modal-field">
+              <label class="modal-label" for="cliente-nome">Nome</label>
+              <input
+                class="modal-input"
+                type="text"
+                id="cliente-nome"
+                placeholder="João"
+                required
+              />
+            </div>
+            <div class="modal-field">
+              <label class="modal-label" for="cliente-sobrenome"
+                >Sobrenome</label
+              >
+              <input
+                class="modal-input"
+                type="text"
+                id="cliente-sobrenome"
+                placeholder="Silva"
+                required
+              />
+            </div>
+            <div class="modal-field">
+              <label class="modal-label" for="cliente-email">E-mail</label>
+              <input
+                class="modal-input"
+                type="email"
+                id="cliente-email"
+                placeholder="joao@email.com"
+                required
+              />
+            </div>
+            <div class="modal-field">
+              <label class="modal-label" for="cliente-telefone">Telefone</label>
+              <input
+                class="modal-input"
+                type="text"
+                id="cliente-telefone"
+                placeholder="Somente números"
+                required
+              />
+            </div>
+            <div class="modal-field modal-field--full">
+              <label class="modal-label" for="cliente-senha">Senha</label>
+              <input
+                class="modal-input"
+                type="password"
+                id="cliente-senha"
+                placeholder="Mínimo 8 caracteres"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="modal-btn cancel"
+              id="modal-cliente-cancelar"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="modal-btn confirm"
+              id="modal-cliente-salvar"
+            >
+              <i class="fa-solid fa-user-plus"></i> Cadastrar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </body>
 </html>

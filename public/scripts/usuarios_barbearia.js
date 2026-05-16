@@ -159,7 +159,9 @@ async function carregarDados() {
   }
 }
 
+// ─────────────────────────────────────────────
 // MODAL DE STATUS (ativar / desativar)
+// ─────────────────────────────────────────────
 
 function confirmarAcao(tipo, id, novoAtivo, nome) {
   pendingAction = { tipo, id, ativo: novoAtivo };
@@ -219,8 +221,156 @@ async function executarAcao() {
   }
 }
 
+// ─────────────────────────────────────────────
 // MODAL DE EDIÇÃO
+// ─────────────────────────────────────────────
 
+// ─── Helpers de validação
+function _removerNaoNumeros(v) {
+  return v.replace(/\D/g, "");
+}
+function _nomeEhValido(v) {
+  return v.length >= 2 && /^[A-Za-zÀ-ÿ\s'-]+$/.test(v);
+}
+function _emailEhValido(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+}
+function _telEhValido(v) {
+  const n = _removerNaoNumeros(v);
+  return n.length >= 10 && n.length <= 11;
+}
+function _cpfEhValido(v) {
+  return _removerNaoNumeros(v).length === 11;
+}
+function _senhaEhValida(v) {
+  return /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(v);
+}
+
+function _formatarTelefone(v) {
+  const n = _removerNaoNumeros(v).slice(0, 11);
+  if (n.length <= 2) return n;
+  if (n.length <= 6) return `(${n.slice(0, 2)}) ${n.slice(2)}`;
+  if (n.length <= 10)
+    return `(${n.slice(0, 2)}) ${n.slice(2, 6)}-${n.slice(6)}`;
+  return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
+}
+
+// ─── Feedback visual por campo
+const editInputs = {
+  nome: document.getElementById("edit-nome"),
+  sobrenome: document.getElementById("edit-sobrenome"),
+  email: document.getElementById("edit-email"),
+  telefone: document.getElementById("edit-telefone"),
+  cpf: document.getElementById("edit-cpf"),
+  senha: document.getElementById("edit-senha"),
+};
+
+function _marcarInvalidoEdit(input, msg) {
+  input.classList.add("is-invalid");
+  input.classList.remove("is-valid");
+  let span = input.parentElement.querySelector(".campo-erro");
+  if (!span) {
+    span = document.createElement("span");
+    span.className = "campo-erro";
+    input.parentElement.appendChild(span);
+  }
+  span.textContent = msg;
+}
+
+function _marcarValidoEdit(input) {
+  input.classList.remove("is-invalid");
+  input.classList.add("is-valid");
+  const span = input.parentElement.querySelector(".campo-erro");
+  if (span) span.textContent = "";
+}
+
+function _limparMarcacaoEdit(input) {
+  input.classList.remove("is-invalid", "is-valid");
+  const span = input.parentElement.querySelector(".campo-erro");
+  if (span) span.textContent = "";
+}
+
+// ─── Regras de validação por campo (senha é opcional na edição)
+function _validarCampoEdit(input) {
+  const v = input.value.trim();
+
+  if (input === editInputs.nome || input === editInputs.sobrenome) {
+    if (!v) return "Campo obrigatório.";
+    if (!_nomeEhValido(v))
+      return "Digite ao menos 2 letras e use apenas caracteres válidos.";
+  }
+  if (input === editInputs.email) {
+    if (!v) return "Informe o e-mail.";
+    if (!_emailEhValido(v)) return "Digite um e-mail válido.";
+  }
+  if (input === editInputs.telefone) {
+    if (!v) return "Informe o telefone.";
+    if (!_telEhValido(v)) return "Digite um telefone com 10 ou 11 dígitos.";
+  }
+  if (input === editInputs.cpf && !editFieldCpf.classList.contains("hidden")) {
+    if (!v) return "Informe o CPF.";
+    if (!_cpfEhValido(v)) return "CPF deve ter 11 dígitos.";
+  }
+  // Senha: só valida se preenchida (campo opcional na edição)
+  if (input === editInputs.senha && v) {
+    if (!_senhaEhValida(v))
+      return "A senha deve ter pelo menos 8 caracteres, 1 letra maiúscula, 1 número e 1 caractere especial.";
+  }
+  return null;
+}
+
+function _validarEMarcarEdit(input) {
+  const erro = _validarCampoEdit(input);
+  if (erro) {
+    _marcarInvalidoEdit(input, erro);
+    return false;
+  }
+  // Senha vazia não marca como válida — campo é opcional
+  if (input === editInputs.senha && !input.value) {
+    _limparMarcacaoEdit(input);
+    return true;
+  }
+  _marcarValidoEdit(input);
+  return true;
+}
+
+function _validarTodosEdit() {
+  const campos = [
+    editInputs.nome,
+    editInputs.sobrenome,
+    editInputs.email,
+    editInputs.telefone,
+    editInputs.senha,
+  ];
+  if (!editFieldCpf.classList.contains("hidden")) campos.push(editInputs.cpf);
+  return campos.map(_validarEMarcarEdit).every(Boolean);
+}
+
+// ─── Registra validação em tempo real nos inputs de edição
+function _registrarValidacaoEdit() {
+  [
+    editInputs.nome,
+    editInputs.sobrenome,
+    editInputs.email,
+    editInputs.cpf,
+    editInputs.senha,
+  ].forEach((input) => {
+    input.addEventListener("blur", () => _validarEMarcarEdit(input));
+    input.addEventListener("input", () => _validarEMarcarEdit(input));
+  });
+
+  editInputs.telefone.addEventListener("input", () => {
+    editInputs.telefone.value = _formatarTelefone(editInputs.telefone.value);
+    _validarEMarcarEdit(editInputs.telefone);
+  });
+  editInputs.telefone.addEventListener("blur", () =>
+    _validarEMarcarEdit(editInputs.telefone)
+  );
+}
+
+_registrarValidacaoEdit();
+
+// ─── Abrir modal de edição
 function abrirEdicao(tipo, id) {
   const lista = tipo === "barbeiro" ? dados.barbeiros : dados.clientes;
   const usuario = lista.find((u) => u.id === id);
@@ -230,20 +380,22 @@ function abrirEdicao(tipo, id) {
 
   modalEdicaoTitle.textContent = `Editar ${tipo === "barbeiro" ? "Barbeiro" : "Cliente"}`;
 
-  document.getElementById("edit-nome").value = usuario.nome || "";
-  document.getElementById("edit-sobrenome").value = usuario.sobrenome || "";
-  document.getElementById("edit-email").value = usuario.email || "";
-  document.getElementById("edit-telefone").value = usuario.telefone || "";
-  document.getElementById("edit-senha").value = "";
+  editInputs.nome.value = usuario.nome || "";
+  editInputs.sobrenome.value = usuario.sobrenome || "";
+  editInputs.email.value = usuario.email || "";
+  editInputs.telefone.value = usuario.telefone || "";
+  editInputs.senha.value = "";
 
   if (tipo === "barbeiro") {
     editFieldCpf.classList.remove("hidden");
-    document.getElementById("edit-cpf").value = usuario.cpf || "";
+    editInputs.cpf.value = usuario.cpf || "";
   } else {
     editFieldCpf.classList.add("hidden");
-    document.getElementById("edit-cpf").value = "";
+    editInputs.cpf.value = "";
   }
 
+  // Limpa marcações e mensagens do uso anterior
+  Object.values(editInputs).forEach(_limparMarcacaoEdit);
   modalEdicaoErro.classList.add("hidden");
   modalEdicaoErro.textContent = "";
   modalEdicaoSucesso.classList.add("hidden");
@@ -263,24 +415,33 @@ async function salvarEdicao(e) {
   e.preventDefault();
   if (!edicaoAtual) return;
 
+  // Valida antes de montar o payload
+  if (!_validarTodosEdit()) {
+    modalEdicaoErro.textContent = "Revise os campos destacados para continuar.";
+    modalEdicaoErro.classList.remove("hidden");
+    return;
+  }
+
   const { tipo, id } = edicaoAtual;
   const lista = tipo === "barbeiro" ? dados.barbeiros : dados.clientes;
   const original = lista.find((u) => u.id === id);
 
-  const nome = document.getElementById("edit-nome").value.trim();
-  const sobrenome = document.getElementById("edit-sobrenome").value.trim();
-  const email = document.getElementById("edit-email").value.trim();
-  const telefone = document.getElementById("edit-telefone").value.trim();
-  const senha = document.getElementById("edit-senha").value;
-  const cpf = document.getElementById("edit-cpf").value.trim();
+  const nome = editInputs.nome.value.trim();
+  const sobrenome = editInputs.sobrenome.value.trim();
+  const email = editInputs.email.value.trim();
+  const telefone = _removerNaoNumeros(editInputs.telefone.value);
+  const senha = editInputs.senha.value;
+  const cpf = _removerNaoNumeros(editInputs.cpf.value);
 
-  // Envia apenas os campos que foram alterados
+  // Envia apenas os campos alterados
   const payload = {};
   if (nome !== (original.nome || "")) payload.nome = nome;
   if (sobrenome !== (original.sobrenome || "")) payload.sobrenome = sobrenome;
   if (email !== (original.email || "")) payload.email = email;
-  if (telefone !== (original.telefone || "")) payload.telefone = telefone;
-  if (tipo === "barbeiro" && cpf !== (original.cpf || "")) payload.cpf = cpf;
+  if (telefone !== _removerNaoNumeros(original.telefone || ""))
+    payload.telefone = telefone;
+  if (tipo === "barbeiro" && cpf !== _removerNaoNumeros(original.cpf || ""))
+    payload.cpf = cpf;
   if (senha) payload.senha = senha;
 
   if (Object.keys(payload).length === 0) {
@@ -304,6 +465,16 @@ async function salvarEdicao(e) {
     const data = await res.json();
 
     if (!res.ok) {
+      // Marca campo específico em caso de duplicata
+      if (
+        data.error === "Email informado ja esta em uso por outro barbeiro" ||
+        data.error === "Email ja cadastrado."
+      ) {
+        _marcarInvalidoEdit(editInputs.email, "Este e-mail já está em uso.");
+      }
+      if (data.error === "CPF ja cadastrado para outro barbeiro") {
+        _marcarInvalidoEdit(editInputs.cpf, "Este CPF já está cadastrado.");
+      }
       modalEdicaoErro.textContent = data.error || "Erro ao salvar.";
       modalEdicaoErro.classList.remove("hidden");
       btnEdicaoSalvar.disabled = false;

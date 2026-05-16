@@ -840,7 +840,210 @@ body {
     justify-content: flex-end;
   }
 }
+/* ── MODAL CADASTRO CLIENTE ── */
 
-/* ─────────────────────────────────────────
-   FIM NOVO
-   ───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  animation: fadeUp 0.25s ease both;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.modal-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.15rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.modal-title i {
+  color: var(--gold);
+  font-size: 1rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.modal-close:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+/* Feedback */
+.modal-feedback {
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+  background: rgba(217, 95, 75, 0.1);
+  border: 1px solid rgba(217, 95, 75, 0.3);
+  color: #ffb1a5;
+}
+
+.modal-feedback.success {
+  background: rgba(74, 170, 114, 0.1);
+  border: 1px solid rgba(74, 170, 114, 0.3);
+  color: var(--success);
+}
+
+.modal-feedback.hidden {
+  display: none;
+}
+
+/* Grid de campos */
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.modal-field--full {
+  grid-column: 1 / -1;
+}
+
+.modal-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.modal-input {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.modal-input::placeholder {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+.modal-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+}
+
+.modal-input.is-invalid {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(217, 95, 75, 0.1);
+}
+
+/* Ações */
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 0.7rem;
+  border-radius: 7px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.modal-btn.cancel {
+  background: none;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.modal-btn.cancel:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.modal-btn.confirm {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #0f0d0b;
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+}
+
+.modal-btn.confirm:hover {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+}
+
+.modal-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* Feedback por campo */
+.campo-erro {
+  font-size: 0.72rem;
+  color: #ffb1a5;
+  margin-top: 0.25rem;
+  display: block;
+  min-height: 1rem;
+}
+
+.modal-input.is-valid {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px rgba(74, 170, 114, 0.1);
+}
