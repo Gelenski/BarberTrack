@@ -230,6 +230,7 @@ async function carregarServicos() {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function selecionarServico(id) {
   state.servicoSelecionado = state.servicos.find((s) => s.id === id) || null;
   state.slotSelecionado = null;
@@ -295,6 +296,7 @@ async function atualizarSlots() {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function selecionarSlot(slot, btn) {
   state.slotSelecionado = slot;
   document
