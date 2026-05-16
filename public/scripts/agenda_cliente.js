@@ -1,4 +1,3 @@
-// ─── Estado
 const state = {
   barbeariaId: null,
   barbeiros: [],
@@ -8,7 +7,6 @@ const state = {
   slotSelecionado: null,
 };
 
-// ─── Init
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   state.barbeariaId = params.get("barbearia_id");
@@ -36,15 +34,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("btn-favoritar")
     .addEventListener("click", toggleFavoritar);
   document.getElementById("btn-logout").addEventListener("click", logout);
-  inicializarSidebar();
 
-  // Data mínima = hoje
   const hoje = new Date().toISOString().split("T")[0];
   document.getElementById("inp-data").min = hoje;
   document.getElementById("inp-data").value = hoje;
 });
 
-// ─── Usuário
 function inicializarUsuario() {
   try {
     const u = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -58,13 +53,13 @@ function inicializarUsuario() {
   }
 }
 
-// ─── Barbearia
 async function carregarBarbearia() {
   try {
     const res = await fetch(`/cliente/barbearia/${state.barbeariaId}`);
-    if (!res.ok) throw new Error();
-    const { barbearia } = await res.json();
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || "Barbearia nao encontrada.");
 
+    const { barbearia } = body;
     document.getElementById("barbearia-nome").textContent =
       barbearia.nome_fantasia;
     document.getElementById("barbearia-email").textContent =
@@ -79,14 +74,14 @@ async function carregarBarbearia() {
       btnFav.classList.add("favorita");
       btnFav.dataset.isFav = "1";
     } else {
+      btnFav.textContent = "☆ Favoritar";
+      btnFav.classList.remove("favorita");
       btnFav.dataset.isFav = "0";
     }
   } catch (error) {
     console.error(error);
-  }
-  {
     document.getElementById("barbearia-nome").textContent =
-      "Barbearia não encontrada";
+      "Barbearia nao encontrada";
   }
 }
 
@@ -116,7 +111,6 @@ async function toggleFavoritar() {
   }
 }
 
-// ─── Agenda geral da barbearia (visão pública — próximos slots confirmados)
 async function carregarAgendaGeral() {
   const lista = document.getElementById("agenda-geral-lista");
   const label = document.getElementById("agenda-data-label");
@@ -128,16 +122,19 @@ async function carregarAgendaGeral() {
 
   try {
     const res = await fetch(`/cliente/barbearia/${state.barbeariaId}`);
-    if (!res.ok) throw new Error();
-    const { agendamentos } = await res.json();
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || "Erro ao carregar agenda.");
+
+    const { agendamentos } = body;
 
     if (!agendamentos.length) {
-      lista.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.82rem;">Nenhum agendamento nos próximos dias.</div>`;
+      lista.innerHTML =
+        '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.82rem;">Nenhum agendamento nos proximos dias.</div>';
       return;
     }
 
     lista.innerHTML =
-      `<div class="horarios-livres">` +
+      '<div class="horarios-livres">' +
       agendamentos
         .map((a) => {
           const dt = new Date(a.horario);
@@ -157,36 +154,34 @@ async function carregarAgendaGeral() {
           </div>`;
         })
         .join("") +
-      `</div>`;
+      "</div>";
   } catch (error) {
     console.error(error);
-  }
-  {
-    lista.innerHTML = `<div style="padding:1rem;color:var(--muted);font-size:.82rem;">Erro ao carregar agenda.</div>`;
+    lista.innerHTML =
+      '<div style="padding:1rem;color:var(--muted);font-size:.82rem;">Erro ao carregar agenda.</div>';
   }
 }
 
-// ─── Barbeiros
 async function carregarBarbeiros() {
   const sel = document.getElementById("sel-barbeiro");
   try {
     const res = await fetch(
       `/cliente/barbearia/${state.barbeariaId}/barbeiros`
     );
-    if (!res.ok) throw new Error();
-    const { barbeiros } = await res.json();
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || "Erro ao carregar barbeiros.");
+
+    const { barbeiros } = body;
     state.barbeiros = barbeiros;
 
     sel.innerHTML =
-      `<option value="">Selecione um barbeiro...</option>` +
+      '<option value="">Selecione um barbeiro...</option>' +
       barbeiros
         .map((b) => `<option value="${b.id}">${b.nome}</option>`)
         .join("");
   } catch (error) {
     console.error(error);
-  }
-  {
-    sel.innerHTML = `<option value="">Erro ao carregar barbeiros</option>`;
+    sel.innerHTML = '<option value="">Erro ao carregar barbeiros</option>';
   }
 }
 
@@ -196,17 +191,19 @@ function onBarbeiroChange() {
   atualizarSlots();
 }
 
-// ─── Serviços
 async function carregarServicos() {
   const container = document.getElementById("servico-cards");
   try {
     const res = await fetch(`/cliente/barbearia/${state.barbeariaId}/servicos`);
-    if (!res.ok) throw new Error();
-    const { servicos } = await res.json();
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || "Erro ao carregar servicos.");
+
+    const { servicos } = body;
     state.servicos = servicos;
 
     if (!servicos.length) {
-      container.innerHTML = `<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Nenhum serviço cadastrado.</p>`;
+      container.innerHTML =
+        '<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Nenhum servico cadastrado.</p>';
       return;
     }
 
@@ -228,32 +225,28 @@ async function carregarServicos() {
       .join("");
   } catch (error) {
     console.error(error);
-  }
-  {
-    container.innerHTML = `<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Erro ao carregar serviços.</p>`;
+    container.innerHTML =
+      '<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Erro ao carregar servicos.</p>';
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function selecionarServico(id) {
   state.servicoSelecionado = state.servicos.find((s) => s.id === id) || null;
   state.slotSelecionado = null;
 
   document.querySelectorAll(".servico-card").forEach((card) => {
-    card.classList.toggle("selected", parseInt(card.dataset.id) === id);
+    card.classList.toggle("selected", parseInt(card.dataset.id, 10) === id);
   });
 
   atualizarSlots();
   atualizarResumo();
 }
 
-// ─── Data
 function onDataChange() {
   state.slotSelecionado = null;
   atualizarSlots();
 }
 
-// ─── Slots
 async function atualizarSlots() {
   const section = document.getElementById("slots-section");
   const grid = document.getElementById("slots-grid");
@@ -271,17 +264,21 @@ async function atualizarSlots() {
   }
 
   section.classList.remove("step-hidden");
-  grid.innerHTML = `<div class="loading-spinner" style="grid-column:1/-1;">Buscando horários...</div>`;
+  grid.innerHTML =
+    '<div class="loading-spinner" style="grid-column:1/-1;">Buscando horarios...</div>';
 
   try {
     const res = await fetch(
       `/cliente/barbeiro/${state.barbeiroId}/slots?data=${data}&servico_id=${state.servicoSelecionado.id}`
     );
-    if (!res.ok) throw new Error();
-    const { slots } = await res.json();
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || "Erro ao buscar horarios.");
+
+    const { slots } = body;
 
     if (!slots.length) {
-      grid.innerHTML = `<div class="slots-empty" style="grid-column:1/-1;">Nenhum horário disponível nesta data.</div>`;
+      grid.innerHTML =
+        '<div class="slots-empty" style="grid-column:1/-1;">Nenhum horario disponivel nesta data.</div>';
       return;
     }
 
@@ -293,13 +290,11 @@ async function atualizarSlots() {
       .join("");
   } catch (error) {
     console.error(error);
-  }
-  {
-    grid.innerHTML = `<div class="slots-empty" style="grid-column:1/-1;">Erro ao buscar horários.</div>`;
+    grid.innerHTML =
+      '<div class="slots-empty" style="grid-column:1/-1;">Erro ao buscar horarios.</div>';
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 function selecionarSlot(slot, btn) {
   state.slotSelecionado = slot;
   document
@@ -310,7 +305,6 @@ function selecionarSlot(slot, btn) {
   atualizarBotaoConfirmar();
 }
 
-// ─── Resumo
 function atualizarResumo() {
   const box = document.getElementById("confirm-box");
 
@@ -350,7 +344,6 @@ function atualizarBotaoConfirmar() {
   );
 }
 
-// ─── Confirmar agendamento
 async function confirmarAgendamento() {
   const btn = document.getElementById("btn-confirmar");
   const statusEl = document.getElementById("form-status");
@@ -370,8 +363,8 @@ async function confirmarAgendamento() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        barbearia_id: parseInt(state.barbeariaId),
-        barbeiro_id: parseInt(state.barbeiroId),
+        barbearia_id: parseInt(state.barbeariaId, 10),
+        barbeiro_id: parseInt(state.barbeiroId, 10),
         servico_id: state.servicoSelecionado.id,
         horario,
       }),
@@ -387,7 +380,6 @@ async function confirmarAgendamento() {
       return;
     }
 
-    // Sucesso
     document.getElementById("main-grid").style.display = "none";
     const stepSucesso = document.getElementById("step-sucesso");
     stepSucesso.classList.remove("step-hidden");
@@ -406,16 +398,13 @@ async function confirmarAgendamento() {
       `${state.servicoSelecionado.nome} com ${barbeiroNome} — ${dtStr}`;
   } catch (error) {
     console.error(error);
-  }
-  {
-    statusEl.textContent = "Erro de conexão. Tente novamente.";
+    statusEl.textContent = "Erro de conexao. Tente novamente.";
     statusEl.style.display = "block";
     btn.disabled = false;
     btn.textContent = "Confirmar Agendamento";
   }
 }
 
-// ─── Sidebar
 function inicializarSidebar() {
   const btn = document.getElementById("btn-hamburger");
   const sidebar = document.querySelector(".sidebar");
@@ -435,7 +424,6 @@ function inicializarSidebar() {
   });
 }
 
-// ─── Logout
 async function logout() {
   try {
     const res = await fetch("/auth/logout", { method: "POST" });
@@ -443,8 +431,6 @@ async function logout() {
     window.location.href = d.redirect || "/auth/login";
   } catch (error) {
     console.error(error);
-  }
-  {
     window.location.href = "/auth/login";
   }
 }

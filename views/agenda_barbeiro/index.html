@@ -3,9 +3,121 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BarberTrack - Dashboard do Cliente</title>
+    <title>BarberTrack - Agendamento do Barbeiro</title>
+    <link href="/styles/global.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <p>Agenda Barbeiro</p>
+    <div class="bt-card bt-dashboard-shell">
+      <a href="/" class="bt-logo">
+        <div class="bt-logo-icon">✂</div>
+        <span class="bt-logo-text">BarberTrack</span>
+      </a>
+
+      <div class="bt-dashboard-header">
+        <div>
+          <h1 class="bt-title">Novo agendamento</h1>
+          <p class="bt-subtitle">
+            Crie agendamentos usando apenas os servicos ja cadastrados.
+          </p>
+        </div>
+        <div class="bt-chip">Barbeiro</div>
+      </div>
+
+      <div class="bt-section-card">
+        <div class="bt-section-heading">
+          <h2 class="bt-title bt-title-sm">Horarios de funcionamento</h2>
+          <p class="bt-subtitle bt-subtitle-tight">
+            Use os horarios da barbearia como referencia antes de agendar.
+          </p>
+        </div>
+
+        <div id="horarios-status" class="bt-form-status is-info">
+          Carregando horarios...
+        </div>
+        <div id="horarios-container" class="bt-list-stack"></div>
+      </div>
+
+      <div class="bt-section-card">
+        <div class="bt-section-heading">
+          <h2 class="bt-title bt-title-sm">Dados do agendamento</h2>
+          <p class="bt-subtitle bt-subtitle-tight">
+            Se precisar de um novo servico, cadastre-o em uma pagina separada.
+          </p>
+        </div>
+
+        <div id="agendamento-status" class="bt-form-status is-info">
+          Carregando clientes e servicos...
+        </div>
+
+        <form id="agendamento-form" class="bt-form-grid" novalidate>
+          <div>
+            <label class="bt-label" for="cliente_id">Cliente</label>
+            <select
+              id="cliente_id"
+              name="cliente_id"
+              class="bt-select"
+              required
+            >
+              <option value="">Selecione um cliente</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="bt-label" for="servico_id">Servico</label>
+            <select
+              id="servico_id"
+              name="servico_id"
+              class="bt-select"
+              required
+            >
+              <option value="">Selecione um servico</option>
+            </select>
+          </div>
+
+          <div class="bt-field-span">
+            <label class="bt-label" for="horario">Data e hora</label>
+            <input
+              id="horario"
+              name="horario"
+              type="datetime-local"
+              class="bt-input"
+              required
+            />
+          </div>
+
+          <div class="bt-field-span">
+            <label class="bt-label" for="observacao">Observacao</label>
+            <input
+              id="observacao"
+              name="observacao"
+              type="text"
+              class="bt-input"
+              placeholder="Opcional"
+            />
+          </div>
+
+          <button class="bt-btn bt-field-span" id="btn-agendar" type="submit">
+            Confirmar agendamento
+          </button>
+        </form>
+      </div>
+
+      <div class="bt-row">
+        <a class="bt-btn bt-btn-secondary" href="/barbeiro/servicos/novo">
+          Cadastrar servico
+        </a>
+        <a class="bt-btn bt-btn-secondary" href="/barbeiro/dashboard">
+          Voltar ao painel
+        </a>
+      </div>
+
+      <button class="bt-btn" id="btn-logout">Sair</button>
+    </div>
+
+    <script src="/scripts/agenda_barbeiro.js"></script>
   </body>
 </html>

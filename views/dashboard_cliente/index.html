@@ -11,35 +11,53 @@
     />
   </head>
   <body>
-    <div class="bt-card wide">
-      <!-- LOGO -->
+    <div class="bt-card bt-dashboard-shell">
       <a href="/" class="bt-logo">
         <div class="bt-logo-icon">✂</div>
         <span class="bt-logo-text">BarberTrack</span>
       </a>
 
-      <h1 class="bt-title">Olá, Cliente!</h1>
-      <p class="bt-subtitle">Bem-vindo ao seu painel.</p>
-
-      <hr class="bt-divider" />
-
-      <!-- HORÁRIOS DA BARBEARIA -->
-      <h2 class="bt-title" style="font-size: 1.25rem; margin-bottom: 0.25rem">
-        Horários de Funcionamento
-      </h2>
-      <p class="bt-subtitle">Confira quando a barbearia está disponível.</p>
-
-      <!-- Estado de carregamento -->
-      <div id="horarios-status" class="bt-form-status is-info">
-        Carregando horários...
+      <div class="bt-dashboard-header">
+        <div>
+          <h1 class="bt-title">Ola, Cliente!</h1>
+          <p class="bt-subtitle">
+            Escolha uma barbearia e siga para o agendamento com os servicos ja
+            cadastrados.
+          </p>
+        </div>
+        <div class="bt-chip">Cliente</div>
       </div>
 
-      <!-- Lista de horários -->
-      <div id="horarios-container"></div>
+      <div class="bt-section-card">
+        <div class="bt-section-heading">
+          <h2 class="bt-title bt-title-sm">Barbearias disponiveis</h2>
+          <p class="bt-subtitle bt-subtitle-tight">
+            Abra a agenda da barbearia desejada e escolha um dos servicos
+            cadastrados.
+          </p>
+        </div>
 
-      <hr class="bt-divider" />
+        <div id="barbearias-status" class="bt-form-status is-info">
+          Carregando barbearias...
+        </div>
+        <div id="barbearias-container" class="bt-list-stack"></div>
+      </div>
 
-      <button class="bt-btn" id="btn-logout">Sair</button>
+      <div class="bt-section-card">
+        <div class="bt-section-heading">
+          <h2 class="bt-title bt-title-sm">Horarios de funcionamento</h2>
+          <p class="bt-subtitle bt-subtitle-tight">
+            Consulte os horarios da sua barbearia vinculada quando houver.
+          </p>
+        </div>
+
+        <div id="horarios-status" class="bt-form-status is-info">
+          Carregando horarios...
+        </div>
+        <div id="horarios-container" class="bt-list-stack"></div>
+      </div>
+
+      <button class="bt-btn bt-btn-secondary" id="btn-logout">Sair</button>
     </div>
 
     <script src="/scripts/dashboard_cliente.js"></script>
