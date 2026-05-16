@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BarberTrack - Selecionar Barbearia</title>
+    <link rel="stylesheet" href="/styles/globalDashboard.css" />
+    <script src="/scripts/selecionar_barbearia.js" defer></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <header class="topbar">
+      <a href="/cliente/dashboard" class="bt-logo">
+        <div class="bt-logo-icon">✂</div>
+        <span class="bt-logo-text">BarberTrack</span>
+      </a>
+      <div class="topbar-right">
+        <button class="hamburger" id="btn-hamburger" aria-label="Abrir menu">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="greeting">Olá, <strong id="nome-cliente">...</strong></span>
+        <div class="avatar" id="avatar-inicial"></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <span class="sidebar-label">Principal</span>
+          <a class="nav-item" href="/cliente/dashboard">
+            <span class="icon">◈</span> Dashboard
+          </a>
+          <a class="nav-item" href="/cliente/minha-agenda">
+            <span class="icon">📅</span> Minha Agenda
+          </a>
+        </div>
+        <hr class="sidebar-divider" />
+        <div class="sidebar-section">
+          <span class="sidebar-label">Sistema</span>
+          <button class="nav-item" id="btn-logout">
+            <span class="icon">↩</span> Sair
+          </button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1>Novo Agendamento</h1>
+            <span class="date-label">Selecione uma barbearia para continuar</span>
+          </div>
+          <a href="/cliente/dashboard" class="btn-primary">← Voltar</a>
+        </div>
+
+        <div id="barbearias-status" class="bt-form-status is-info">
+          Carregando barbearias...
+        </div>
+        <div id="barbearias-lista" class="barber-list"></div>
+      </main>
+    </div>
+  </body>
+</html>

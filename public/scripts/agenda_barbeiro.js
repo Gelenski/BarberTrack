@@ -5,6 +5,12 @@ const state = {
   agendamentos: [],
 };
 
+const STATUS_LABEL = {
+  confirmado: "Confirmado",
+  concluido: "Concluído",
+  cancelado: "Cancelado",
+};
+
 // ─── Init
 document.addEventListener("DOMContentLoaded", () => {
   inicializarUsuario();
@@ -30,12 +36,8 @@ function inicializarUsuario() {
 
 // ─── Controles de navegação e view
 function configurarControles() {
-  document
-    .getElementById("btn-anterior")
-    .addEventListener("click", () => navegar(-1));
-  document
-    .getElementById("btn-proximo")
-    .addEventListener("click", () => navegar(1));
+  document.getElementById("btn-anterior").addEventListener("click", () => navegar(-1));
+  document.getElementById("btn-proximo").addEventListener("click", () => navegar(1));
   document.getElementById("btn-hoje").addEventListener("click", () => {
     state.dataReferencia = new Date();
     renderizar();
@@ -43,9 +45,7 @@ function configurarControles() {
 
   document.querySelectorAll(".view-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".view-btn")
-        .forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".view-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       state.view = btn.dataset.view;
       renderizar();
@@ -67,10 +67,8 @@ async function renderizar() {
   const { inicio, fim } = calcularIntervalo();
   atualizarPeriodoLabel(inicio, fim);
 
-  document.getElementById("view-semana").style.display =
-    state.view !== "mes" ? "block" : "none";
-  document.getElementById("view-mes").style.display =
-    state.view === "mes" ? "block" : "none";
+  document.getElementById("view-semana").style.display = state.view !== "mes" ? "block" : "none";
+  document.getElementById("view-mes").style.display = state.view === "mes" ? "block" : "none";
 
   if (state.view !== "mes") {
     document.getElementById("semana-container").innerHTML =
@@ -133,10 +131,9 @@ function renderizarSemanaOuDia(inicio, fim) {
             </span>
             <span class="dia-bloco-count">${agsDia.length} agendamento${agsDia.length !== 1 ? "s" : ""}</span>
           </div>
-          ${
-            agsDia.length
-              ? `<div class="agenda-list">${agsDia.map(renderizarItem).join("")}</div>`
-              : `<div class="dia-vazio">Nenhum agendamento neste dia.</div>`
+          ${agsDia.length
+            ? `<div class="agenda-list">${agsDia.map(renderizarItem).join("")}</div>`
+            : `<div class="dia-vazio">Nenhum agendamento neste dia.</div>`
           }
         </div>`;
     })
@@ -192,14 +189,10 @@ function renderizarMes() {
           onclick="abrirModalDia('${chave}', '${tituloModal}')"
         >
           <div class="cal-dia-numero">${data.getDate()}</div>
-          ${visiveis
-            .map(
-              (a) => `
+          ${visiveis.map((a) => `
             <div class="cal-evento ${a.status}">
               ${new Date(a.horario).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} ${a.cliente_nome.split(" ")[0]}
-            </div>`
-            )
-            .join("")}
+            </div>`).join("")}
           ${extras > 0 ? `<div class="cal-mais">+${extras} mais</div>` : ""}
         </div>`;
     })
@@ -234,8 +227,6 @@ document.getElementById("modal-dia").addEventListener("click", (e) => {
 });
 
 // ─── Renderizar item
-// ─── Substituir as funções renderizarItem e confirmarStatus no agenda_barbeiro.js
-
 function renderizarItem(a) {
   const hora = new Date(a.horario).toLocaleTimeString("pt-BR", {
     hour: "2-digit",
@@ -249,111 +240,8 @@ function renderizarItem(a) {
         <div class="agenda-client">${a.cliente_nome}</div>
         <div class="agenda-service">${a.servico_nome} · ${a.duracao_min} min · R$ ${Number(a.preco).toFixed(2)}</div>
       </div>
-      <select
-        class="status-select status-${a.status}"
-        data-anterior="${a.status}"
-        onchange="confirmarStatus(${a.id}, this)"
-      >
-        <option value="confirmado" ${a.status === "confirmado" ? "selected" : ""}>Confirmado</option>
-        <option value="concluido"  ${a.status === "concluido" ? "selected" : ""}>Concluído</option>
-        <option value="cancelado"  ${a.status === "cancelado" ? "selected" : ""}>Cancelado</option>
-      </select>
+      <span class="status-pill ${a.status}">${STATUS_LABEL[a.status] ?? a.status}</span>
     </div>`;
-}
-
-// ─── Modal de confirmação customizado
-function abrirConfirm({ titulo, descricao, danger = false }) {
-  return new Promise((resolve) => {
-    const overlay = document.createElement("div");
-    overlay.className = "confirm-overlay";
-    overlay.innerHTML = `
-      <div class="confirm-box">
-        <div class="confirm-titulo">${titulo}</div>
-        <div class="confirm-descricao">${descricao}</div>
-        <div class="confirm-acoes">
-          <button class="confirm-btn-cancelar" id="confirm-nao">Cancelar</button>
-          <button class="confirm-btn-confirmar ${danger ? "danger" : ""}" id="confirm-sim">Confirmar</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(overlay);
-
-    overlay.querySelector("#confirm-sim").addEventListener("click", () => {
-      document.body.removeChild(overlay);
-      resolve(true);
-    });
-
-    overlay.querySelector("#confirm-nao").addEventListener("click", () => {
-      document.body.removeChild(overlay);
-      resolve(false);
-    });
-
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) {
-        document.body.removeChild(overlay);
-        resolve(false);
-      }
-    });
-  });
-}
-
-// eslint-disable-next-line no-unused-vars
-async function confirmarStatus(id, sel) {
-  const novoStatus = sel.value;
-  const statusAnterior = sel.dataset.anterior || "confirmado";
-
-  const config = {
-    confirmado: {
-      titulo: "Confirmar agendamento",
-      descricao:
-        "Deseja marcar este agendamento como <strong>Confirmado</strong>?",
-      danger: false,
-    },
-    concluido: {
-      titulo: "Concluir atendimento",
-      descricao:
-        "Deseja marcar este agendamento como <strong>Concluído</strong>?",
-      danger: false,
-    },
-    cancelado: {
-      titulo: "Cancelar agendamento",
-      descricao:
-        "Tem certeza que deseja <strong>cancelar</strong> este agendamento?",
-      danger: true,
-    },
-  };
-
-  const confirmado = await abrirConfirm(config[novoStatus]);
-
-  if (!confirmado) {
-    sel.value = statusAnterior;
-    return;
-  }
-
-  sel.disabled = true;
-
-  try {
-    const res = await fetch(`/barbeiro/agendamento/${id}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: novoStatus }),
-    });
-
-    if (!res.ok) throw new Error();
-
-    sel.className = `status-select status-${novoStatus}`;
-    sel.dataset.anterior = novoStatus;
-  } catch {
-    // Reverte em caso de erro
-    sel.value = statusAnterior;
-    abrirConfirm({
-      titulo: "Erro",
-      descricao: "Não foi possível atualizar o status. Tente novamente.",
-      danger: true,
-    });
-  } finally {
-    sel.disabled = false;
-  }
 }
 
 // ─── Período label
@@ -361,26 +249,15 @@ function atualizarPeriodoLabel(inicio, fim) {
   const el = document.getElementById("periodo-label");
   if (state.view === "dia") {
     el.textContent = inicio.toLocaleDateString("pt-BR", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
     });
   } else if (state.view === "semana") {
-    const ini = inicio.toLocaleDateString("pt-BR", {
-      day: "numeric",
-      month: "short",
-    });
-    const f = fim.toLocaleDateString("pt-BR", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    const ini = inicio.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
+    const f = fim.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" });
     el.textContent = `${ini} – ${f}`;
   } else {
     el.textContent = state.dataReferencia.toLocaleDateString("pt-BR", {
-      month: "long",
-      year: "numeric",
+      month: "long", year: "numeric",
     });
   }
 }

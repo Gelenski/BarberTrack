@@ -10,8 +10,6 @@ const { generateSlots } = require("../utils/slots");
 
 const router = express.Router();
 
-// ─── Cadastro
-
 router.get("/cadastro", (req, res) => {
   res.sendFile(
     path.join(__dirname, "../public/pages/cadastro_cliente/index.html")
@@ -60,8 +58,6 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
-// ─── Vincular cliente a barbearias
-
 router.post(
   "/cliente-barbearia",
   isAuthenticated,
@@ -85,7 +81,7 @@ router.post(
       }
       return res.status(201).json({ message: responseMessages.linkedCliente });
     } catch (error) {
-      console.error("Erro ao linkar cliente à uma barbearia:", error);
+      console.error("Erro ao linkar cliente a uma barbearia:", error);
       return res
         .status(500)
         .json({ error: responseMessages.internalServerError });
@@ -93,49 +89,43 @@ router.post(
   }
 );
 
-// ─── Dashboard
-
 router.get("/dashboard", isAuthenticated, isCliente, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_cliente/index.html"));
 });
-
-// ─── Página de agenda / booking
 
 router.get("/agenda", isAuthenticated, isCliente, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/agenda_cliente/index.html"));
 });
 
-// ─── Horários da barbearia vinculada ao cliente
-
 router.get("/horarios", isAuthenticated, isCliente, async (req, res) => {
   try {
     const [horarios] = await db.execute(
-      `SELECT dia_semana, abertura, fechamento, fechado
-       FROM horario_funcionamento
-       WHERE barbearia_id = (
-         SELECT barbearia_id FROM cliente WHERE id = ?
-       )
-       ORDER BY dia_semana`,
+      `SELECT hf.dia_semana, hf.abertura, hf.fechamento, hf.fechado
+       FROM horario_funcionamento hf
+       JOIN cliente_barbearias cb ON cb.barbearia_id = hf.barbearia_id
+       WHERE cb.cliente_id = ?
+       ORDER BY hf.dia_semana`,
       [req.session.user.id]
     );
     return res.json({ horarios });
   } catch (error) {
-    console.error("Erro ao buscar horários:", error);
+    console.error("Erro ao buscar horarios:", error);
     return res
       .status(500)
       .json({ error: responseMessages.internalServerError });
   }
 });
 
-// ─── Listar todas as barbearias
-
 router.get("/barbearias", isAuthenticated, isCliente, async (req, res) => {
   try {
     const [barbearias] = await db.execute(
-      `SELECT id, nome_fantasia, email, telefone
-       FROM barbearia
-       WHERE ativo = TRUE
-       ORDER BY nome_fantasia ASC`
+      `SELECT b.id, b.nome_fantasia, b.email, b.telefone
+       FROM barbearia b
+       JOIN cliente_barbearias cb ON cb.barbearia_id = b.id
+       WHERE cb.cliente_id = ?
+         AND b.ativo = TRUE
+       ORDER BY b.nome_fantasia ASC`,
+      [req.session.user.id]
     );
     return res.json({ barbearias });
   } catch (error) {
@@ -146,25 +136,44 @@ router.get("/barbearias", isAuthenticated, isCliente, async (req, res) => {
   }
 });
 
-// ─── Detalhes de uma barbearia + próximos agendamentos
-
 router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
   const barbeariaId = req.params.id;
+  const clienteId = req.session.user.id;
+
   try {
     const [rows] = await db.execute(
-      "SELECT id, nome_fantasia, email, telefone FROM barbearia WHERE id = ? AND ativo = TRUE",
-      [barbeariaId]
+      `SELECT b.id, b.nome_fantasia, b.email, b.telefone
+       FROM barbearia b
+       JOIN cliente_barbearias cb ON cb.barbearia_id = b.id
+       WHERE b.id = ?
+         AND cb.cliente_id = ?
+         AND b.ativo = TRUE`,
+      [barbeariaId, clienteId]
     );
-    if (!rows.length)
-      return res.status(404).json({ error: "Barbearia não encontrada." });
 
-    const [horarios] = await db.execute(
-      `SELECT dia_semana, abertura, fechamento
+    if (!rows.length) {
+      return res.status(404).json({ error: "Barbearia nao encontrada." });
+    }
+
+    let [horarios] = await db.execute(
+      `SELECT dia_semana,
+              abertura AS hora_abertura,
+              fechamento AS hora_fechamento
        FROM horario_funcionamento
-       WHERE barbearia_id = ? AND fechado = TRUE
+       WHERE barbearia_id = ? AND fechado = FALSE
        ORDER BY dia_semana ASC`,
       [barbeariaId]
     );
+
+    if (!horarios.length) {
+      [horarios] = await db.execute(
+        `SELECT dia_semana, hora_abertura, hora_fechamento
+         FROM horario_barbearia
+         WHERE barbearia_id = ? AND ativo = TRUE
+         ORDER BY dia_semana ASC`,
+        [barbeariaId]
+      );
+    }
 
     const [agendamentos] = await db.execute(
       `SELECT
@@ -174,7 +183,7 @@ router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
          s.duracao_min
        FROM agendamento a
        JOIN barbeiro bar ON bar.id = a.barbeiro_id
-       JOIN servico  s   ON s.id   = a.servico_id
+       JOIN servico s ON s.id = a.servico_id
        WHERE a.barbearia_id = ?
          AND a.horario >= NOW()
          AND a.status = 'confirmado'
@@ -192,21 +201,24 @@ router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
   }
 });
 
-// ─── Barbeiros de uma barbearia
-
 router.get(
   "/barbearia/:id/barbeiros",
   isAuthenticated,
   isCliente,
   async (req, res) => {
     const barbeariaId = req.params.id;
+    const clienteId = req.session.user.id;
+
     try {
       const [barbeiros] = await db.execute(
-        `SELECT id, CONCAT(nome, ' ', sobrenome) AS nome
-       FROM barbeiro
-       WHERE barbearia_id = ? AND ativo = TRUE
-       ORDER BY nome ASC`,
-        [barbeariaId]
+        `SELECT b.id, CONCAT(b.nome, ' ', b.sobrenome) AS nome
+         FROM barbeiro b
+         JOIN cliente_barbearias cb ON cb.barbearia_id = b.barbearia_id
+         WHERE b.barbearia_id = ?
+           AND cb.cliente_id = ?
+           AND b.ativo = TRUE
+         ORDER BY nome ASC`,
+        [barbeariaId, clienteId]
       );
       return res.json({ barbeiros });
     } catch (error) {
@@ -218,25 +230,28 @@ router.get(
   }
 );
 
-// ─── Serviços de uma barbearia
-
 router.get(
   "/barbearia/:id/servicos",
   isAuthenticated,
   isCliente,
   async (req, res) => {
     const barbeariaId = req.params.id;
+    const clienteId = req.session.user.id;
+
     try {
       const [servicos] = await db.execute(
-        `SELECT id, nome, duracao_min, preco
-       FROM servico
-       WHERE barbearia_id = ? AND ativo = TRUE
-       ORDER BY nome ASC`,
-        [barbeariaId]
+        `SELECT s.id, s.nome, s.duracao_min, s.preco
+         FROM servico s
+         JOIN cliente_barbearias cb ON cb.barbearia_id = s.barbearia_id
+         WHERE s.barbearia_id = ?
+           AND cb.cliente_id = ?
+           AND s.ativo = TRUE
+         ORDER BY s.nome ASC`,
+        [barbeariaId, clienteId]
       );
       return res.json({ servicos });
     } catch (error) {
-      console.error("Erro ao buscar serviços:", error);
+      console.error("Erro ao buscar servicos:", error);
       return res
         .status(500)
         .json({ error: responseMessages.internalServerError });
@@ -244,74 +259,115 @@ router.get(
   }
 );
 
-// ─── Slots disponíveis de um barbeiro
-// GET /cliente/barbeiro/:id/slots?data=YYYY-MM-DD&servico_id=X
-
 router.get(
   "/barbeiro/:id/slots",
   isAuthenticated,
   isCliente,
   async (req, res) => {
     const barbeiroId = req.params.id;
+    const clienteId = req.session.user.id;
     const { data, servico_id } = req.query;
 
     if (!data || !servico_id) {
       return res
         .status(400)
-        .json({ error: "Parâmetros obrigatórios: data e servico_id." });
+        .json({ error: "Parametros obrigatorios: data e servico_id." });
     }
 
     try {
       const [servicos] = await db.execute(
-        "SELECT duracao_min FROM servico WHERE id = ? AND ativo = TRUE",
-        [servico_id]
+        `SELECT s.duracao_min
+         FROM servico s
+         JOIN barbeiro b ON b.barbearia_id = s.barbearia_id
+         JOIN cliente_barbearias cb ON cb.barbearia_id = s.barbearia_id
+         WHERE s.id = ?
+           AND b.id = ?
+           AND cb.cliente_id = ?
+           AND s.ativo = TRUE
+           AND b.ativo = TRUE`,
+        [servico_id, barbeiroId, clienteId]
       );
-      if (!servicos.length)
-        return res.status(404).json({ error: "Serviço não encontrado." });
+      if (!servicos.length) {
+        return res.status(404).json({ error: "Servico nao encontrado." });
+      }
       const duracaoMin = servicos[0].duracao_min;
 
       const [barbeiros] = await db.execute(
-        "SELECT id, barbearia_id FROM barbeiro WHERE id = ? AND ativo = TRUE",
-        [barbeiroId]
+        `SELECT b.id, b.barbearia_id
+         FROM barbeiro b
+         JOIN cliente_barbearias cb ON cb.barbearia_id = b.barbearia_id
+         WHERE b.id = ? AND cb.cliente_id = ? AND b.ativo = TRUE`,
+        [barbeiroId, clienteId]
       );
-      if (!barbeiros.length)
-        return res.status(404).json({ error: "Barbeiro não encontrado." });
+      if (!barbeiros.length) {
+        return res.status(404).json({ error: "Barbeiro nao encontrado." });
+      }
       const barbeariaId = barbeiros[0].barbearia_id;
 
-      const dataObj = new Date(data + "T12:00:00");
+      const dataObj = new Date(`${data}T12:00:00`);
       const diaSemana = dataObj.getDay();
 
-      const [horBarbearia] = await db.execute(
-        `SELECT abertura, fechamento
-       FROM horario_funcionamento
-       WHERE barbearia_id = ? AND dia_semana = ? AND fechado = TRUE`,
+      let [horBarbearia] = await db.execute(
+        `SELECT MIN(abertura) AS hora_abertura, MAX(fechamento) AS hora_fechamento,
+                MAX(CASE WHEN fechado THEN 1 ELSE 0 END) AS fechado
+         FROM horario_funcionamento
+         WHERE barbearia_id = ? AND dia_semana = ?`,
         [barbeariaId, diaSemana]
       );
-      if (!horBarbearia.length) return res.json({ slots: [] });
+
+      if (horBarbearia[0]?.fechado && horBarbearia[0]?.hora_abertura) {
+        return res.json({ slots: [] });
+      }
+
+      if (!horBarbearia[0]?.hora_abertura || !horBarbearia[0]?.hora_fechamento) {
+        [horBarbearia] = await db.execute(
+          `SELECT MIN(hora_abertura) AS hora_abertura, MAX(hora_fechamento) AS hora_fechamento
+           FROM horario_barbearia
+           WHERE barbearia_id = ? AND dia_semana = ? AND ativo = TRUE`,
+          [barbeariaId, diaSemana]
+        );
+      }
 
       const [horBarbeiro] = await db.execute(
-        `SELECT hora_inicio, hora_fim
-       FROM horario_barbeiro
-       WHERE barbeiro_id = ? AND dia_semana = ? AND ativo = TRUE`,
+        `SELECT MIN(hora_inicio) AS hora_inicio, MAX(hora_fim) AS hora_fim
+         FROM horario_barbeiro
+         WHERE barbeiro_id = ? AND dia_semana = ? AND ativo = TRUE`,
         [barbeiroId, diaSemana]
       );
-      if (!horBarbeiro.length) return res.json({ slots: [] });
+
+      const horaInicioBarbearia = horBarbearia[0]?.hora_abertura || null;
+      const horaFimBarbearia    = horBarbearia[0]?.hora_fechamento || null;
+      const horaInicioBarbeiro  = horBarbeiro[0]?.hora_inicio || null;
+      const horaFimBarbeiro     = horBarbeiro[0]?.hora_fim || null;
+
+      if (!horaInicioBarbearia && !horaInicioBarbeiro) {
+        return res.json({ slots: [] });
+      }
+
+      const inicioReferencia = horaInicioBarbearia || horaInicioBarbeiro;
+      const fimReferencia    = horaFimBarbearia    || horaFimBarbeiro;
+      const inicioComparacao = horaInicioBarbeiro  || horaInicioBarbearia;
+      const fimComparacao    = horaFimBarbeiro     || horaFimBarbearia;
 
       const { timeToMinutes, minutesToTime } = require("../utils/slots");
       const inicioMin = Math.max(
-        timeToMinutes(horBarbearia[0].hora_abertura),
-        timeToMinutes(horBarbeiro[0].hora_inicio)
+        timeToMinutes(inicioReferencia),
+        timeToMinutes(inicioComparacao)
       );
       const fimMin = Math.min(
-        timeToMinutes(horBarbearia[0].hora_fechamento),
-        timeToMinutes(horBarbeiro[0].hora_fim)
+        timeToMinutes(fimReferencia),
+        timeToMinutes(fimComparacao)
       );
+
+      if (inicioMin >= fimMin) {
+        return res.json({ slots: [] });
+      }
 
       const [agendamentosExistentes] = await db.execute(
         `SELECT a.horario, s.duracao_min
-       FROM agendamento a
-       JOIN servico s ON s.id = a.servico_id
-       WHERE a.barbeiro_id = ? AND DATE(a.horario) = ? AND a.status != 'cancelado'`,
+         FROM agendamento a
+         JOIN servico s ON s.id = a.servico_id
+         WHERE a.barbeiro_id = ? AND DATE(a.horario) = ? AND a.status != 'cancelado'`,
         [barbeiroId, data]
       );
 
@@ -333,34 +389,53 @@ router.get(
   }
 );
 
-// ─── Criar agendamento
-
 router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
   const clienteId = req.session.user.id;
   const { barbearia_id, barbeiro_id, servico_id, horario } = req.body;
 
   if (!barbearia_id || !barbeiro_id || !servico_id || !horario) {
     return res.status(400).json({
-      error:
-        "Campos obrigatórios: barbearia_id, barbeiro_id, servico_id, horario.",
+      error: "Campos obrigatorios: barbearia_id, barbeiro_id, servico_id, horario.",
     });
   }
 
   try {
-    const [servicos] = await db.execute(
-      "SELECT duracao_min FROM servico WHERE id = ? AND ativo = TRUE",
-      [servico_id]
+    const [vinculo] = await db.execute(
+      `SELECT id FROM cliente_barbearias
+       WHERE cliente_id = ? AND barbearia_id = ?`,
+      [clienteId, barbearia_id]
     );
-    if (!servicos.length)
-      return res.status(404).json({ error: "Serviço não encontrado." });
+    if (!vinculo.length) {
+      return res.status(403).json({ error: "Cliente nao vinculado a esta barbearia." });
+    }
+
+    const [servicos] = await db.execute(
+      `SELECT duracao_min FROM servico
+       WHERE id = ? AND barbearia_id = ? AND ativo = TRUE`,
+      [servico_id, barbearia_id]
+    );
+    if (!servicos.length) {
+      return res.status(404).json({ error: "Servico nao encontrado." });
+    }
     const duracaoMin = servicos[0].duracao_min;
 
-    const horarioDate = new Date(horario);
-    const horarioStr = horarioDate.toISOString().slice(0, 19).replace("T", " ");
-    const horarioFimStr = new Date(horarioDate.getTime() + duracaoMin * 60000)
-      .toISOString()
-      .slice(0, 19)
-      .replace("T", " ");
+    const [barbeiro] = await db.execute(
+      `SELECT id FROM barbeiro
+       WHERE id = ? AND barbearia_id = ? AND ativo = TRUE`,
+      [barbeiro_id, barbearia_id]
+    );
+    if (!barbeiro.length) {
+      return res.status(404).json({ error: "Barbeiro nao encontrado." });
+    }
+
+    const horarioDate = parseLocalDateTime(horario);
+    if (!horarioDate) {
+      return res.status(400).json({ error: "Horario invalido." });
+    }
+    const horarioStr    = formatDateTimeForSql(horarioDate);
+    const horarioFimStr = formatDateTimeForSql(
+      new Date(horarioDate.getTime() + duracaoMin * 60000)
+    );
 
     const [conflito] = await db.execute(
       `SELECT a.id FROM agendamento a
@@ -375,7 +450,7 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
     if (conflito.length) {
       return res
         .status(409)
-        .json({ error: "Horário não disponível. Escolha outro slot." });
+        .json({ error: "Horario nao disponivel. Escolha outro slot." });
     }
 
     const [result] = await db.execute(
@@ -395,8 +470,6 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
       .json({ error: responseMessages.internalServerError });
   }
 });
-
-// ─── Agendamentos do cliente
 
 router.get("/agendamentos", isAuthenticated, isCliente, async (req, res) => {
   const clienteId = req.session.user.id;
@@ -424,8 +497,6 @@ router.get("/agendamentos", isAuthenticated, isCliente, async (req, res) => {
   }
 });
 
-// ─── Cancelar agendamento
-
 router.delete(
   "/agendamento/:id",
   isAuthenticated,
@@ -438,12 +509,13 @@ router.delete(
         "SELECT id, status FROM agendamento WHERE id = ? AND cliente_id = ?",
         [agendamentoId, clienteId]
       );
-      if (!rows.length)
-        return res.status(404).json({ error: "Agendamento não encontrado." });
+      if (!rows.length) {
+        return res.status(404).json({ error: "Agendamento nao encontrado." });
+      }
       if (rows[0].status === "cancelado") {
         return res
           .status(400)
-          .json({ error: "Agendamento já está cancelado." });
+          .json({ error: "Agendamento ja esta cancelado." });
       }
 
       await db.execute(
@@ -460,4 +532,72 @@ router.delete(
   }
 );
 
+router.get("/minha-agenda", isAuthenticated, isCliente, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/minha_agenda_cliente/index.html"));
+});
+
+router.get("/selecionar-barbearia", isAuthenticated, isCliente, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/selecionar_barbearia/index.html"));
+});
+
+router.get("/agenda/agendamentos", isAuthenticated, isCliente, async (req, res) => {
+  const clienteId = req.session.user.id;
+  const { data, data_inicio, data_fim } = req.query;
+  const inicio = data_inicio || data || new Date().toISOString().split("T")[0];
+  const fim    = data_fim || data_inicio || inicio;
+
+  try {
+    const [agendamentos] = await db.execute(
+      `SELECT
+         a.id, a.horario, a.status, a.observacao,
+         b.nome_fantasia AS barbearia_nome,
+         CONCAT(bar.nome, ' ', bar.sobrenome) AS barbeiro_nome,
+         s.nome AS servico_nome,
+         s.duracao_min, s.preco
+       FROM agendamento a
+       JOIN barbearia b  ON b.id   = a.barbearia_id
+       JOIN barbeiro bar ON bar.id = a.barbeiro_id
+       JOIN servico  s   ON s.id   = a.servico_id
+       WHERE a.cliente_id = ?
+         AND DATE(a.horario) BETWEEN ? AND ?
+       ORDER BY a.horario ASC`,
+      [clienteId, inicio, fim]
+    );
+    return res.json({ agendamentos });
+  } catch (error) {
+    console.error("Erro ao buscar agenda do cliente:", error);
+    return res.status(500).json({ error: responseMessages.internalServerError });
+  }
+});
+
 module.exports = router;
+
+function parseLocalDateTime(value) {
+  if (!value) return null;
+
+  const [datePart, timePart] = String(value)
+    .trim()
+    .replace(" ", "T")
+    .split("T");
+  if (!datePart || !timePart) return null;
+
+  const [year, month, day]        = datePart.split("-").map(Number);
+  const [hour, minute, second = 0] = timePart.split(":").map(Number);
+
+  if ([year, month, day, hour, minute, second].some((p) => Number.isNaN(p))) {
+    return null;
+  }
+
+  return new Date(year, month - 1, day, hour, minute, second);
+}
+
+function formatDateTimeForSql(date) {
+  const year   = date.getFullYear();
+  const month  = String(date.getMonth() + 1).padStart(2, "0");
+  const day    = String(date.getDate()).padStart(2, "0");
+  const hour   = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  const second = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}

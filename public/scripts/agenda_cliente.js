@@ -60,7 +60,7 @@ function inicializarUsuario() {
 
 // ─── Barbearia
 async function carregarBarbearia() {
-  try {
+try {
     const res = await fetch(`/cliente/barbearia/${state.barbeariaId}`);
     if (!res.ok) throw new Error();
     const { barbearia } = await res.json();
@@ -83,10 +83,7 @@ async function carregarBarbearia() {
     }
   } catch (error) {
     console.error(error);
-  }
-  {
-    document.getElementById("barbearia-nome").textContent =
-      "Barbearia não encontrada";
+    document.getElementById("barbearia-nome").textContent = "Barbearia não encontrada";
   }
 }
 
@@ -160,8 +157,6 @@ async function carregarAgendaGeral() {
       `</div>`;
   } catch (error) {
     console.error(error);
-  }
-  {
     lista.innerHTML = `<div style="padding:1rem;color:var(--muted);font-size:.82rem;">Erro ao carregar agenda.</div>`;
   }
 }
@@ -184,8 +179,6 @@ async function carregarBarbeiros() {
         .join("");
   } catch (error) {
     console.error(error);
-  }
-  {
     sel.innerHTML = `<option value="">Erro ao carregar barbeiros</option>`;
   }
 }
@@ -228,8 +221,6 @@ async function carregarServicos() {
       .join("");
   } catch (error) {
     console.error(error);
-  }
-  {
     container.innerHTML = `<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Erro ao carregar serviços.</p>`;
   }
 }
@@ -293,8 +284,6 @@ async function atualizarSlots() {
       .join("");
   } catch (error) {
     console.error(error);
-  }
-  {
     grid.innerHTML = `<div class="slots-empty" style="grid-column:1/-1;">Erro ao buscar horários.</div>`;
   }
 }
@@ -406,8 +395,6 @@ async function confirmarAgendamento() {
       `${state.servicoSelecionado.nome} com ${barbeiroNome} — ${dtStr}`;
   } catch (error) {
     console.error(error);
-  }
-  {
     statusEl.textContent = "Erro de conexão. Tente novamente.";
     statusEl.style.display = "block";
     btn.disabled = false;

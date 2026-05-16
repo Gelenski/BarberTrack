@@ -41,8 +41,6 @@ async function carregarAgendamentos() {
     renderMetricas(agendamentos);
   } catch (error) {
     console.error(error);
-  }
-  {
     mostrarErro();
   }
 }
@@ -203,8 +201,6 @@ async function logout() {
     window.location.href = d.redirect || "/auth/login";
   } catch (error) {
     console.error(error);
-  }
-  {
     window.location.href = "/auth/login";
   }
 }

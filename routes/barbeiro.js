@@ -96,12 +96,14 @@ router.post("/cadastro", isAuthenticated, isBarbearia, async (req, res) => {
   }
 });
 
-// ─── Agenda do barbeiro (feature/agenda)
-router.get("/agenda", (req, res) => {
+router.get("/agenda", isAuthenticated, isBarbeiro, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/agenda_barbeiro/index.html"));
 });
 
-// ─── Listar barbeiros da barbearia
+router.get("/servicos/novo", isAuthenticated, isBarbeiro, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/servicos_barbeiro/index.html"));
+});
+
 router.get("/lista", isAuthenticated, isBarbearia, async (req, res) => {
   try {
     const [rows] = await db.execute(
@@ -178,6 +180,74 @@ router.get("/servicos", isAuthenticated, isBarbeiro, async (req, res) => {
   }
 });
 
+router.post("/servicos", isAuthenticated, isBarbeiro, async (req, res) => {
+  const nome = String(req.body.nome || "").trim();
+  const duracaoMin = Number(req.body.duracao_min);
+  const preco = Number(req.body.preco);
+
+  if (!nome || !Number.isInteger(duracaoMin) || duracaoMin <= 0) {
+    return res.status(400).json({
+      error: "Informe um nome e uma duracao valida para o servico.",
+    });
+  }
+
+  if (Number.isNaN(preco) || preco < 0) {
+    return res.status(400).json({
+      error: "Informe um preco valido para o servico.",
+    });
+  }
+
+  try {
+    const [[barbeiro]] = await db.execute(
+      `SELECT barbearia_id
+         FROM barbeiro
+        WHERE id = ? AND ativo = TRUE`,
+      [req.session.user.id]
+    );
+
+    if (!barbeiro) {
+      return res.status(404).json({ error: "Barbeiro nao encontrado." });
+    }
+
+    const [[servicoExistente]] = await db.execute(
+      `SELECT id
+         FROM servico
+        WHERE barbearia_id = ?
+          AND ativo = TRUE
+          AND TRIM(LOWER(nome)) = TRIM(LOWER(?))
+        LIMIT 1`,
+      [barbeiro.barbearia_id, nome]
+    );
+
+    if (servicoExistente) {
+      return res.status(409).json({
+        error: "Ja existe um servico ativo com este nome.",
+      });
+    }
+
+    const [result] = await db.execute(
+      `INSERT INTO servico (barbearia_id, nome, duracao_min, preco, ativo)
+       VALUES (?, ?, ?, ?, TRUE)`,
+      [barbeiro.barbearia_id, nome, duracaoMin, preco]
+    );
+
+    return res.status(201).json({
+      message: "Servico cadastrado com sucesso.",
+      servico: {
+        id: result.insertId,
+        nome,
+        duracao_min: duracaoMin,
+        preco,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao cadastrar servico:", error);
+    return res
+      .status(500)
+      .json({ error: responseMessages.internalServerError });
+  }
+});
+
 router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
   try {
     const [horarios] = await db.execute(
@@ -191,14 +261,13 @@ router.get("/horarios", isAuthenticated, isBarbeiro, async (req, res) => {
     );
     return res.json({ horarios });
   } catch (error) {
-    console.error("Erro ao buscar horários:", error);
+    console.error("Erro ao buscar horarios:", error);
     return res
       .status(500)
       .json({ error: responseMessages.internalServerError });
   }
 });
 
-// ─── Agendamentos do barbeiro (por data)
 // ─── Agendamentos do barbeiro (por data ou intervalo)
 router.get(
   "/agenda/agendamentos",
@@ -209,8 +278,7 @@ router.get(
     const { data, data_inicio, data_fim } = req.query;
 
     // Suporta data única ou intervalo
-    const inicio =
-      data_inicio || data || new Date().toISOString().split("T")[0];
+    const inicio = data_inicio || data || new Date().toISOString().split("T")[0];
     const fim = data_fim || data_inicio || inicio;
 
     try {
