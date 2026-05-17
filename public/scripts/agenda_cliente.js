@@ -1,47 +1,23 @@
 // ─── Estado
 const state = {
-  barbeariaId: null,
-  barbeiros: [],
-  servicos: [],
-  servicoSelecionado: null,
-  barbeiroId: null,
-  slotSelecionado: null,
+  view: "semana", // semana | dia | mes
+  dataReferencia: new Date(),
+  agendamentos: [],
+};
+
+const STATUS_LABEL = {
+  confirmado: "Confirmado",
+  concluido: "Concluído",
+  cancelado: "Cancelado",
 };
 
 // ─── Init
 document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  state.barbeariaId = params.get("barbearia_id");
-
-  if (!state.barbeariaId) {
-    window.location.href = "/cliente/dashboard";
-    return;
-  }
-
   inicializarUsuario();
   inicializarSidebar();
-  carregarBarbearia();
-  carregarAgendaGeral();
-  carregarBarbeiros();
-  carregarServicos();
-
-  document.getElementById("inp-data").addEventListener("change", onDataChange);
-  document
-    .getElementById("sel-barbeiro")
-    .addEventListener("change", onBarbeiroChange);
-  document
-    .getElementById("btn-confirmar")
-    .addEventListener("click", confirmarAgendamento);
-  document
-    .getElementById("btn-favoritar")
-    .addEventListener("click", toggleFavoritar);
-  document.getElementById("btn-logout").addEventListener("click", logout);
-  inicializarSidebar();
-
-  // Data mínima = hoje
-  const hoje = new Date().toISOString().split("T")[0];
-  document.getElementById("inp-data").min = hoje;
-  document.getElementById("inp-data").value = hoje;
+  configurarLogout();
+  configurarControles();
+  renderizar();
 });
 
 // ─── Usuário
@@ -50,356 +26,288 @@ function inicializarUsuario() {
     const u = JSON.parse(localStorage.getItem("usuarioLogado"));
     if (u?.nome) {
       document.getElementById("nome-cliente").textContent = u.nome;
-      document.getElementById("avatar-inicial").textContent =
-        u.nome[0].toUpperCase();
+      const avatar = document.getElementById("avatar-inicial");
+      if (avatar) avatar.textContent = u.nome[0].toUpperCase();
     }
-  } catch (error) {
-    console.error(error);
+  } catch {
+    /* intencional */
   }
 }
 
-// ─── Barbearia
-async function carregarBarbearia() {
-try {
-    const res = await fetch(`/cliente/barbearia/${state.barbeariaId}`);
-    if (!res.ok) throw new Error();
-    const { barbearia } = await res.json();
-
-    document.getElementById("barbearia-nome").textContent =
-      barbearia.nome_fantasia;
-    document.getElementById("barbearia-email").textContent =
-      barbearia.email || "";
-    document.getElementById("barbearia-tel").textContent =
-      barbearia.telefone || "";
-    document.title = `${barbearia.nome_fantasia} | BarberTrack`;
-
-    const btnFav = document.getElementById("btn-favoritar");
-    if (barbearia.favorita) {
-      btnFav.textContent = "★ Favoritada";
-      btnFav.classList.add("favorita");
-      btnFav.dataset.isFav = "1";
-    } else {
-      btnFav.dataset.isFav = "0";
-    }
-  } catch (error) {
-    console.error(error);
-    document.getElementById("barbearia-nome").textContent = "Barbearia não encontrada";
-  }
-}
-
-async function toggleFavoritar() {
-  const btn = document.getElementById("btn-favoritar");
-  const isFav = btn.dataset.isFav === "1";
-  const method = isFav ? "DELETE" : "POST";
-
-  try {
-    const res = await fetch(
-      `/cliente/barbearias/favoritas/${state.barbeariaId}`,
-      { method }
-    );
-    if (!res.ok) throw new Error();
-
-    if (isFav) {
-      btn.textContent = "☆ Favoritar";
-      btn.classList.remove("favorita");
-      btn.dataset.isFav = "0";
-    } else {
-      btn.textContent = "★ Favoritada";
-      btn.classList.add("favorita");
-      btn.dataset.isFav = "1";
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// ─── Agenda geral da barbearia (visão pública — próximos slots confirmados)
-async function carregarAgendaGeral() {
-  const lista = document.getElementById("agenda-geral-lista");
-  const label = document.getElementById("agenda-data-label");
-  const hoje = new Date().toLocaleDateString("pt-BR", {
-    day: "numeric",
-    month: "short",
-  });
-  label.textContent = hoje;
-
-  try {
-    const res = await fetch(`/cliente/barbearia/${state.barbeariaId}`);
-    if (!res.ok) throw new Error();
-    const { agendamentos } = await res.json();
-
-    if (!agendamentos.length) {
-      lista.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.82rem;">Nenhum agendamento nos próximos dias.</div>`;
-      return;
-    }
-
-    lista.innerHTML =
-      `<div class="horarios-livres">` +
-      agendamentos
-        .map((a) => {
-          const dt = new Date(a.horario);
-          const hora = dt.toLocaleTimeString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          const data = dt.toLocaleDateString("pt-BR", {
-            day: "numeric",
-            month: "short",
-          });
-          return `
-          <div class="hl-item">
-            <span class="hl-time">${hora}</span>
-            <span style="flex:1;">${a.servico_nome} · ${data}</span>
-            <span class="hl-barber">${a.barbeiro_nome}</span>
-          </div>`;
-        })
-        .join("") +
-      `</div>`;
-  } catch (error) {
-    console.error(error);
-    lista.innerHTML = `<div style="padding:1rem;color:var(--muted);font-size:.82rem;">Erro ao carregar agenda.</div>`;
-  }
-}
-
-// ─── Barbeiros
-async function carregarBarbeiros() {
-  const sel = document.getElementById("sel-barbeiro");
-  try {
-    const res = await fetch(
-      `/cliente/barbearia/${state.barbeariaId}/barbeiros`
-    );
-    if (!res.ok) throw new Error();
-    const { barbeiros } = await res.json();
-    state.barbeiros = barbeiros;
-
-    sel.innerHTML =
-      `<option value="">Selecione um barbeiro...</option>` +
-      barbeiros
-        .map((b) => `<option value="${b.id}">${b.nome}</option>`)
-        .join("");
-  } catch (error) {
-    console.error(error);
-    sel.innerHTML = `<option value="">Erro ao carregar barbeiros</option>`;
-  }
-}
-
-function onBarbeiroChange() {
-  state.barbeiroId = document.getElementById("sel-barbeiro").value || null;
-  state.slotSelecionado = null;
-  atualizarSlots();
-}
-
-// ─── Serviços
-async function carregarServicos() {
-  const container = document.getElementById("servico-cards");
-  try {
-    const res = await fetch(`/cliente/barbearia/${state.barbeariaId}/servicos`);
-    if (!res.ok) throw new Error();
-    const { servicos } = await res.json();
-    state.servicos = servicos;
-
-    if (!servicos.length) {
-      container.innerHTML = `<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Nenhum serviço cadastrado.</p>`;
-      return;
-    }
-
-    container.innerHTML = servicos
-      .map(
-        (s) => `
-      <button
-        class="servico-card"
-        data-id="${s.id}"
-        data-duracao="${s.duracao_min}"
-        data-preco="${s.preco}"
-        onclick="selecionarServico(${s.id})"
-      >
-        <div class="servico-card-nome">${s.nome}</div>
-        <div class="servico-card-info">${s.duracao_min} min</div>
-        <div class="servico-card-preco">R$ ${Number(s.preco).toFixed(2)}</div>
-      </button>`
-      )
-      .join("");
-  } catch (error) {
-    console.error(error);
-    container.innerHTML = `<p style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Erro ao carregar serviços.</p>`;
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-function selecionarServico(id) {
-  state.servicoSelecionado = state.servicos.find((s) => s.id === id) || null;
-  state.slotSelecionado = null;
-
-  document.querySelectorAll(".servico-card").forEach((card) => {
-    card.classList.toggle("selected", parseInt(card.dataset.id) === id);
-  });
-
-  atualizarSlots();
-  atualizarResumo();
-}
-
-// ─── Data
-function onDataChange() {
-  state.slotSelecionado = null;
-  atualizarSlots();
-}
-
-// ─── Slots
-async function atualizarSlots() {
-  const section = document.getElementById("slots-section");
-  const grid = document.getElementById("slots-grid");
-
-  if (!state.barbeiroId || !state.servicoSelecionado) {
-    section.classList.add("step-hidden");
-    atualizarBotaoConfirmar();
-    return;
-  }
-
-  const data = document.getElementById("inp-data").value;
-  if (!data) {
-    section.classList.add("step-hidden");
-    return;
-  }
-
-  section.classList.remove("step-hidden");
-  grid.innerHTML = `<div class="loading-spinner" style="grid-column:1/-1;">Buscando horários...</div>`;
-
-  try {
-    const res = await fetch(
-      `/cliente/barbeiro/${state.barbeiroId}/slots?data=${data}&servico_id=${state.servicoSelecionado.id}`
-    );
-    if (!res.ok) throw new Error();
-    const { slots } = await res.json();
-
-    if (!slots.length) {
-      grid.innerHTML = `<div class="slots-empty" style="grid-column:1/-1;">Nenhum horário disponível nesta data.</div>`;
-      return;
-    }
-
-    grid.innerHTML = slots
-      .map(
-        (s) =>
-          `<button class="slot-btn" onclick="selecionarSlot('${s}', this)">${s}</button>`
-      )
-      .join("");
-  } catch (error) {
-    console.error(error);
-    grid.innerHTML = `<div class="slots-empty" style="grid-column:1/-1;">Erro ao buscar horários.</div>`;
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-function selecionarSlot(slot, btn) {
-  state.slotSelecionado = slot;
+// ─── Controles de navegação e view
+function configurarControles() {
   document
-    .querySelectorAll(".slot-btn")
-    .forEach((b) => b.classList.remove("selected"));
-  btn.classList.add("selected");
-  atualizarResumo();
-  atualizarBotaoConfirmar();
+    .getElementById("btn-anterior")
+    .addEventListener("click", () => navegar(-1));
+  document
+    .getElementById("btn-proximo")
+    .addEventListener("click", () => navegar(1));
+  document.getElementById("btn-hoje").addEventListener("click", () => {
+    state.dataReferencia = new Date();
+    renderizar();
+  });
+
+  document.querySelectorAll(".view-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".view-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.view = btn.dataset.view;
+      renderizar();
+    });
+  });
 }
 
-// ─── Resumo
-function atualizarResumo() {
-  const box = document.getElementById("confirm-box");
+function navegar(direcao) {
+  const d = new Date(state.dataReferencia);
+  if (state.view === "dia") d.setDate(d.getDate() + direcao);
+  else if (state.view === "semana") d.setDate(d.getDate() + direcao * 7);
+  else d.setMonth(d.getMonth() + direcao);
+  state.dataReferencia = d;
+  renderizar();
+}
 
-  if (!state.servicoSelecionado || !state.slotSelecionado) {
-    box.classList.add("step-hidden");
-    return;
+// ─── Renderizar (busca + exibe)
+async function renderizar() {
+  const { inicio, fim } = calcularIntervalo();
+  atualizarPeriodoLabel(inicio, fim);
+
+  document.getElementById("view-semana").style.display =
+    state.view !== "mes" ? "block" : "none";
+  document.getElementById("view-mes").style.display =
+    state.view === "mes" ? "block" : "none";
+
+  if (state.view !== "mes") {
+    document.getElementById("semana-container").innerHTML =
+      `<div class="agenda-loading">Carregando...</div>`;
   }
 
-  const data = document.getElementById("inp-data").value;
-  const barbeiroNome =
-    document.getElementById("sel-barbeiro").selectedOptions[0]?.text || "—";
-  const dt = new Date(`${data}T${state.slotSelecionado}:00`);
-  const dtStr = dt.toLocaleString("pt-BR", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
+  try {
+    const params = new URLSearchParams({
+      data_inicio: formatarData(inicio),
+      data_fim: formatarData(fim),
+    });
+
+    const res = await fetch(`/cliente/agenda/agendamentos?${params}`);
+    const corpo = await res.json();
+
+    if (!res.ok) throw new Error(corpo.error || "Erro ao carregar.");
+
+    state.agendamentos = corpo.agendamentos || [];
+
+    if (state.view === "mes") renderizarMes();
+    else renderizarSemanaOuDia(inicio, fim);
+  } catch (error) {
+    document.getElementById("semana-container").innerHTML = `
+      <div class="agenda-loading" style="color:var(--error);">
+        ${error.message || "Erro ao carregar agendamentos."}
+      </div>`;
+  }
+}
+
+// ─── Visualização Semana / Dia
+function renderizarSemanaOuDia(inicio, fim) {
+  const container = document.getElementById("semana-container");
+  const dias = [];
+  const cursor = new Date(inicio);
+  const hoje = formatarData(new Date());
+
+  while (cursor <= fim) {
+    dias.push(new Date(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  container.innerHTML = dias
+    .map((dia) => {
+      const chave = formatarData(dia);
+      const agsDia = state.agendamentos.filter(
+        (a) => formatarData(new Date(a.horario)) === chave
+      );
+      const isHoje = chave === hoje;
+      const tituloFormatado = dia.toLocaleDateString("pt-BR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      });
+
+      return `
+        <div class="dia-bloco">
+          <div class="dia-bloco-header">
+            <span class="dia-bloco-titulo ${isHoje ? "hoje" : ""}">
+              ${isHoje ? "Hoje — " : ""}${tituloFormatado}
+            </span>
+            <span class="dia-bloco-count">${agsDia.length} agendamento${agsDia.length !== 1 ? "s" : ""}</span>
+          </div>
+          ${
+            agsDia.length
+              ? `<div class="agenda-list">${agsDia.map(renderizarItem).join("")}</div>`
+              : `<div class="dia-vazio">Nenhum agendamento neste dia.</div>`
+          }
+        </div>`;
+    })
+    .join("");
+}
+
+// ─── Visualização Mês
+function renderizarMes() {
+  const body = document.getElementById("calendario-body");
+  const ano = state.dataReferencia.getFullYear();
+  const mes = state.dataReferencia.getMonth();
+  const hoje = formatarData(new Date());
+
+  const primeiroDia = new Date(ano, mes, 1);
+  const ultimoDia = new Date(ano, mes + 1, 0);
+  const inicioPadding = primeiroDia.getDay();
+
+  const dias = [];
+
+  for (let i = inicioPadding - 1; i >= 0; i--) {
+    dias.push({ data: new Date(ano, mes, -i), outroMes: true });
+  }
+
+  for (let d = 1; d <= ultimoDia.getDate(); d++) {
+    dias.push({ data: new Date(ano, mes, d), outroMes: false });
+  }
+
+  const restante = 7 - (dias.length % 7);
+  if (restante < 7) {
+    for (let i = 1; i <= restante; i++) {
+      dias.push({ data: new Date(ano, mes + 1, i), outroMes: true });
+    }
+  }
+
+  body.innerHTML = dias
+    .map(({ data, outroMes }) => {
+      const chave = formatarData(data);
+      const agsDia = state.agendamentos.filter(
+        (a) => formatarData(new Date(a.horario)) === chave
+      );
+      const isHoje = chave === hoje;
+      const visiveis = agsDia.slice(0, 2);
+      const extras = agsDia.length - visiveis.length;
+      const tituloModal = data.toLocaleDateString("pt-BR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      });
+
+      return `
+        <div
+          class="cal-dia ${outroMes ? "outro-mes" : ""} ${isHoje ? "hoje" : ""}"
+          onclick="abrirModalDia('${chave}', '${tituloModal}')"
+        >
+          <div class="cal-dia-numero">${data.getDate()}</div>
+          ${visiveis
+            .map(
+              (a) => `
+            <div class="cal-evento ${a.status}">
+              ${new Date(a.horario).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} ${a.barbearia_nome}
+            </div>`
+            )
+            .join("")}
+          ${extras > 0 ? `<div class="cal-mais">+${extras} mais</div>` : ""}
+        </div>`;
+    })
+    .join("");
+}
+
+// ─── Modal do dia
+// eslint-disable-next-line no-unused-vars
+function abrirModalDia(chave, titulo) {
+  const modal = document.getElementById("modal-dia");
+  const lista = document.getElementById("modal-lista");
+  const tituloEl = document.getElementById("modal-titulo");
+
+  const agsDia = state.agendamentos.filter(
+    (a) => formatarData(new Date(a.horario)) === chave
+  );
+
+  tituloEl.textContent = titulo;
+  lista.innerHTML = agsDia.length
+    ? agsDia.map(renderizarItem).join("")
+    : `<div class="dia-vazio">Nenhum agendamento neste dia.</div>`;
+
+  modal.style.display = "flex";
+}
+
+document.getElementById("btn-fechar-modal").addEventListener("click", () => {
+  document.getElementById("modal-dia").style.display = "none";
+});
+
+document.getElementById("modal-dia").addEventListener("click", (e) => {
+  if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
+});
+
+// ─── Renderizar item
+function renderizarItem(a) {
+  const hora = new Date(a.horario).toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
   });
-
-  document.getElementById("conf-barbeiro").textContent = barbeiroNome;
-  document.getElementById("conf-servico").textContent =
-    `${state.servicoSelecionado.nome} (${state.servicoSelecionado.duracao_min} min)`;
-  document.getElementById("conf-horario").textContent = dtStr;
-  document.getElementById("conf-preco").textContent =
-    `R$ ${Number(state.servicoSelecionado.preco).toFixed(2)}`;
-
-  box.classList.remove("step-hidden");
+  return `
+    <div class="agenda-item">
+      <span class="agenda-time">${hora}</span>
+      <div class="agenda-divider"></div>
+      <div class="agenda-info">
+        <div class="agenda-client">${a.barbearia_nome}</div>
+        <div class="agenda-service">${a.servico_nome} · ${a.duracao_min} min · R$ ${Number(a.preco).toFixed(2)}</div>
+      </div>
+      <span class="status-pill ${a.status}">${STATUS_LABEL[a.status] ?? a.status}</span>
+    </div>`;
 }
 
-function atualizarBotaoConfirmar() {
-  const btn = document.getElementById("btn-confirmar");
-  btn.disabled = !(
-    state.barbeiroId &&
-    state.servicoSelecionado &&
-    state.slotSelecionado
-  );
-}
-
-// ─── Confirmar agendamento
-async function confirmarAgendamento() {
-  const btn = document.getElementById("btn-confirmar");
-  const statusEl = document.getElementById("form-status");
-  statusEl.style.display = "none";
-
-  if (!state.barbeiroId || !state.servicoSelecionado || !state.slotSelecionado)
-    return;
-
-  const data = document.getElementById("inp-data").value;
-  const horario = `${data}T${state.slotSelecionado}:00`;
-
-  btn.disabled = true;
-  btn.textContent = "Confirmando...";
-
-  try {
-    const res = await fetch("/cliente/agendamento", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        barbearia_id: parseInt(state.barbeariaId),
-        barbeiro_id: parseInt(state.barbeiroId),
-        servico_id: state.servicoSelecionado.id,
-        horario,
-      }),
-    });
-
-    const data_ = await res.json();
-
-    if (!res.ok) {
-      statusEl.textContent = data_.error || "Erro ao agendar.";
-      statusEl.style.display = "block";
-      btn.disabled = false;
-      btn.textContent = "Confirmar Agendamento";
-      return;
-    }
-
-    // Sucesso
-    document.getElementById("main-grid").style.display = "none";
-    const stepSucesso = document.getElementById("step-sucesso");
-    stepSucesso.classList.remove("step-hidden");
-
-    const barbeiroNome =
-      document.getElementById("sel-barbeiro").selectedOptions[0]?.text;
-    const dt = new Date(`${data}T${state.slotSelecionado}:00`);
-    const dtStr = dt.toLocaleString("pt-BR", {
+// ─── Período label
+function atualizarPeriodoLabel(inicio, fim) {
+  const el = document.getElementById("periodo-label");
+  if (state.view === "dia") {
+    el.textContent = inicio.toLocaleDateString("pt-BR", {
       weekday: "long",
       day: "numeric",
       month: "long",
-      hour: "2-digit",
-      minute: "2-digit",
+      year: "numeric",
     });
-    document.getElementById("sucesso-descricao").textContent =
-      `${state.servicoSelecionado.nome} com ${barbeiroNome} — ${dtStr}`;
-  } catch (error) {
-    console.error(error);
-    statusEl.textContent = "Erro de conexão. Tente novamente.";
-    statusEl.style.display = "block";
-    btn.disabled = false;
-    btn.textContent = "Confirmar Agendamento";
+  } else if (state.view === "semana") {
+    const ini = inicio.toLocaleDateString("pt-BR", {
+      day: "numeric",
+      month: "short",
+    });
+    const f = fim.toLocaleDateString("pt-BR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    el.textContent = `${ini} – ${f}`;
+  } else {
+    el.textContent = state.dataReferencia.toLocaleDateString("pt-BR", {
+      month: "long",
+      year: "numeric",
+    });
   }
+}
+
+// ─── Calcular intervalo
+function calcularIntervalo() {
+  const d = new Date(state.dataReferencia);
+
+  if (state.view === "dia") return { inicio: new Date(d), fim: new Date(d) };
+
+  if (state.view === "semana") {
+    const inicio = new Date(d);
+    inicio.setDate(d.getDate() - d.getDay());
+    const fim = new Date(inicio);
+    fim.setDate(inicio.getDate() + 6);
+    return { inicio, fim };
+  }
+
+  const inicio = new Date(d.getFullYear(), d.getMonth(), 1);
+  const fim = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  return { inicio, fim };
+}
+
+// ─── Helper
+function formatarData(d) {
+  return d.toISOString().split("T")[0];
 }
 
 // ─── Sidebar
@@ -415,23 +323,35 @@ function inicializarSidebar() {
     overlay.classList.toggle("is-open", !aberto);
     btn.classList.toggle("is-open", !aberto);
   });
+
   overlay.addEventListener("click", () => {
     sidebar.classList.remove("is-open");
     overlay.classList.remove("is-open");
     btn.classList.remove("is-open");
   });
+
+  sidebar.querySelectorAll(".nav-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      if (window.innerWidth <= 900) {
+        sidebar.classList.remove("is-open");
+        overlay.classList.remove("is-open");
+        btn.classList.remove("is-open");
+      }
+    });
+  });
 }
 
 // ─── Logout
-async function logout() {
-  try {
-    const res = await fetch("/auth/logout", { method: "POST" });
-    const d = await res.json();
-    window.location.href = d.redirect || "/auth/login";
-  } catch (error) {
-    console.error(error);
-  }
-  {
-    window.location.href = "/auth/login";
-  }
+function configurarLogout() {
+  document.getElementById("btn-logout").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-logout");
+    btn.disabled = true;
+    try {
+      const res = await fetch("/auth/logout", { method: "POST" });
+      const data = await res.json();
+      window.location.href = data.redirect || "/auth/login";
+    } catch {
+      window.location.href = "/auth/login";
+    }
+  });
 }

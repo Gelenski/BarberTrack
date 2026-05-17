@@ -94,7 +94,7 @@ async function carregarBarbearias() {
   if (!lista) return;
 
   try {
-    const res = await fetch("/cliente/barbearias");
+    const res = await fetch("/cliente/barbearias/vinculadas");
     if (!res.ok) throw new Error();
     const { barbearias } = await res.json();
 

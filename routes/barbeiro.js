@@ -278,7 +278,8 @@ router.get(
     const { data, data_inicio, data_fim } = req.query;
 
     // Suporta data única ou intervalo
-    const inicio = data_inicio || data || new Date().toISOString().split("T")[0];
+    const inicio =
+      data_inicio || data || new Date().toISOString().split("T")[0];
     const fim = data_fim || data_inicio || inicio;
 
     try {

@@ -58,6 +58,10 @@ router.post("/cadastro", async (req, res) => {
   }
 });
 
+router.get("/agenda", (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/agenda_cliente/index.html"));
+});
+
 router.post(
   "/cliente-barbearia",
   isAuthenticated,
@@ -93,8 +97,8 @@ router.get("/dashboard", isAuthenticated, isCliente, (req, res) => {
   res.sendFile(path.join(__dirname, "../views/dashboard_cliente/index.html"));
 });
 
-router.get("/agenda", isAuthenticated, isCliente, (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/agenda_cliente/index.html"));
+router.get("/agendamento", isAuthenticated, isCliente, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/agendamento_cliente/index.html"));
 });
 
 router.get("/horarios", isAuthenticated, isCliente, async (req, res) => {
@@ -177,19 +181,20 @@ router.get("/barbearia/:id", isAuthenticated, isCliente, async (req, res) => {
 
     const [agendamentos] = await db.execute(
       `SELECT
-         a.horario,
-         CONCAT(bar.nome, ' ', bar.sobrenome) AS barbeiro_nome,
-         s.nome AS servico_nome,
-         s.duracao_min
-       FROM agendamento a
-       JOIN barbeiro bar ON bar.id = a.barbeiro_id
-       JOIN servico s ON s.id = a.servico_id
-       WHERE a.barbearia_id = ?
-         AND a.horario >= NOW()
-         AND a.status = 'confirmado'
-       ORDER BY a.horario ASC
-       LIMIT 15`,
-      [barbeariaId]
+        a.horario,
+        CONCAT(bar.nome, ' ', bar.sobrenome) AS barbeiro_nome,
+        s.nome AS servico_nome,
+        s.duracao_min
+      FROM agendamento a
+      JOIN barbeiro bar ON bar.id = a.barbeiro_id
+      JOIN servico  s   ON s.id  = a.servico_id
+      WHERE a.barbearia_id = ?
+        AND a.cliente_id  = ?
+        AND a.horario >= NOW()
+        AND a.status = 'confirmado'
+      ORDER BY a.horario ASC
+      LIMIT 15`,
+      [barbeariaId, clienteId]
     );
 
     return res.json({ barbearia: rows[0], horarios, agendamentos });
@@ -319,7 +324,10 @@ router.get(
         return res.json({ slots: [] });
       }
 
-      if (!horBarbearia[0]?.hora_abertura || !horBarbearia[0]?.hora_fechamento) {
+      if (
+        !horBarbearia[0]?.hora_abertura ||
+        !horBarbearia[0]?.hora_fechamento
+      ) {
         [horBarbearia] = await db.execute(
           `SELECT MIN(hora_abertura) AS hora_abertura, MAX(hora_fechamento) AS hora_fechamento
            FROM horario_barbearia
@@ -336,18 +344,18 @@ router.get(
       );
 
       const horaInicioBarbearia = horBarbearia[0]?.hora_abertura || null;
-      const horaFimBarbearia    = horBarbearia[0]?.hora_fechamento || null;
-      const horaInicioBarbeiro  = horBarbeiro[0]?.hora_inicio || null;
-      const horaFimBarbeiro     = horBarbeiro[0]?.hora_fim || null;
+      const horaFimBarbearia = horBarbearia[0]?.hora_fechamento || null;
+      const horaInicioBarbeiro = horBarbeiro[0]?.hora_inicio || null;
+      const horaFimBarbeiro = horBarbeiro[0]?.hora_fim || null;
 
       if (!horaInicioBarbearia && !horaInicioBarbeiro) {
         return res.json({ slots: [] });
       }
 
       const inicioReferencia = horaInicioBarbearia || horaInicioBarbeiro;
-      const fimReferencia    = horaFimBarbearia    || horaFimBarbeiro;
-      const inicioComparacao = horaInicioBarbeiro  || horaInicioBarbearia;
-      const fimComparacao    = horaFimBarbeiro     || horaFimBarbearia;
+      const fimReferencia = horaFimBarbearia || horaFimBarbeiro;
+      const inicioComparacao = horaInicioBarbeiro || horaInicioBarbearia;
+      const fimComparacao = horaFimBarbeiro || horaFimBarbearia;
 
       const { timeToMinutes, minutesToTime } = require("../utils/slots");
       const inicioMin = Math.max(
@@ -395,7 +403,8 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
 
   if (!barbearia_id || !barbeiro_id || !servico_id || !horario) {
     return res.status(400).json({
-      error: "Campos obrigatorios: barbearia_id, barbeiro_id, servico_id, horario.",
+      error:
+        "Campos obrigatorios: barbearia_id, barbeiro_id, servico_id, horario.",
     });
   }
 
@@ -406,7 +415,9 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
       [clienteId, barbearia_id]
     );
     if (!vinculo.length) {
-      return res.status(403).json({ error: "Cliente nao vinculado a esta barbearia." });
+      return res
+        .status(403)
+        .json({ error: "Cliente nao vinculado a esta barbearia." });
     }
 
     const [servicos] = await db.execute(
@@ -432,7 +443,7 @@ router.post("/agendamento", isAuthenticated, isCliente, async (req, res) => {
     if (!horarioDate) {
       return res.status(400).json({ error: "Horario invalido." });
     }
-    const horarioStr    = formatDateTimeForSql(horarioDate);
+    const horarioStr = formatDateTimeForSql(horarioDate);
     const horarioFimStr = formatDateTimeForSql(
       new Date(horarioDate.getTime() + duracaoMin * 60000)
     );
@@ -532,23 +543,26 @@ router.delete(
   }
 );
 
-router.get("/minha-agenda", isAuthenticated, isCliente, (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/minha_agenda_cliente/index.html"));
-});
-
 router.get("/selecionar-barbearia", isAuthenticated, isCliente, (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/selecionar_barbearia/index.html"));
+  res.sendFile(
+    path.join(__dirname, "../views/selecionar_barbearia/index.html")
+  );
 });
 
-router.get("/agenda/agendamentos", isAuthenticated, isCliente, async (req, res) => {
-  const clienteId = req.session.user.id;
-  const { data, data_inicio, data_fim } = req.query;
-  const inicio = data_inicio || data || new Date().toISOString().split("T")[0];
-  const fim    = data_fim || data_inicio || inicio;
+router.get(
+  "/agenda/agendamentos",
+  isAuthenticated,
+  isCliente,
+  async (req, res) => {
+    const clienteId = req.session.user.id;
+    const { data, data_inicio, data_fim } = req.query;
+    const inicio =
+      data_inicio || data || new Date().toISOString().split("T")[0];
+    const fim = data_fim || data_inicio || inicio;
 
-  try {
-    const [agendamentos] = await db.execute(
-      `SELECT
+    try {
+      const [agendamentos] = await db.execute(
+        `SELECT
          a.id, a.horario, a.status, a.observacao,
          b.nome_fantasia AS barbearia_nome,
          CONCAT(bar.nome, ' ', bar.sobrenome) AS barbeiro_nome,
@@ -561,14 +575,17 @@ router.get("/agenda/agendamentos", isAuthenticated, isCliente, async (req, res) 
        WHERE a.cliente_id = ?
          AND DATE(a.horario) BETWEEN ? AND ?
        ORDER BY a.horario ASC`,
-      [clienteId, inicio, fim]
-    );
-    return res.json({ agendamentos });
-  } catch (error) {
-    console.error("Erro ao buscar agenda do cliente:", error);
-    return res.status(500).json({ error: responseMessages.internalServerError });
+        [clienteId, inicio, fim]
+      );
+      return res.json({ agendamentos });
+    } catch (error) {
+      console.error("Erro ao buscar agenda do cliente:", error);
+      return res
+        .status(500)
+        .json({ error: responseMessages.internalServerError });
+    }
   }
-});
+);
 
 module.exports = router;
 
@@ -581,7 +598,7 @@ function parseLocalDateTime(value) {
     .split("T");
   if (!datePart || !timePart) return null;
 
-  const [year, month, day]        = datePart.split("-").map(Number);
+  const [year, month, day] = datePart.split("-").map(Number);
   const [hour, minute, second = 0] = timePart.split(":").map(Number);
 
   if ([year, month, day, hour, minute, second].some((p) => Number.isNaN(p))) {
@@ -592,10 +609,10 @@ function parseLocalDateTime(value) {
 }
 
 function formatDateTimeForSql(date) {
-  const year   = date.getFullYear();
-  const month  = String(date.getMonth() + 1).padStart(2, "0");
-  const day    = String(date.getDate()).padStart(2, "0");
-  const hour   = String(date.getHours()).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
   const minute = String(date.getMinutes()).padStart(2, "0");
   const second = String(date.getSeconds()).padStart(2, "0");
 

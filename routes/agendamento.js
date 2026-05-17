@@ -281,8 +281,6 @@ router.post("/", isAuthenticated, isBarbeiro, async (req, res) => {
   }
 });
 
-
-
 function calcularHoraFim(date, minutos) {
   const fim = new Date(date.getTime() + minutos * 60000);
   return fim.toTimeString().slice(0, 8);

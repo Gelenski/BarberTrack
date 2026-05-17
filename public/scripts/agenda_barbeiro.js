@@ -36,8 +36,12 @@ function inicializarUsuario() {
 
 // ─── Controles de navegação e view
 function configurarControles() {
-  document.getElementById("btn-anterior").addEventListener("click", () => navegar(-1));
-  document.getElementById("btn-proximo").addEventListener("click", () => navegar(1));
+  document
+    .getElementById("btn-anterior")
+    .addEventListener("click", () => navegar(-1));
+  document
+    .getElementById("btn-proximo")
+    .addEventListener("click", () => navegar(1));
   document.getElementById("btn-hoje").addEventListener("click", () => {
     state.dataReferencia = new Date();
     renderizar();
@@ -45,7 +49,9 @@ function configurarControles() {
 
   document.querySelectorAll(".view-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".view-btn").forEach((b) => b.classList.remove("active"));
+      document
+        .querySelectorAll(".view-btn")
+        .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       state.view = btn.dataset.view;
       renderizar();
@@ -67,8 +73,10 @@ async function renderizar() {
   const { inicio, fim } = calcularIntervalo();
   atualizarPeriodoLabel(inicio, fim);
 
-  document.getElementById("view-semana").style.display = state.view !== "mes" ? "block" : "none";
-  document.getElementById("view-mes").style.display = state.view === "mes" ? "block" : "none";
+  document.getElementById("view-semana").style.display =
+    state.view !== "mes" ? "block" : "none";
+  document.getElementById("view-mes").style.display =
+    state.view === "mes" ? "block" : "none";
 
   if (state.view !== "mes") {
     document.getElementById("semana-container").innerHTML =
@@ -131,9 +139,10 @@ function renderizarSemanaOuDia(inicio, fim) {
             </span>
             <span class="dia-bloco-count">${agsDia.length} agendamento${agsDia.length !== 1 ? "s" : ""}</span>
           </div>
-          ${agsDia.length
-            ? `<div class="agenda-list">${agsDia.map(renderizarItem).join("")}</div>`
-            : `<div class="dia-vazio">Nenhum agendamento neste dia.</div>`
+          ${
+            agsDia.length
+              ? `<div class="agenda-list">${agsDia.map(renderizarItem).join("")}</div>`
+              : `<div class="dia-vazio">Nenhum agendamento neste dia.</div>`
           }
         </div>`;
     })
@@ -189,10 +198,14 @@ function renderizarMes() {
           onclick="abrirModalDia('${chave}', '${tituloModal}')"
         >
           <div class="cal-dia-numero">${data.getDate()}</div>
-          ${visiveis.map((a) => `
+          ${visiveis
+            .map(
+              (a) => `
             <div class="cal-evento ${a.status}">
               ${new Date(a.horario).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} ${a.cliente_nome.split(" ")[0]}
-            </div>`).join("")}
+            </div>`
+            )
+            .join("")}
           ${extras > 0 ? `<div class="cal-mais">+${extras} mais</div>` : ""}
         </div>`;
     })
@@ -249,15 +262,26 @@ function atualizarPeriodoLabel(inicio, fim) {
   const el = document.getElementById("periodo-label");
   if (state.view === "dia") {
     el.textContent = inicio.toLocaleDateString("pt-BR", {
-      weekday: "long", day: "numeric", month: "long", year: "numeric",
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   } else if (state.view === "semana") {
-    const ini = inicio.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
-    const f = fim.toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" });
+    const ini = inicio.toLocaleDateString("pt-BR", {
+      day: "numeric",
+      month: "short",
+    });
+    const f = fim.toLocaleDateString("pt-BR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
     el.textContent = `${ini} – ${f}`;
   } else {
     el.textContent = state.dataReferencia.toLocaleDateString("pt-BR", {
-      month: "long", year: "numeric",
+      month: "long",
+      year: "numeric",
     });
   }
 }
